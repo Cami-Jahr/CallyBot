@@ -43,7 +43,7 @@ def handle_incoming_messages():
     global seqnumbers
     seq=data['entry'][0]['messaging'][0]['message']['seq']
     if seq in seqnumbers:
-        print("Duplicated msg")
+        print("Duplicated message")
         return 'ok', 200
     else:
         if len(seqnumbers)>100: seqnumbers=[]
