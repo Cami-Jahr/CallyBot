@@ -61,11 +61,12 @@ class Reply:
             BBdeads=help_methods.BB_scrape(user_id)
             if ILdeads == "error" or BBdeads=="error":
                 msg="Could not fetch deadlines. Check if your user info is correct"
+                self.reply(user_id, msg,'text')
             else:
                 msg = "ItsLearning:\n" + ILdeads 
                 msg2= "BlackBoard:\n" + BBdeads
-            self.reply(user_id, msg,'text')
-            self.reply(user_id,msg2,'text')
+                self.reply(user_id, msg,'text')
+                self.reply(user_id,msg2,'text')
         else:
             self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
 
