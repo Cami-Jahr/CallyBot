@@ -41,7 +41,7 @@ def IL_scrape(user_id):
         for line in info:
             msg += line[0] + "\n" + line[1].rsplit(" ", 2)[0] + "\nDue date: " + line[2] + "\n\n"
     except:
-        msg="Could not fetch data, check that your user info is correct"
+        msg="error"
     # disconnect from server
     db.close()
     return msg
@@ -66,7 +66,7 @@ def BB_scrape(user_id):
         for line in info:
             msg += line[0] + "\nin " + line[1] + "\nDue date: " + line[2] + "\n\n"
     except:
-        msg="Could not fetch data, check that your user info is correct"
+        msg="error"
     # disconnect from server
     db.close()
     return msg

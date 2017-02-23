@@ -36,7 +36,7 @@ class Reply:
         #elif content=="chicken":
             #msg="http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
             #self.reply(user_id,msg,'video')
-            pass
+            #pass
         elif content=="id":
             self.reply(user_id,user_id,'text')
         elif content=="juicy gif":
@@ -57,8 +57,15 @@ class Reply:
 
     def get_statements(self, user_id, content_list):
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
-            msg = "ItsLearning:\n" + help_methods.IL_scrape(user_id) +"BlackBoard:\n" + help_methods.BB_scrape(user_id)
+            ILdeads=help_methods.IL_scrape(user_id)
+            BBdeads=help_methods.BB_scrape(user_id)
+            if ILdeads == "error" or BBdeads=="error":
+                msg="Could not fetch deadlines. Check if your user info is correct"
+            else:
+                msg = "ItsLearning:\n" + ILdeads 
+                msg2= "BlackBoard:\n" + BBdeads
             self.reply(user_id, msg,'text')
+            self.reply(user_id,msg2,'text')
         else:
             self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
 

@@ -12,9 +12,8 @@ app = Flask(__name__)
 
 ACCESS_TOKEN = "EAAZANSkaEgg8BADeaog9sCdpujr2lwhwdHSMNa6Ug5zpgJkpScGZCTOdDZAjD2XNbqfKGjZAxHoJZCddEjvkeRQ37dHm1qAGVAZCX3D52CZA6fc8VSx6qenZCZCerEoScLztn6EXqNwiVPWaVB2iX0YOrsV9RL790mAZByefL5ocrfYwZDZD" 
 #ACCESS_TOKEN =" EAAZANSkaEgg8BAN1QsZAcGCWPLMk3SGttzfZANVh2JRkYnnYudat4ODHc8f3K3CQl7n4n103cLCaImGsj3tCmOiXNYbUza4EQufM64FZAZArnzEh8MHRnTE12eCtrnaZCyMNC4ZC1lVWmxGYK76iZBxz1yeWd21ucOBehpY45OraPwZDZD" #2
-VERIFY_TOKEN = "secret"
+VERIFY_TOKEN = "verifytoken"
 replier=reply.Reply(ACCESS_TOKEN)
-#WTF
 
 def init():
     thread_handler=thread_settings.Thread_Settings(ACCESS_TOKEN)
@@ -37,7 +36,10 @@ def test():
 
 @app.route('/', methods=['POST'])
 def handle_incoming_messages():
-    data = request.get_json()
+    data = request.json
+    if 'message' not in data['entry'][0]['messaging'][0]:
+        return 'not ok', 200
+    print()
     print("----------------START--------------")
     print("DATA:")
     print(data)
@@ -45,16 +47,17 @@ def handle_incoming_messages():
     user_id = data['entry'][0]['messaging'][0]['sender']['id']
     replier.arbitrate(user_id,data)
 
-    return "ok"
+    return "ok", 200
 
 
 @app.route('/', methods=['GET'])
 def handle_verification():
-    if request.args['hub.verify_token'] == VERIFY_TOKEN:
-        return request.args['hub.challenge']
-    else:
-        return "Invalid verification token"
-
+    if requests.args.get("hub.mode") == "subscribe" and requests.args.get("hub.challenge"):
+        if request.args['hub.verify_token'] == VERIFY_TOKEN:
+            return request.args['hub.challenge'], 200
+        else:
+            return "Invalid verification token", 403
+    return "ok", 200
 
 if __name__=='__main__':
     init()
