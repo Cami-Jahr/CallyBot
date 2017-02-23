@@ -14,6 +14,7 @@ ACCESS_TOKEN = "EAAZANSkaEgg8BADeaog9sCdpujr2lwhwdHSMNa6Ug5zpgJkpScGZCTOdDZAjD2X
 #ACCESS_TOKEN =" EAAZANSkaEgg8BAN1QsZAcGCWPLMk3SGttzfZANVh2JRkYnnYudat4ODHc8f3K3CQl7n4n103cLCaImGsj3tCmOiXNYbUza4EQufM64FZAZArnzEh8MHRnTE12eCtrnaZCyMNC4ZC1lVWmxGYK76iZBxz1yeWd21ucOBehpY45OraPwZDZD" #2
 VERIFY_TOKEN = "verifytoken"
 replier=reply.Reply(ACCESS_TOKEN)
+seqnumbers=[]
 
 def init():
     thread_handler=thread_settings.Thread_Settings(ACCESS_TOKEN)
@@ -38,7 +39,16 @@ def test():
 def handle_incoming_messages():
     data = request.json
     if 'message' not in data['entry'][0]['messaging'][0]:
-        return 'not ok', 200
+        return 'ok', 200
+    global seqnumbers
+    seq=data['entry'][0]['messaging'][0]['message']['seq']
+    if seq in seqnumbers:
+        print("Duplicated msg")
+        return 'ok', 200
+    else:
+        if len(seqnumbers)>100: seqnumbers=[]
+        seqnumbers.append(seq)
+
     print()
     print("----------------START--------------")
     print("DATA:")
@@ -46,18 +56,18 @@ def handle_incoming_messages():
     print("---------------END-----------------")
     user_id = data['entry'][0]['messaging'][0]['sender']['id']
     replier.arbitrate(user_id,data)
-
+    print("Everything is good in the good")
     return "ok", 200
 
 
 @app.route('/', methods=['GET'])
 def handle_verification():
-    if requests.args.get("hub.mode") == "subscribe" and requests.args.get("hub.challenge"):
+    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
         if request.args['hub.verify_token'] == VERIFY_TOKEN:
             return request.args['hub.challenge'], 200
         else:
             return "Invalid verification token", 403
-    return "ok", 200
+    return 'ok', 200
 
 if __name__=='__main__':
     init()
