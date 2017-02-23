@@ -37,8 +37,8 @@ def scrape(username, password):
 
 
     html = driver.execute_script("return document.documentElement.innerHTML;") # Get element HTML for assignments
-    listing = re.findall('<li id="1-dueView::.*?"><span>(.*?)  <a id="nmenu::.*?" class="cmimg editmode" \
-href="#menuDiv" title="D.*?"><img id="cmimg_nmenu::.*?" src="https://ntnu.blackboard.com/images/ci/icons/cm_arrow.gif" \
+    listing = re.findall('<li id="1-dueView::.*?"><span>.*?  <a id="nmenu::.*?" class="cmimg editmode" \
+href="#menuDiv" title="(.*?)"><img id="cmimg_nmenu::.*?" src="https://ntnu.blackboard.com/images/ci/icons/cm_arrow.gif" \
 alt=".*?"></a> <div class="course"><a target=".*?" href=".*?">(.*?) \(.*?\)</a><span class="due"> - Leveringsfrist \
 (.*?)</span></div></span></li>', html)  # Regex to filter out only relevant data.
     # (.*?) is for fetched data, .*? for irrelevant. Don't touch unless you want to read up on regex.
