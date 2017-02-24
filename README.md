@@ -18,11 +18,11 @@ Now its time to look at the code. First you have to pull all the files from the 
 
 Go into the **server_main.py** file and locate the variable **ACCESS_TOKEN**. Switch the value with the token you generated earlier.<br />
 Now when you run the **server_main.py** file the server will run locally. We want to put it online. To do so we use [ngrok](https://ngrok.com/download)<br />
-To use it simply run the exe file with arguments **http** and **used_port**. We havent specified any port in the code, so Flask will use the default which is 5000. Example:<br />
+To use it simply run the exe file with arguments **http** and **used_port**. We havent specified any port in the code, so Flask will use the default which is 5000. Example:
 ```
 ./ngrok http 5000
-```<br />
-or <br />
+```
+or 
 ```
 ngrok http 5000
 ```
