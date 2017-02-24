@@ -1,5 +1,5 @@
 # CallyBot
-NTNU Software Development Project
+NTNU Software Development Project - Group 57
 ## Instructions - How to set up CallyBot from scratch 
 ### 1. Create a Facebook page
 First you have to [create](https://www.facebook.com/pages/create/) a Facebook page from which the bot will communicate through.<br /> 
