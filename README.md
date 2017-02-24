@@ -26,5 +26,16 @@ or
 ```
 ngrok http 5000
 ```
-
+Be sure to be in the folder in which ngrok was downloaded <br />
+If everything went as it should ngrok has now given you a https url which points to your local port.<br />
+Copy this url then run the **server_main.py** file.<br />
+Now go back to the app creaton page and click on **+ Add Product**. Choose **webhook** and click **New subscription** and select **Page**<br />
+In the **Callback URL** field, paste the url you got from ngrok. In the **Verify Token** field type in **verifytoken**. This is already chosen in the code, under the variable name **VERIFY_TOKEN** in **server_main.py**. You are free to change this if you like, just be sure that it matches.<br />
+In the **Subscription Fields** choose **messages** and **messaging_postbacks**. <br />
+Now cross your fingers then press **Verify and save**. Now you should see a **POST** request in ngrok and server_main with **200 ok** or similar as answer. If you dont, go over the steps and see if you missed anything. <br />
+To complete the setup go back to **Messenger** under **Products** and go to the **Webhooks** section. Select your page and make it subscribe to the webook. <br />
+Now you should be good to go! Have fun chatting! <br/>
 <sup>1</sup>To use selenium you need to add chromedriver to **PATH** or put it in your standard exe folder. 
+#### Notes
+Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this you need to first update it with the new url, then make the page resubscribe to the webhook. <br />
+For help contact [me](https://github.com/halkver)
