@@ -5,7 +5,7 @@ import MySQLdb
 
 
 def get_course_info(course):
-    # Other information might be fetched later, by adding in the findall statement, or add other findall statements
+    # Other information may be fetched later, by reading from the info data
     info = requests.get('http://www.ime.ntnu.no/api/course/'+course).json()
     exam_date = info["course"]["assessment"][0]["date"]
     return course, exam_date
@@ -39,12 +39,13 @@ def IL_scrape(user_id):
         info = ilearn_scrape.scrape(result[2], result[3])
         msg=""
         for line in info:
-            msg += line[0] + "\n" + line[1].rsplit(" ", 2)[0] + "\nDue date: " + line[2] + "\n\n"
+            msg += line[0] + "\n" + line[1].rsplit(" ", 2)[0] + "\nDue date: " + line[2] + "\n\n" #Format to default
     except:
         msg="error"
     # disconnect from server
     db.close()
     return msg
+
 
 def BB_scrape(user_id):
     # Open database connection
@@ -64,7 +65,7 @@ def BB_scrape(user_id):
         info = iblack_scrape.scrape(result[2], result[3])
         msg=""
         for line in info:
-            msg += line[0] + "\nin " + line[1] + "\nDue date: " + line[2] + "\n\n"
+            msg += line[0] + "\nin " + line[1] + "\nDue date: " + line[2] + "\n\n" #Format to default
     except:
         msg="error"
     # disconnect from server

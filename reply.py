@@ -1,14 +1,14 @@
 import requests
 import help_methods
 
+
 class Reply:
     
     def __init__(self,access_token):
         self.access_token=access_token
 
-
     def arbitrate(self,user_id,data): #Chooses action based on message given
-        # Might change to regex expressions later
+        # Might change to regex expressions, but does not currently seem purposeful
         data_type,content=Reply.process_data(data)
         print ("Data type:",data_type)
         print ("Content:",content)

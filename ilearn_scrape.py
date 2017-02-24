@@ -16,6 +16,7 @@ def scrape(username, password):
     password_field = driver.find_element_by_name("password")
     password_field.send_keys(password)
     password_field.submit()
+    # Login complete
 
     wait = ui.WebDriverWait(driver, 10)
     try:
@@ -36,6 +37,6 @@ def scrape(username, password):
         #Gathers the relevant information
     # print(listing)
     driver.quit() #Closing the browser
-    return listing
+    return listing # In format list of (assignment_name, course_name, due_date)
 
 
