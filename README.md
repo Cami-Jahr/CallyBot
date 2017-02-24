@@ -14,7 +14,8 @@ Now its time to look at the code. First you have to pull all the files from the 
 * mysqliclient - MySQLdb for python3, for connecting to mysql database
 * Flask - To handle post/get requests from Facebook
 * requests - To handle incoming data from Flask, and to send data
-* selenium - To webscrape and general interaction with website<sup>1</sup><br />
+* selenium - To webscrape and general interaction with website<sup>1</sup>
+
 Now when you run the **server_main.py** file the server will run locally. We want to put it online. To do so we use **ngrok**
 
 <sup>1</sup>To use selenium you need to add chromedriver to **PATH** or put it in your standard exe folder. 
