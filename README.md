@@ -1,3 +1,4 @@
+>AUTHOR - https://github.com/halkver
 # CallyBot
 NTNU Software Development Project - Group 57
 ## Instructions - How to set up CallyBot from scratch 
@@ -29,7 +30,7 @@ ngrok http 5000
 Be sure to be in the folder in which ngrok was downloaded <br /><br />
 If everything went as it should ngrok has now given you a https url which points to your local port.<br />
 Copy this url then run the **server_main.py** file.<br />
-Now go back to the app creaton page and click on **+ Add Product**. Choose **webhook** and click **New subscription** and select **Page**<br /><br />
+Now go back to the app creation page and click on **+ Add Product**. Choose **webhook** and click **New subscription** and select **Page**<br /><br />
 In the **Callback URL** field, paste the url you got from ngrok. In the **Verify Token** field type in "**verifytoken**". This is already chosen in the code, under the variable name **VERIFY_TOKEN** in **server_main.py**. You are free to change this if you like, just be sure that it matches.<br /><br />
 In the **Subscription Fields** choose **messages** and **messaging_postbacks**. <br />
 Now cross your fingers then press **Verify and save**. Now you should see a **POST** request in ngrok and server_main with **200 ok** or similar as answer. If you dont, go over the steps and see if you missed anything. <br /><br />
