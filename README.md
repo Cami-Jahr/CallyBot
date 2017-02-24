@@ -1,4 +1,4 @@
->AUTHOR - https://github.com/halkver
+
 # CallyBot
 NTNU Software Development Project - Group 57
 ## Instructions - How to set up CallyBot from scratch 
