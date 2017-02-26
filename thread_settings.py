@@ -27,6 +27,23 @@ class Thread_Settings:
             }
         response=requests.post(self.get_thread_url(),json=data)
         print(response.content)
+    
+
+    def set_persistent_menu(self):
+        data={
+            "setting_type" : "call_to_actions",
+            "thread_state" : "existing_thread",
+            "call_to_actions":[{
+                "type":"postback",
+                "title":"help",
+                "payload":"help"},
+                {
+                "type":"postback",
+                "title":"get deadline(s)",
+                "payload":"get deadlines"},
+            ]}
+        response=requests.post(self.get_thread_url(),json=data)
+        print(response.content)
 
 
     def whitelist(self,domains):

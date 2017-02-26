@@ -134,7 +134,7 @@ class Reply:
                 else: #Must be either location or multimedia which only have payload
                     content=content['payload']
         except KeyError:
-            try: #Check if get started
+            try: #Check if payload from button (ie Get Started, persistent menu)
                 content=data['entry'][0]['messaging'][0]['postback']['payload']
                 data_type='text'
             except:
