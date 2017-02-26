@@ -14,6 +14,7 @@ class Reply:
         print ("Content:",content)
         if data_type=="unknown": #Cant handle unknown
             return
+        content=content.lower()
         # ------------ COMMANDOES --------------
         content_list=content.lower().split()
         if content_list[0] == "get":
@@ -30,18 +31,25 @@ class Reply:
             msg="Oh you need help?\nNo problem!\nFollowing commandoes are supported\n\n- hello\n- login\n- get deadlines\n\nBut thats not all, theres also some more!\nIts up to you to find them :)"
             self.reply(user_id,msg,'text')
         elif content=="hint":
-            msg="This will be removed at launch!\n\n- juicy gif\n- who am I?\n- id"
+            msg="This will be removed at launch!\n\n- juicy gif\n- juice gif\n- who am I?\n- who are you?\n- chicken\n- id"
             self.reply(user_id,msg,'text')
         # ------------ EASTER EGGS --------------
-        #elif content=="chicken":
-            #msg="http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
-            #self.reply(user_id,msg,'video')
-            #pass
+        elif content=="chicken":
+            msg="http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
+            self.reply(user_id,msg,'video')
         elif content=="id":
             self.reply(user_id,user_id,'text')
+        elif content=="juice gif":
+            msg="https://i.makeagif.com/media/10-01-2015/JzrY-u.gif"
+            self.reply(user_id,msg,'image')
         elif content=="juicy gif":
             msg="http://68.media.tumblr.com/tumblr_m9pbdkoIDA1ra12qlo1_400.gif"
             self.reply(user_id,msg,'image')
+        elif content=="who are you?":
+            msg="I am Cally, your lord and savior"
+            self.reply(user_id,msg,'text')
+            url="https://folk.ntnu.no/halvorkm/callysavior.jpg"
+            self.reply(user_id,url,'image')
         elif content=="who am I?":
             fname,lname,pic=help_methods.get_user_info(self.access_token,user_id) # Get userinfo
             msg="You are "+fname+" "+lname+" and you look like this:"
