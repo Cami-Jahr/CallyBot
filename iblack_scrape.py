@@ -37,8 +37,8 @@ def scrape(username, password):
         return "error"
 
     html = driver.execute_script("return document.documentElement.innerHTML;") # Get element HTML for assignments
-    with open("HTML/Blackboard_"+username+".txt", "w", encoding='utf-8') as f: #Write to file, to easier search inner HTML for needed enteties
-        f.write(html)
+    #with open("HTML/Blackboard_"+username+".txt", "w", encoding='utf-8') as f: #Write to file, to easier search inner HTML for needed enteties
+    #    f.write(html)
     listing = re.findall('<li id="1-dueView::.*?"><span>.*?  <a id="nmenu::.*?" class="cmimg editmode" \
 href="#menuDiv" title="(.*?) Alternativer"><img id="cmimg_nmenu::.*?" src="https://ntnu.blackboard.com/images/ci/icons/cm_arrow.gif" \
 alt=".*?"></a> <div class="course"><a target=".*?" href=".*?">(.*?) (.*?) \(.*?\)</a><span class="due"> - Leveringsfrist \

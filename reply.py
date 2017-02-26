@@ -66,6 +66,7 @@ class Reply:
             fname,lname,pic=help_methods.get_user_info(self.access_token,user_id) # Get userinfo
             msg="Hi there "+fname+"!\nMy name is CallyBot, but you may call me Cally :)\nType 'help' to see the what you can do. Enjoy!" 
             self.reply(user_id,msg,'text')
+        # -------------- DEFAULT ----------------
         else:
             #with open("LOG/"+user_id+".txt", "a", encoding='utf-8') as f:  #W rite to log file, to see what errors are made, per user
             #    f.write(content+"\n")
