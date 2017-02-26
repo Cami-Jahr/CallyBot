@@ -33,10 +33,14 @@ def scrape(username, password):
     assignment = driver.find_elements_by_class_name("h-va-baseline")
     listing = []
     for i in range(len(courses)):
-        listing.append((assignment[i].text,courses[i].text,deadlines[i*2+1].get_attribute('title')[10:]))
+        course = courses[i].text.split()
+        deadline = deadlines[i*2+1].get_attribute('title').split()
+        listing.append((assignment[i].text,course[1]," ".join(course[2:-2]),deadline[1], deadline[2]))
         #Gathers the relevant information
     # print(listing)
+    #html = driver.execute_script("return document.documentElement.innerHTML;") # Get element HTML for assignments
+    #with open("HTML/Itslearning_"+username+".txt", "w", encoding='utf-8') as f:  #Write to file, to easier search inner HTML for needed enteties
+    #    f.write(html)
+    #print(listing)
     driver.quit() #Closing the browser
-    return listing # In format list of (assignment_name, course_name, due_date)
-
-
+    return listing # In format list of (assignment_name, cource_code, course_name, due_date, due_time)
