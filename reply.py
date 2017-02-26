@@ -170,7 +170,7 @@ class Reply:
 
 
     def login(self,user_id): #Login url to login
-        fname,lname,pic=help_methods.get_user_info(self.access_token,user_id)
+        fname,lname,pic=help_methods.get_user_info(self.access_token,user_id) #Retrieve user info
         url="https://folk.ntnu.no/halvorkm/TDT4140?userid="+str(user_id)+"?name="+fname+"%"+lname
         data = {
             "recipient": {"id": user_id},

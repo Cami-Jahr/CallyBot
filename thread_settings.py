@@ -6,7 +6,7 @@ class Thread_Settings:
     def __init__(self,access_token):
         self.access_token=access_token
 
-    def set_greeting(self,greeting):
+    def set_greeting(self,greeting): #Set greeting text
         data={
             "setting_type":"greeting",
             "greeting":{
@@ -17,7 +17,7 @@ class Thread_Settings:
         print(response.content)
 
 
-    def set_get_started(self):
+    def set_get_started(self): #Set Get Started button
         data={
             "setting_type":"call_to_actions",
             "thread_state":"new_thread",
@@ -29,7 +29,7 @@ class Thread_Settings:
         print(response.content)
     
 
-    def set_persistent_menu(self):
+    def set_persistent_menu(self): #Set persistent menu 
         data={
             "setting_type" : "call_to_actions",
             "thread_state" : "existing_thread",
@@ -46,7 +46,7 @@ class Thread_Settings:
         print(response.content)
 
 
-    def whitelist(self,domains):
+    def whitelist(self,domains): #Whitelist domains so it can be url'ed
         data={
             "setting_type": "domain_whitelisting",
             "whitelisted_domains":[domains],
