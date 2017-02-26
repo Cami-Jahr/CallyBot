@@ -96,8 +96,7 @@ class Reply:
                 elif content_list[1] == "until" and re.fullmatch(self.date_format, content_list[2]) and content_list[3] == "in" and re.fullmatch(self.course_code_format, content_list[4]): # Format: get deadline until DD/MM deadline in aaa1111
                     until = content_list[2]
                     course = content_list[4]
-                else:
-                    pass
+
             print(content_list, course, until)
             ILdeads = help_methods.IL_scrape(user_id, course, until)
             BBdeads = help_methods.BB_scrape(user_id, course, until)
@@ -134,7 +133,7 @@ class Reply:
                     content=content['payload']['url'] #Get attachement url
                 else: #Must be either location or multimedia which only have payload
                     content=content['payload']
-        except:
+        except KeyError:
             try: #Check if get started
                 content=data['entry'][0]['messaging'][0]['postback']['payload']
                 data_type='text'
