@@ -39,6 +39,10 @@ class Thread_Settings:
                 "payload":"help"},
                 {
                 "type":"postback",
+                "title":"login",
+                "payload":"login"},
+                {
+                "type":"postback",
                 "title":"get deadline(s)",
                 "payload":"get deadlines"},
             ]}
