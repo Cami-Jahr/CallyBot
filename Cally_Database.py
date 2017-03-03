@@ -9,7 +9,7 @@ class Cally_DB():
 
     def add_user(self, user_id, navn, username=None, password=None, df=0):  # could change
         # add user to database
-        sql ="""INSERT INTO user (userID, name, username, password, df) VALUES""", (user_id, navn, username, password, df)
+        sql = """INSERT INTO user (userID, name, username, password, df) VALUES(%s, %s, %s, %s, %s)""", (user_id, navn, username, password, df)
         if self.user_exists(user_id):
             try:
                 self.cursor.execute(sql)
