@@ -7,7 +7,11 @@ class Reply:
     
     def __init__(self,access_token):
         self.access_token=access_token
-        self.course_code_format = "[a-z]{3}[0-9]{4}"  # # Checks if string is in format aaa1111, ie course_code format on ntnu
+        #These regex allow a increasing amount of courses, They however also use longer time to check, and allow more non existing courses to be prosessed
+        course_code_format1 = '[a-z]{2,3}[0-9]{4}'
+        course_code_format2 = "[æøåa-z]{1,6}[0-9]{1,6}"
+        course_code_format3 = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
+        self.course_code_format = course_code_format1 # Checks if string is in format aaa1111 or aa1111, ie course_code format on ntnu
         date_format_seperator = "[\/]" # Date seperators allowed. Regex format
         self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])"+date_format_seperator+"(0?[1-9]|1[012]))|((29|30|31)"+date_format_seperator+"(0?[13578]|1[02]))|((29|30)"+date_format_seperator+"(0?[469]|11))))" # checks if is legit date.
 
@@ -66,6 +70,7 @@ class Reply:
             fname,lname,pic=help_methods.get_user_info(self.access_token,user_id) # Get userinfo
             msg="Hi there "+fname+"!\nMy name is CallyBot, but you may call me Cally :)\nType 'help' to see the what you can do. Enjoy!" 
             self.reply(user_id,msg,'text')
+        # -------------- DEFAULT ----------------
         else:
             #with open("LOG/"+user_id+".txt", "a", encoding='utf-8') as f:  #W rite to log file, to see what errors are made, per user
             #    f.write(content+"\n")
