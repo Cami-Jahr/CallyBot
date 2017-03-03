@@ -7,6 +7,16 @@ class Cally_DB():
         self.db = MySQLdb.connect(host, username, password, db_name)
         self.cursor = self.db.cursor()
 
+    def add_user(self, user_id, navn, username=None, password=None, df=0):  # could change
+        # add user to database
+        sql ="""INSERT INTO user (userID, name, username, password, df) VALUES""", (user_id, navn, username, password, df)
+        if self.user_exists(user_id):
+            try:
+                self.cursor.execute(sql)
+            except:
+                pass
+
+
     def remove_user(self, user_id):
         # deletes user from database
         sql = """DELETE * FROM user WHERE userID=%s""", user_id
