@@ -2,12 +2,23 @@ import ilearn_scrape
 import iblack_scrape
 import requests
 import MySQLdb
+import json
 
 
 def get_course_info(course):
     # Other information may be fetched later, by reading from the info data
-    info = requests.get('http://www.ime.ntnu.no/api/course/'+course).json()
-    exam_date = info["course"]["assessment"][0]["date"]
+    try:
+        info = requests.get('http://www.ime.ntnu.no/api/course/'+course).json()
+    except json.decoder.JSONDecodeError: # course does not exist in ime api
+        return "Was unable to retrive exam date for "+course
+    exam_date = None
+    try:
+        for i in range(len(info["course"]["assessment"])):
+            if "date" in info["course"]["assessment"][i]:
+                exam_date = info["course"]["assessment"][i]["date"]
+                break
+    except (KeyError, TypeError): #Catch if date does not exist, or assessment does not exist
+        pass
     return course, exam_date
 
 

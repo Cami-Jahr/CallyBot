@@ -5,6 +5,7 @@ from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from selenium.common.exceptions import TimeoutException
 import re
+from collections import OrderedDict
 
 
 def scrape(username, password):
@@ -46,4 +47,5 @@ alt=".*?"></a> <div class="course"><a target=".*?" href=".*?">(.*?) (.*?) \(.*?\
     # (.*?) is for fetched data, .*? for irrelevant. Don't touch unless you want to read up on regex.
     #print(listing)
     driver.quit() #Closing the browser
-    return listing # In format list of (assignment_name, cource_code, course_name, due_date, due_time = "unknown")
+    listing = list(OrderedDict.fromkeys(listing)) # Removes duplicates, because blackboard loves to create more work than needed
+    return listing # In format list of (assignment_name, cource_code, course_name, due_date)
