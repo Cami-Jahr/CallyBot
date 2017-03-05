@@ -157,12 +157,13 @@ def add_reminder(what, deadline, coursemade, user_id):  # test: DONE
     df = get_defaulttime(user_id)
     # only alter deadline if coursemade == 1
     newdeadline = deadline
-    # assumes deadline is a string of format DD-MM-YYYY-HH:MM
-    if coursemade == 1:
+    # assumes deadline is a string of format 'YYYY-MM-DD hh:mm:ss'
+    if coursemade:
         newdeadline = fix_new_deadline(deadline, df)
     print(newdeadline)
-    sql = "INSERT INTO reminder(what, deadline, coursemade, userID) " \
-          "VALUES ('%s' " % what + ", " + "'" + newdeadline + "'" + ", '%d', '%s')" % (coursemade, user_id)
+    print("insert into reminder(what, deadline, userID, coursemade) values ('finish testing of methods', '2017-03-05 18:45:00', '000', '1')")
+    sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
+          "VALUES ('%s' " % what + ", " + "'" + newdeadline + "'" + ", '%s', '%d')" % (user_id, coursemade)
     print(sql)
     try:
         print("trying to execute")
@@ -226,7 +227,7 @@ def get_all_courses(user_id):  # if returnvalue is [] then user is not subscribe
     #  finds all courses a user is subscribed to
     db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
     cursor = db.cursor()
-    sql = """SELECT course FROM subscribed WHERE userID=%s""", user_id
+    sql = """SELECT course FROM subscribed WHERE userID='%s'""" % user_id
     out = []
     try:
         cursor.execute(sql)
@@ -247,7 +248,7 @@ def get_reminders(user_id):
     cursor = db.cursor()
     # find all reminders for a user where coursemade == 0
     sql = """SELECT what, deadline, coursemade FROM reminder
-                    WHERE userID=%s AND coursemade=0""", user_id
+                    WHERE userID='%s' AND coursemade=0""" % user_id
     try:
         cursor.execute(sql)
         results = cursor.fetchall()
@@ -297,7 +298,7 @@ def fix_new_deadline(deadline, df):  # tested: Done
     else:
         month = str(month)
     # might change time of day to a fixed time, because many deadlines are at 23:59:00
-    out = str(day) + "-" + str(month) + "-" + str(year) + deadline[10:]
+    out = str(year) + "-" + str(month) + "-" + str(day) + deadline[10:]
     return out
 
 
@@ -349,14 +350,28 @@ def test_df():
     set_defaulttime('000000000000', 3)
     print(get_defaulttime('000000000000'))
 
+"""""""""
+def update_db(sql):
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    try:
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+    except:
+        print("failed")
+"""""""""
+
 
 def test_methods():
     # test_deadline()
-    test_user()
+    # test_user()
     # test_course()
     # test_subscribe()
     # test_reminder()
     # test_df()
+    # add_user('000', 'navn', 'bruker', 'passord')
+    add_reminder('finish testing methods', '2017-03-05 19:30:00', True, '000')
 
 test_methods()
 
