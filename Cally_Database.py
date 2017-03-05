@@ -1,176 +1,253 @@
 import MySQLdb
 import datetime
 
-class Cally_DB():
 
-    def __init__(self, host, username, password, db_name):
-        self.db = MySQLdb.connect(host, username, password, db_name)
-        self.cursor = self.db.cursor()
-
-    def add_user(self, user_id, navn, username=None, password=None, df=0):  # could change
-        # add user to database
-        sql = """INSERT INTO user (userID, name, username, password, df) VALUES(%s, %s, %s, %s, %s)""", (user_id, navn, username, password, df)
-        if self.user_exists(user_id):
-            try:
-                self.cursor.execute(sql)
-            except:
-                pass
-
-
-    def remove_user(self, user_id):
-        # deletes user from database
-        sql = """DELETE * FROM user WHERE userID=%s""", user_id
-        if self.user_exists(user_id):
-            try:
-                self.cursor.execute(sql)
-            except:
-                pass
-
-    def user_exists(self, user_id):
-        # returns True if user is in database
-        sql = """SELECT * FROM user WHERE userID=%s""", user_id
+def add_user(user_id, navn, username=None, password=None, df=0):  # test: DONE
+    # add user to database
+    sql = "INSERT INTO user(fbid, name, username, password, defaulttime)" \
+          " VALUES('%s', '%s', '%s', '%s', '%d')" % (user_id, navn, username, password, df)
+    if not user_exists(user_id):
         try:
-            self.cursor.execute(sql)
-            result = self.cursor.fetchall()
-            return len(result) != 0
+            db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+            cursor = db.cursor()
+            print("try to execute add user")
+            cursor.execute(sql)
+            db.commit()
+            print("added user")
+            db.close()
         except:
-            return False
+            print("closed in except")
 
-    def add_course(self, course, coursename):
-        # adds course to database if it does not already exist
-        sql = """INSERT INTO course (coursecode, courseName) VALUES (%s, %s)""", (course, coursename)
-        if not self.course_exists(course):
-            try:
-                self.cursor.execute(sql)
-            except:
-                pass
 
-    def remove_course(self, course):
-        # removes course from the database
-        sql = """DELETE * FROM course WHERE coursecode=%s""", course
-        if self.course_exists(course):
-            try:
-                self.cursor.execute(sql)
-            except:
-                pass
-
-    def course_exists(self, course):
-        # returns if the course exists or False if it could not execute the sql
-        sql = """SELECT * FROM course
-              WHERE coursecode = %s""", course
+def remove_user(user_id):  # test: DONE
+    # deletes user from database
+    sql = """DELETE FROM user WHERE fbid=""" + str(user_id)
+    if user_exists(user_id):
         try:
-            # Execute the SQL command
-            self.cursor.execute(sql)
-            # Fetch all the rows in a list of lists.
-            result = self.cursor.fetchall()
-            return len(result) != 0
+            db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+            cursor = db.cursor()
+            cursor.execute(sql)
+            db.commit()
+            db.close()
         except:
-            return False
+            print("unsuccessful")
+    else:
+        print("could not find user")
 
-    def subscribe_to_course(self, user_id, course):
-        # adds user to course
-        # assums user and course are already in the database
-        sql = """INSERT INTO subscribed (userID, course) VALUES (%s, %s)""", (user_id, course)
-        if not self.user_subscribed_to_course((user_id, course)):
-            try:
-                self.cursor.execute(sql)
-            except:
-                pass
 
-    def user_subscribed_to_course(self, user_id, course):
-        # checks if a user is subscribed to this course
-        sql = """SELECT * FROM subscribed
-                WHERE userID=%s AND course=%s""", (user_id, course)
+def user_exists(user_id):  # test: DONE
+    # returns True if user is in database
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    sql = """SELECT * FROM user WHERE fbid=""" + str(user_id)
+    try:
+        print("try to execute")
+        cursor.execute(sql)
+        print("executed sql")
+        result = cursor.fetchall()
+        db.close()
+        return len(result) != 0
+    except:
+        db.close()
+        return False
+
+
+def add_course(course, coursename):  # test: DONE
+    # adds course to database if it does not already exist
+    sql = """INSERT INTO course(coursecode, courseName) VALUES ('%s', '%s')""" % (course, coursename)
+    if not course_exists(course):
         try:
-            self.cursor.execute(sql)
-            result = self.cursor.fetchall()
-            # result is entire table so if result has 0 rows then the realtion dos not exist
-            return len(result) != 0
+            db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+            cursor = db.cursor()
+            print("trying to add course")
+            cursor.execute(sql)
+            db.commit()
+            print("added course")
+            db.close()
         except:
-            return False
+            print("could not add course", course)
+    else:
+        print("course is already in database")
 
-    def unsubscribe(self, user_id, course):
-        # deletes relation between user and course
-        sql = """DELETE * FROM subscribed
-                WHERE userID=%s AND course=%s""", (user_id, course)
-        if self.user_subscribed_to_course(user_id, course):
-            try:
-                self.cursor.execute(sql)
-            except:
-                pass
 
-    def add_reminder(self, what, deadline, coursemade, user_id):
-        # adds a reminder to the database
-        # change the deadline specified by the defaulttime
-        df = self.get_defaulttime(user_id)
-        # only alter deadline if coursemade == 1
-        newdeadline = deadline
-        # assumes deadline is a string of format DD-MM-YYYY-HH:MM
-        if coursemade == 1:
-            newdeadline = fixnewdeadline(deadline, df)
-        newdeadline = makedatetimeobject(newdeadline)
-        sql = """INSERT INTO reminder (what, deadline, coursemade, user_id) VALUES (%s, %s, %s, %s)""", (what, newdeadline, coursemade, user_id)
+def remove_course(course):  # test: DONE
+    # removes course from the database
+    sql = """DELETE FROM course WHERE coursecode='%s'""" % str(course)
+    if course_exists(course):
         try:
-            self.cursor.execute(sql)
+            db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+            cursor = db.cursor()
+            cursor.execute(sql)
+            db.commit()
+            db.close()
+            print("removed course", course)
         except:
-            pass
+            print("could not remove course")
 
-    def get_defaulttime(self, user_id):
-        # gets the defaulttime set by the user of how long before a deadline the user wish to reminded of it
-        sql = """SELECT defaulttime FROM user WHERE fbid=%s""", user_id
-        try:
-            self.cursor.execute(sql)
-            result = self.cursor.fetchall()
-            dt = result[0][4]
-            return dt
-        except:
-            # could possibly be changed to whatever we decide wil be the defaulttime
-            return 0
 
-    def set_defaulttime(self, user_id, df):
-        # set the defaulttime of a user
-        sql = """INSERT INTO user (defaulttime) VALUES (%s) WHERE userID=%s""", (df, user_id)
-        try:
-            self.cursor.execute(sql)
-        except:
-            pass
+def course_exists(course):  # test: DONE
+    # returns if the course exists or False if it could not execute the sql
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    sql = """SELECT * FROM course WHERE coursecode='%s'""" % str(course)
+    try:
+        print("try to execute")
+        cursor.execute(sql)
+        print("executed sql")
+        result = cursor.fetchall()
+        db.close()
+        return len(result) != 0
+    except:
+        db.close()
+        return False
 
-    def clean_course(self, user_id):
-        # deletes all relations a user has to courses
-        # this is possibly quicker than just calling unsubscrib for all courses a user has
-        sql = """DELETE * FROM subscribed WHERE userID=%s""", user_id
-        try:
-            self.cursor.execute(sql)
-        except:
-            pass
 
-    def get_all_courses(self, user_id):  # if returnvalue is [] then user is not subscribed to any courses or sql failed
-        # finds all courses a user is subscribed to
-        sql = """SELECT course FROM subscribed WHERE userID=%s""", user_id
-        out = []
+def subscribe_to_course(user_id, course):  # test: DONE
+    # adds user to course
+    # assums user and course are already in the database
+    sql = """INSERT INTO subscribed (userID, course) VALUES ('%s', '%s')""" % (user_id, course)
+    if not user_subscribed_to_course(user_id, course):
         try:
-            self.cursor.execute(sql)
-            results = self.cursor.fetchall()
-            # results is now a list of lists only containing the coursecode [[coursecode]]
-            # want the result to be [coursecode]
-            for row in results:
-                out.append(row[0])
+            db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+            cursor = db.cursor()
+            cursor.execute(sql)
+            db.commit()
+            db.close()
         except:
-            pass
-        return out
+            print("could not subscribe")
 
-    def get_reminders(self, user_id):
-        # costum reminders
-        # find all reminders for a user where coursemade == 0
-        sql = """SELECT what, deadline, coursemade FROM reminder
-                WHERE userID=%s AND coursemade=0""", user_id
+
+def user_subscribed_to_course(user_id, course):  # test: DONE
+    # checks if a user is subscribed to this course
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    sql = """SELECT * FROM subscribed
+            WHERE userID='%s' AND course='%s'""" % (user_id, course)
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        # result is entire table so if result has 0 rows then the realtion dos not exist
+        db.close()
+        return len(result) != 0
+    except:
+        db.close()
+        return False
+
+
+def unsubscribe(user_id, course):  # test: DONE
+    # deletes relation between user and course
+    sql = """DELETE FROM subscribed
+            WHERE userID='%s' AND course='%s'""" % (user_id, course)
+    if user_subscribed_to_course(user_id, course):
         try:
-            self.cursor.execute(sql)
-            results = self.cursor.fetchall()
-            # results format: [[what, deadline]]
-            return format_reminders(results)
+            db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+            cursor = db.cursor()
+            cursor.execute(sql)
+            db.commit()
+            db.close()
         except:
-            return []
+            print("could not unsubscribe")
+
+
+def add_reminder(what, deadline, coursemade, user_id):
+    # adds a reminder to the database
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    # change the deadline specified by the defaulttime
+    df = get_defaulttime(user_id)
+    # only alter deadline if coursemade == 1
+    newdeadline = deadline
+    # assumes deadline is a string of format DD-MM-YYYY-HH:MM
+    if coursemade == 1:
+        newdeadline = fix_new_deadline(deadline, df)
+    newdeadline = make_datetime_object(newdeadline)
+    sql = """INSERT INTO reminder (what, deadline, coursemade, user_id) VALUES ('%s', '%s', '%s', '%s')""" % (what, newdeadline, coursemade, user_id)
+    try:
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+    except:
+        db.close()
+
+
+def get_defaulttime(user_id):
+    # gets the defaulttime set by the user of how long before a deadline the user wish to reminded of it
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    sql = """SELECT defaulttime FROM user WHERE fbid='%s'""", user_id
+    try:
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        dt = result[0][4]
+        cursor.close()
+        return dt
+    except:
+        # could possibly be changed to whatever we decide wil be the defaulttime
+        db.close()
+        return 0
+
+
+def set_defaulttime(user_id, df):
+    # set the defaulttime of a user
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    sql = """INSERT INTO user (defaulttime) VALUES ('%d') WHERE userID='%s'""" % (df, user_id)
+    try:
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+    except:
+        db.close()
+
+
+def clean_course(user_id):
+    # deletes all relations a user has to courses
+    # this is possibly quicker than just calling unsubscrib for all courses a user has
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    sql = """DELETE FROM subscribed WHERE userID='%s'""" % str(user_id)
+    try:
+        cursor.execute(sql)
+        db.commit()
+        db.close()
+    except:
+        db.close()
+
+
+def get_all_courses(user_id):  # if returnvalue is [] then user is not subscribed to any courses or sql failed
+    #  finds all courses a user is subscribed to
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    sql = """SELECT course FROM subscribed WHERE userID=%s""", user_id
+    out = []
+    try:
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        db.close()
+        # results is now a list of lists only containing the coursecode [[coursecode]]
+        #  want the result to be [coursecode]
+        for row in results:
+            out.append(row[0])
+    except:
+        db.close()
+    return out
+
+
+def get_reminders(user_id):
+    # costum reminders
+    db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+    cursor = db.cursor()
+    # find all reminders for a user where coursemade == 0
+    sql = """SELECT what, deadline, coursemade FROM reminder
+                    WHERE userID=%s AND coursemade=0""", user_id
+    try:
+        cursor.execute(sql)
+        results = cursor.fetchall()
+        db.close()
+        # results format: [[what, deadline]]
+        return format_reminders(results)
+    except:
+        return []
 
 
 def format_reminders(reminders):
@@ -180,7 +257,7 @@ def format_reminders(reminders):
     return out
 
 
-def fixnewdeadline(deadline, df):  # tested: Done
+def fix_new_deadline(deadline, df):  # tested: Done
     daysofmonth = {"1": 31, "2": 28, "3": 31, "4": 30, "5": 31, "6": 30,
                    "7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
     year = int(deadline[6:10])
@@ -213,7 +290,7 @@ def fixnewdeadline(deadline, df):  # tested: Done
     return out
 
 
-def makedatetimeobject(deadline):  # tested: Done
+def make_datetime_object(deadline):  # tested: Done
     # turns string of format DD-MM-YYYY-HH:MM into a datetime object
     year = int(deadline[6:10])
     month = int(deadline[3:5])
@@ -223,12 +300,42 @@ def makedatetimeobject(deadline):  # tested: Done
     # datetime.ctime() returns string of format (dayofweek month day HH:MM)
     return datetime.datetime(year, month, day, hour, minnutt)
 
-def test_methods():
-    cdb = Cally_DB("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
+
+def test_deadline():
     deadline = "01-03-2012-23:59"
-    deadline = fixnewdeadline(deadline, 1)
-    datetime_deadline = makedatetimeobject(deadline)
-    print(datetime_deadline.ctime())
+    deadline = fix_new_deadline(deadline, 1)
+    datetime_deadline = make_datetime_object(deadline)
+
+
+def test_user():
+    add_user('1214261795354790', 'test', 'test', 'test')
+    print(user_exists('1425853194113509'))
+    remove_user('00000000000000')
+    add_user('000000000000', 'navn', 'bruker', 'passord', 0)
+    print(user_exists('000000000000'))
+
+
+def test_course():
+    add_course('tdt4100', 'java')
+    print(course_exists('tdt4100'))
+    remove_course('tdt4100')
+
+
+def test_subscribe():
+    # subscribe_to_course('000000000000', 'tdt4100')
+    unsubscribe('000000000000', 'tdt4100')
+    print(user_subscribed_to_course('000000000000', 'tdt4100'))
+
+
+def test_reminder():
+    pass
+
+def test_methods():
+    # test_deadline()
+    # test_user()
+    # test_course()
+    # test_subscribe()
+    test_reminder()
 
 test_methods()
 
