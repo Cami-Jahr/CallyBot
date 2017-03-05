@@ -342,7 +342,7 @@ def test_subscribe():
 
 def test_reminder():
     # have also tested if all reminders to a user is deleted if a user is deleted
-    add_reminder('dummy course assignment', '2017-03-05 20:00:00', 1, '000000000000')
+    add_reminder('dummy course assignment', '2017-03-05 20:00:00', True, '000000000000')
 
 
 def test_df():
@@ -371,7 +371,9 @@ def test_methods():
     # test_reminder()
     # test_df()
     # add_user('000', 'navn', 'bruker', 'passord')
-    add_reminder('finish testing methods', '2017-03-05 19:30:00', True, '000')
+    # add_reminder('finish testing methods', '2017-03-05 19:30:00', True, '000')
+    # remove_user('000')
+    pass
 
 test_methods()
 
