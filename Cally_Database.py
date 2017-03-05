@@ -149,7 +149,7 @@ def unsubscribe(user_id, course):  # test: DONE
             print("could not unsubscribe")
 
 
-def add_reminder(what, deadline, coursemade, user_id):
+def add_reminder(what, deadline, coursemade, user_id):  # test: DONE
     # adds a reminder to the database
     db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
     cursor = db.cursor()
@@ -160,25 +160,30 @@ def add_reminder(what, deadline, coursemade, user_id):
     # assumes deadline is a string of format DD-MM-YYYY-HH:MM
     if coursemade == 1:
         newdeadline = fix_new_deadline(deadline, df)
-    newdeadline = make_datetime_object(newdeadline)
-    sql = """INSERT INTO reminder (what, deadline, coursemade, user_id) VALUES ('%s', '%s', '%s', '%s')""" % (what, newdeadline, coursemade, user_id)
+    print(newdeadline)
+    sql = "INSERT INTO reminder(what, deadline, coursemade, userID) " \
+          "VALUES ('%s' " % what + ", " + "'" + newdeadline + "'" + ", '%d', '%s')" % (coursemade, user_id)
+    print(sql)
     try:
+        print("trying to execute")
         cursor.execute(sql)
         db.commit()
+        print("added reminder")
         db.close()
     except:
+        print("could not add reminder")
         db.close()
 
 
-def get_defaulttime(user_id):
+def get_defaulttime(user_id):  # test: DONE
     # gets the defaulttime set by the user of how long before a deadline the user wish to reminded of it
     db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
     cursor = db.cursor()
-    sql = """SELECT defaulttime FROM user WHERE fbid='%s'""", user_id
+    sql = """SELECT defaulttime FROM user WHERE fbid='%s'""" % user_id
     try:
         cursor.execute(sql)
         result = cursor.fetchall()
-        dt = result[0][4]
+        dt = result[0][0]
         cursor.close()
         return dt
     except:
@@ -187,16 +192,19 @@ def get_defaulttime(user_id):
         return 0
 
 
-def set_defaulttime(user_id, df):
+def set_defaulttime(user_id, df):  # test: DONE
     # set the defaulttime of a user
     db = MySQLdb.connect("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
     cursor = db.cursor()
-    sql = """INSERT INTO user (defaulttime) VALUES ('%d') WHERE userID='%s'""" % (df, user_id)
+    sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
     try:
+        print("trying to execute")
         cursor.execute(sql)
         db.commit()
+        print("set defaulttime")
         db.close()
     except:
+        print("could not set defaulttime")
         db.close()
 
 
@@ -258,11 +266,13 @@ def format_reminders(reminders):
 
 
 def fix_new_deadline(deadline, df):  # tested: Done
+    # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
     daysofmonth = {"1": 31, "2": 28, "3": 31, "4": 30, "5": 31, "6": 30,
                    "7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
-    year = int(deadline[6:10])
-    month = int(deadline[3:5])
-    day = int(deadline[:2])
+    year = int(deadline[:4])
+    month = int(deadline[5:7])
+    day = int(deadline[8:10])
+    print(year, month, day)
     # assumes df is not larger than 28 days
     if day - df < 1:
         # fix day/month/year accordingly
@@ -286,10 +296,12 @@ def fix_new_deadline(deadline, df):  # tested: Done
         month = "0" + str(month)
     else:
         month = str(month)
+    # might change time of day to a fixed time, because many deadlines are at 23:59:00
     out = str(day) + "-" + str(month) + "-" + str(year) + deadline[10:]
     return out
 
 
+# unnessisary
 def make_datetime_object(deadline):  # tested: Done
     # turns string of format DD-MM-YYYY-HH:MM into a datetime object
     year = int(deadline[6:10])
@@ -302,16 +314,16 @@ def make_datetime_object(deadline):  # tested: Done
 
 
 def test_deadline():
-    deadline = "01-03-2012-23:59"
+    deadline = '01-03-2012 23:59:00'
     deadline = fix_new_deadline(deadline, 1)
     datetime_deadline = make_datetime_object(deadline)
 
 
 def test_user():
-    add_user('1214261795354790', 'test', 'test', 'test')
-    print(user_exists('1425853194113509'))
+    # add_user('1214261795354790', 'test', 'test', 'test')
+    # print(user_exists('1425853194113509'))
     remove_user('00000000000000')
-    add_user('000000000000', 'navn', 'bruker', 'passord', 0)
+    # add_user('000000000000', 'navn', 'bruker', 'passord', 0)
     print(user_exists('000000000000'))
 
 
@@ -328,14 +340,23 @@ def test_subscribe():
 
 
 def test_reminder():
-    pass
+    # have also tested if all reminders to a user is deleted if a user is deleted
+    add_reminder('dummy course assignment', '2017-03-05 20:00:00', 1, '000000000000')
+
+
+def test_df():
+    print(get_defaulttime('000000000000'))
+    set_defaulttime('000000000000', 3)
+    print(get_defaulttime('000000000000'))
+
 
 def test_methods():
     # test_deadline()
-    # test_user()
+    test_user()
     # test_course()
     # test_subscribe()
-    test_reminder()
+    # test_reminder()
+    # test_df()
 
 test_methods()
 
