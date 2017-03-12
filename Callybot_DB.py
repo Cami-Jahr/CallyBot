@@ -5,7 +5,9 @@ class CallybotDB:
     # Cally_Database turned into an object class
 
     def __init__(self, host, username, password, DB_name):
+        print("trying to connect")
         self.db = MySQLdb.connect(host, username, password, DB_name)
+        print("successful connect")
         self.cursor = self.db.cursor()
 
     def close(self):
@@ -15,7 +17,8 @@ class CallybotDB:
         # add user to database
         sql = "INSERT INTO user(fbid, name, username, password, defaulttime)" \
               " VALUES('%s', '%s', '%s', '%s', '%d')" % (user_id, navn, username, password, df)
-        if username is None or password is None:
+        if username is None or password is None:  # remember to change default value of username and password to null
+            print("no username or password")
             sql = "INSERT INTO user(fbid, name, defaulttime)" \
               " VALUES('%s', '%s', '%d')" % (user_id, navn, df)
 
@@ -75,7 +78,6 @@ class CallybotDB:
                 print("could not add course", course)
         else:
             print("course is already in database")
-
 
     def remove_course(self, course):  # test: DONE
         # removes course from the database
