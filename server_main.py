@@ -7,6 +7,8 @@ import time
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+import reminders
+import Callybot_DB
 
 app = Flask(__name__)
 
@@ -41,6 +43,12 @@ def interrupt():
 def reminder_check():
     #Kjør reminder_check
     print("Reminder trigger",time.ctime())
+    db = Callybot_DB.CallybotDB("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
+    rem = reminders.Reminders(db)
+    current = rem.search_reminders()
+    if current:
+        for reminder in current:
+            replier.reply(reminder[1], reminder[2], "text")
     return
 
 @app.route('/', methods=['POST'])

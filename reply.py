@@ -122,7 +122,22 @@ class Reply:
             self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
 
     def set_statements(self, user_id, content_list):
-        self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
+        ############DEVELOPMENT##################
+
+        import Callybot_DB
+        import reminders
+        db = Callybot_DB.CallybotDB("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
+        rem = reminders.Reminders(db)
+        import datetime
+        if content_list[0] == "reminder":
+            db.add_user(user_id, "JJ")
+            db.add_reminder(content_list[1], (datetime.datetime.now() + datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+            self.reply(user_id, content_list[1] + " was sat at " + (datetime.datetime.now() + datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"), "text")
+
+        else:
+        ###############################
+
+            self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
 
     def process_data(data): #Classifies data type and extracts the data

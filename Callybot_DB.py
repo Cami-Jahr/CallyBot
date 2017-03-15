@@ -15,13 +15,13 @@ class CallybotDB:
 
     def add_user(self, user_id, navn, username=None, password=None, df=0):  # test: DONE
         # add user to database
-        sql = "INSERT INTO user(fbid, name, username, password, defaulttime)" \
-              " VALUES('%s', '%s', '%s', '%s', '%d')" % (user_id, navn, username, password, df)
         if username is None or password is None:  # remember to change default value of username and password to null
             print("no username or password")
             sql = "INSERT INTO user(fbid, name, defaulttime)" \
               " VALUES('%s', '%s', '%d')" % (user_id, navn, df)
-
+        else:
+            sql = "INSERT INTO user(fbid, name, username, password, defaulttime)" \
+                  " VALUES('%s', '%s', '%s', '%s', '%d')" % (user_id, navn, username, password, df)
         if not self.user_exists(user_id):
             try:
                 print("try to execute add user")
@@ -145,9 +145,8 @@ class CallybotDB:
         # assumes deadline is a string of format 'YYYY-MM-DD hh:mm:ss'
         if coursemade:
             newdeadline = fix_new_deadline(deadline, df)
-        print(newdeadline)
         sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
-              "VALUES ('%s' " % what + ", " + "'" + newdeadline + "'" + ", '%s', '%d')" % (user_id, coursemade)
+              "VALUES ('%s', '%s', '%s', '%d')" % (what, newdeadline, user_id, coursemade)
         print(sql)
         try:
             print("trying to execute")
@@ -209,24 +208,30 @@ class CallybotDB:
         # costum reminders
         # find all reminders for a user where coursemade == 0
         sql = """SELECT what, deadline, coursemade FROM reminder
-                        WHERE userID='%s' AND coursemade=0""" % user_id
+                        WHERE userID='%s'""" % user_id
+        try:
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            print(results)
+            # results format: [[what, deadline]]
+            return results
+        except:
+            return []
+
+    def get_all_reminders(self):
+        sql = """SELECT deadline, userID, what, coursemade FROM reminder"""
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
             # results format: [[what, deadline]]
-            return format_reminders(results)
+            return results
         except:
             return []
 
 
-def format_reminders(reminders):
-    out = ""
-    for row in reminders:
-        out += "you have", row[0], "at", row[1], "\n"
-    return out
-
 
 def fix_new_deadline(deadline, df):  # tested: Done
+    print(deadline,df)
     # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
     daysofmonth = {"1": 31, "2": 28, "3": 31, "4": 30, "5": 31, "6": 30,
                    "7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
@@ -259,4 +264,6 @@ def fix_new_deadline(deadline, df):  # tested: Done
         month = str(month)
     # might change time of day to a fixed time, because many deadlines are at 23:59:00
     out = str(year) + "-" + str(month) + "-" + str(day) + deadline[10:]
+    print(out)
     return out
+
