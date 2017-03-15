@@ -7,6 +7,7 @@ class Reminders:
         self.db = db
 
     def search_reminders(self):
+        """Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
         listing = self.db.get_all_reminders()
         print(listing)
         minago = datetime.now() - timedelta(minutes=1)
