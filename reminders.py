@@ -10,8 +10,8 @@ class Reminders:
         """Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
         listing = self.db.get_all_reminders()
         print(listing)
-        minago = datetime.now() - timedelta(minutes=1)
-        mintil = datetime.now() + timedelta(minutes=1)
+        minago = datetime.now() - timedelta(minutes=30)
+        mintil = datetime.now() + timedelta(minutes=30)
         current = []
         app = current.append
         for line in listing:

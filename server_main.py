@@ -31,7 +31,7 @@ def interrupt():
     scheduler.start()
     scheduler.add_job(
         func=reminder_check,
-        trigger=CronTrigger(minute=0),
+        trigger=CronTrigger(second=0),
         id='reminder_check',
         name='Reminder',
         replace_existing=True)
@@ -46,7 +46,7 @@ def reminder_check():
     current = rem.search_reminders()
     if current:
         for reminder in current:
-            replier.reply("Reminder: "+reminder[1], reminder[2], "text")
+            replier.reply(reminder[1],"Reminder: "+reminder[2], "text")
     return
 
 @app.route('/', methods=['POST'])
