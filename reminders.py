@@ -17,3 +17,4 @@ class Reminders:
             if minago < line[0] < mintil:
                 app(line)
         print(current)
+        return current
