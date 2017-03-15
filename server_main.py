@@ -46,7 +46,7 @@ def reminder_check():
     current = rem.search_reminders()
     if current:
         for reminder in current:
-            replier.reply(reminder[1], reminder[2], "text")
+            replier.reply("Reminder: "+reminder[1], reminder[2], "text")
     return
 
 @app.route('/', methods=['POST'])
