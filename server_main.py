@@ -7,17 +7,15 @@ import time
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
+import credentials
 
 app = Flask(__name__)
-
-ACCESS_TOKEN = "EAAZANSkaEgg8BADeaog9sCdpujr2lwhwdHSMNa6Ug5zpgJkpScGZCTOdDZAjD2XNbqfKGjZAxHoJZCddEjvkeRQ37dHm1qAGVAZCX3D52CZA6fc8VSx6qenZCZCerEoScLztn6EXqNwiVPWaVB2iX0YOrsV9RL790mAZByefL5ocrfYwZDZD" 
-#ACCESS_TOKEN =" EAAZANSkaEgg8BAN1QsZAcGCWPLMk3SGttzfZANVh2JRkYnnYudat4ODHc8f3K3CQl7n4n103cLCaImGsj3tCmOiXNYbUza4EQufM64FZAZArnzEh8MHRnTE12eCtrnaZCyMNC4ZC1lVWmxGYK76iZBxz1yeWd21ucOBehpY45OraPwZDZD" #2
-VERIFY_TOKEN = "verifytoken"
-replier=reply.Reply(ACCESS_TOKEN)
+credentials=credentials.Credentials()
+replier=reply.Reply(credentials.access_token)
 seqnumbers=[]
 
 def init():
-    thread_handler=thread_settings.Thread_Settings(ACCESS_TOKEN)
+    thread_handler=thread_settings.Thread_Settings(credentials.access_token)
     thread_handler.whitelist("https://folk.ntnu.no/halvorkmTDT4140/")
     thread_handler.set_greeting("Hi there {{user_first_name}}!\nWelcome to CallyBot. Press 'Get Started' to get started!")
     thread_handler.set_get_started()
@@ -72,7 +70,7 @@ def handle_incoming_messages():
 @app.route('/', methods=['GET'])
 def handle_verification():
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-        if request.args['hub.verify_token'] == VERIFY_TOKEN:
+        if request.args['hub.verify_token'] == credentials.verify_token:
             return request.args['hub.challenge'], 200
         else:
             return "Invalid verification token", 403
