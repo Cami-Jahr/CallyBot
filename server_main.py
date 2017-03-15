@@ -6,7 +6,7 @@ import thread_settings
 import time
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import IntervalTrigger
+from apscheduler.triggers.interval import BaseTrigger
 
 app = Flask(__name__)
 
@@ -30,16 +30,17 @@ def interrupt():
     scheduler = BackgroundScheduler()
     scheduler.start()
     scheduler.add_job(
-        func=test,
-        trigger=IntervalTrigger(seconds=60),
-        id='printing_job',
-        name='Print test',
+        func=reminder_check,
+        trigger=BaseTrigger(minute=0),
+        id='reminder_check',
+        name='Reminder',
         replace_existing=True)
     atexit.register(lambda: scheduler.shutdown())
     
 
-def test():
-    print("Funker fortsatt:",time.ctime())
+def reminder_check():
+    #Kjør reminder_check
+    return
 
 @app.route('/', methods=['POST'])
 def handle_incoming_messages():
