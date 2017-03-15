@@ -6,7 +6,7 @@ import thread_settings
 import time
 import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.triggers.interval import BaseTrigger
+from apscheduler.triggers.cron import CronTrigger
 
 app = Flask(__name__)
 
@@ -31,7 +31,7 @@ def interrupt():
     scheduler.start()
     scheduler.add_job(
         func=reminder_check,
-        trigger=BaseTrigger(minute=0),
+        trigger=CronTrigger(minute=0),
         id='reminder_check',
         name='Reminder',
         replace_existing=True)
@@ -40,6 +40,7 @@ def interrupt():
 
 def reminder_check():
     #Kjør reminder_check
+    print("Reminder trigger",time.ctime())
     return
 
 @app.route('/', methods=['POST'])
