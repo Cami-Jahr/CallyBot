@@ -15,7 +15,7 @@ class Reply:
 		# ie course_code format on ntnu
 		date_format_separator = "[\/]"  # Date separators allowed. Regex format
 		self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-			date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + "(0?[469]|11))))"
+						   date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + "(0?[469]|11))))"
 		# checks if is legit date.
 		self.db = db
 
@@ -73,7 +73,7 @@ class Reply:
 		elif content == "get_started":
 			fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
 			msg = "Hi there " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nType 'help' to see" \
-				" what you can do. Enjoy!"
+										" what you can do. Enjoy!"
 			self.reply(user_id, msg, 'text')
 		# -------------- DEFAULT ----------------
 		else:
@@ -83,7 +83,6 @@ class Reply:
 			self.reply(user_id, content, data_type)
 
 	def get_statements(self, user_id, content_list):
-		print(content_list)
 		# TODO: maybe add a list with what courses are on which platform, to not have
 		# to scrape Blackboard for requested courses on itslearning etc
 		# Note: Might still throw unexpected errors
@@ -146,7 +145,7 @@ class Reply:
 		if content_list[0] == "reminder":  # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
 			self.db.add_reminder(" ".join(content_list[1:-3]), " ".join(content_list[-2:]), 0, user_id)
 			self.reply(user_id, "The reminder" + " ".join(content_list[1:-3]) + " was sat at " +
-				" ".join(content_list[-2:]), "text")
+					   " ".join(content_list[-2:]), "text")
 		else:
 			self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 

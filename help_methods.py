@@ -7,11 +7,9 @@ from datetime import datetime, timedelta
 
 
 def add_default_reminders(user_id, assignments, db):
-	current_reminders = db.get_reminders(user_id)
+	names = [x[0] for x in db.get_reminders(user_id)]
 	for assignment in assignments:
-		if db.user_subscribed_to_course(user_id, assignment[0]) and assignment[1] not in [lambda x: x[0] for x in
-																						  current_reminders]:
-			print(assignment, user_id)
+		if db.user_subscribed_to_course(user_id, assignment[0]) and assignment[1] not in names:
 			db.add_reminder(assignment[1], assignment[2], 1, user_id)
 
 
@@ -105,10 +103,6 @@ def BB_scrape(user_id, course, until, db):
 				day, month, year = line[3].split(".")
 				reminders_to_set.append(
 					(line[1], line[0], "20{}-{}-{}".format(year, month, day) + " 23:59:00"))
-
-				reminders_to_set.append((line[1], line[0], line[3] + " 23:59:00"))
-				print(reminders_to_set)
-
 				msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
 					3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
 		add_default_reminders(user_id, reminders_to_set, db)

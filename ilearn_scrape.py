@@ -36,7 +36,7 @@ def scrape(username, password):
 		course = courses[i].text.split()
 		deadline = deadlines[i * 2 + 1].get_attribute('title').split()
 		listing.append((assignment[i].text, course[1], " ".join(course[2:-2]), deadline[1], deadline[2]))
-		# Gathers the relevant information
+	# Gathers the relevant information
 	# print(listing)
 	# html = driver.execute_script("return document.documentElement.innerHTML;") # Get element HTML for assignments
 	# with open("HTML/Itslearning_"+username+".txt", "w", encoding='utf-8') as f:  #Write to file, to easier search inner HTML for needed enteties

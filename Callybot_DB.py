@@ -5,9 +5,9 @@ class CallybotDB:
 	# Cally_Database turned into an object class
 
 	def __init__(self, host, username, password, DB_name):
-		print("trying to connect to "+host)
+		print("trying to connect to " + host)
 		self.db = MySQLdb.connect(host, username, password, DB_name)
-		print("successful connect to database "+DB_name)
+		print("successful connect to database " + DB_name)
 		self.cursor = self.db.cursor()
 
 	def close(self):
@@ -19,11 +19,10 @@ class CallybotDB:
 		results = self.cursor.fetchall()
 		return results[0]
 
-
 	def add_user(self, user_id, navn, username=None, password=None, df=0):  # test: DONE
 		# add user to database
 		if username is None or password is None:  # remember to change default value of username and password to null
-			print("no username or password")
+			# print("no username or password")
 			sql = "INSERT INTO user(fbid, name, defaulttime)" \
 				  " VALUES('%s', '%s', '%d')" % (user_id, navn, df)
 		else:
@@ -31,10 +30,10 @@ class CallybotDB:
 				  " VALUES('%s', '%s', '%s', '%s', '%d')" % (user_id, navn, username, password, df)
 		if not self.user_exists(user_id):
 			try:
-				print("try to execute add user")
+				# print("try to execute add user")
 				self.cursor.execute(sql)
 				self.db.commit()
-				print("added user")
+			# print("added user")
 			except:
 				print("closed in except")
 
@@ -77,7 +76,7 @@ class CallybotDB:
 		sql = """INSERT INTO course(coursecode, courseName) VALUES ('%s', '%s')""" % (course, coursename)
 		if not self.course_exists(course):
 			try:
-				print("trying to add course")
+				# print("trying to add course")
 				self.cursor.execute(sql)
 				self.db.commit()
 				print("added course")
@@ -93,7 +92,7 @@ class CallybotDB:
 			try:
 				self.cursor.execute(sql)
 				self.db.commit()
-				print("removed course", course)
+			# print("removed course", course)
 			except:
 				print("could not remove course")
 
@@ -101,9 +100,9 @@ class CallybotDB:
 		# returns if the course exists or False if it could not execute the sql
 		sql = """SELECT * FROM course WHERE coursecode='%s'""" % str(course)
 		try:
-			print("try to execute")
+			# print("try to execute")
 			self.cursor.execute(sql)
-			print("executed sql")
+			# print("executed sql")
 			result = self.cursor.fetchall()
 			return len(result) != 0
 		except:
@@ -146,21 +145,21 @@ class CallybotDB:
 	def add_reminder(self, what, deadline, coursemade, user_id):  # test: DONE
 		# adds a reminder to the database
 		# change the deadline specified by the defaulttime
-		print(what, deadline, coursemade, user_id)
+		# print(what, deadline, coursemade, user_id)
 		df = self.get_defaulttime(user_id)
 		# only alter deadline if coursemade == 1
-		newdeadline = deadline.replace('.','-')
+		newdeadline = deadline.replace('.', '-')
 		# assumes deadline is a string of format 'YYYY-MM-DD hh:mm:ss'
 		if coursemade:
 			newdeadline = fix_new_deadline(deadline, df)
 		sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
 			  "VALUES ('%s', '%s', '%s', '%d')" % (what, newdeadline, user_id, coursemade)
-		print(sql)
+		# print(sql)
 		try:
-			print("trying to execute")
+			# print("trying to execute")
 			self.cursor.execute(sql)
 			self.db.commit()
-			print("added reminder")
+		# print("added reminder")
 		except:
 			print("could not add reminder")
 
@@ -180,10 +179,10 @@ class CallybotDB:
 		# set the defaulttime of a user
 		sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
 		try:
-			print("trying to execute")
+			# print("trying to execute")
 			self.cursor.execute(sql)
 			self.db.commit()
-			print("set defaulttime")
+		# print("set defaulttime")
 		except:
 			print("could not set defaulttime")
 
@@ -220,7 +219,7 @@ class CallybotDB:
 		try:
 			self.cursor.execute(sql)
 			results = self.cursor.fetchall()
-			print(results)
+			# print(results)
 			# results format: ((what, deadline, coursemade),)
 			return results
 		except:
@@ -238,14 +237,14 @@ class CallybotDB:
 
 
 def fix_new_deadline(deadline, df):  # tested: Done
-	print(deadline, df)
+	# print(deadline, df)
 	# deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
 	daysofmonth = {"1": 31, "2": 28, "3": 31, "4": 30, "5": 31, "6": 30,
-					"7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
+				   "7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
 	year = int(deadline[:4])
 	month = int(deadline[5:7])
 	day = int(deadline[8:10])
-	print(year, month, day)
+	# print(year, month, day)
 	# assumes df is not larger than 28 days
 	if day - df < 1:
 		# fix day/month/year accordingly
@@ -271,5 +270,5 @@ def fix_new_deadline(deadline, df):  # tested: Done
 		month = str(month)
 	# might change time of day to a fixed time, because many deadlines are at 23:59:00
 	out = str(year) + "-" + str(month) + "-" + str(day) + deadline[10:]
-	print(out)
+	# print(out)
 	return out
