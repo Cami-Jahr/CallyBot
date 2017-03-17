@@ -26,7 +26,7 @@ class Reply:
 		if data_type == "unknown":  # Cant handle unknown
 			return
 		content = content.lower()
-		# ------------ COMMANDOES --------------
+		# ------------ COMMANDS --------------
 		content_list = content.lower().split()
 		if content_list[0] == "get":
 			self.get_statements(user_id, content_list[1:])
@@ -131,6 +131,9 @@ class Reply:
 					self.reply(user_id, "I couldn't find any deadlines for " + course, "text")
 		else:
 			self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
+
+	def
+
 
 	def set_statements(self, user_id, content_list):
 ############DEVELOPMENT##################

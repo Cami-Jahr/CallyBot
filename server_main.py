@@ -1,5 +1,4 @@
 from flask import Flask, request
-import requests
 import reply
 import help_methods
 import thread_settings
@@ -8,17 +7,17 @@ import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import credentials
-import reminders
 import Callybot_DB
 
 app = Flask(__name__)
-credentials = credentials.Credentials()
-replier = reply.Reply(credentials.access_token)
-seqnumbers = []
+credential = credentials.Credentials()
+replier = reply.Reply(credential.access_token)
+db = Callybot_DB.CallybotDB("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
+sequence_numbers = []
 
 
 def init():
-	thread_handler = thread_settings.Thread_Settings(credentials.access_token)
+	thread_handler = thread_settings.Thread_Settings(credential.access_token)
 	thread_handler.whitelist("https://folk.ntnu.no/halvorkmTDT4140/")
 	thread_handler.set_greeting(
 		"Hi there {{user_first_name}}!\nWelcome to CallyBot. Press 'Get Started' to get started!")
@@ -33,7 +32,7 @@ def interrupt():
 	scheduler.start()
 	scheduler.add_job(
 		func=reminder_check,
-		trigger=CronTrigger(second=0),
+		trigger=CronTrigger(minute=0),  # second = 0 for checking every minute
 		id='reminder_check',
 		name='Reminder',
 		replace_existing=True)
@@ -41,11 +40,9 @@ def interrupt():
 
 
 def reminder_check():
-	# Kjør reminder_check
+	# Run reminder_check
 	print("Reminder trigger", time.ctime())
-	db = Callybot_DB.CallybotDB("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
-	rem = reminders.Reminders(db)
-	current = rem.search_reminders()
+	current = help_methods.search_reminders(db)
 	if current:
 		for reminder in current:
 			replier.reply(reminder[1], "Reminder: " + reminder[2], "text")
@@ -56,14 +53,14 @@ def reminder_check():
 def handle_incoming_messages():
 	data = request.json
 	try:
-		global seqnumbers
+		global sequence_numbers
 		seq = data['entry'][0]['messaging'][0]['message']['seq']
-		if seq in seqnumbers:
+		if seq in sequence_numbers:
 			print("Duplicated message")
 			return 'ok', 200
 		else:
-			if len(seqnumbers) > 100: seqnumbers = []
-			seqnumbers.append(seq)
+			if len(sequence_numbers) > 100: sequence_numbers = []
+			sequence_numbers.append(seq)
 	except KeyError:
 		pass
 
@@ -81,7 +78,7 @@ def handle_incoming_messages():
 @app.route('/', methods=['GET'])
 def handle_verification():
 	if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-		if request.args['hub.verify_token'] == credentials.verify_token:
+		if request.args['hub.verify_token'] == credential.verify_token:
 			return request.args['hub.challenge'], 200
 		else:
 			return "Invalid verification token", 403

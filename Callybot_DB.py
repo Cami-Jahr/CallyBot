@@ -5,9 +5,9 @@ class CallybotDB:
 	# Cally_Database turned into an object class
 
 	def __init__(self, host, username, password, DB_name):
-		print("trying to connect")
+		print("trying to connect to "+host)
 		self.db = MySQLdb.connect(host, username, password, DB_name)
-		print("successful connect")
+		print("successful connect to database "+DB_name)
 		self.cursor = self.db.cursor()
 
 	def close(self):
@@ -233,7 +233,7 @@ def fix_new_deadline(deadline, df):  # tested: Done
 	print(deadline, df)
 	# deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
 	daysofmonth = {"1": 31, "2": 28, "3": 31, "4": 30, "5": 31, "6": 30,
-				   "7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
+					"7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
 	year = int(deadline[:4])
 	month = int(deadline[5:7])
 	day = int(deadline[8:10])

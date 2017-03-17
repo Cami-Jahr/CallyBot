@@ -3,6 +3,22 @@ import iblack_scrape
 import requests
 import MySQLdb
 import json
+from datetime import datetime, timedelta
+
+
+def search_reminders(db):
+	"""Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
+	listing = db.get_all_reminders()
+	# print(listing)
+	min_ago = datetime.now() - timedelta(minutes=1)
+	min_til = datetime.now() + timedelta(minutes=1)
+	current = []
+	app = current.append
+	for line in listing:
+		if min_ago < line[0] < min_til:
+			app(line)
+	# print(current)
+	return current
 
 
 def get_course_info(course):
