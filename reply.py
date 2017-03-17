@@ -132,7 +132,6 @@ class Reply:
 		else:
 			self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
 
-	def
 
 
 	def set_statements(self, user_id, content_list):
