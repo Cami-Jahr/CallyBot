@@ -11,8 +11,8 @@ import Callybot_DB
 
 app = Flask(__name__)
 credential = credentials.Credentials()
-replier = reply.Reply(credential.access_token)
 db = Callybot_DB.CallybotDB("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
+replier = reply.Reply(credential.access_token, db)
 sequence_numbers = []
 
 

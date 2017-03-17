@@ -4,7 +4,7 @@ import re  # Regular expressions https://docs.python.org/3/library/re.html
 
 
 class Reply:
-	def __init__(self, access_token):
+	def __init__(self, access_token, db):
 		self.access_token = access_token
 		# These regex allow a increasing amount of courses, They however also use longer time to check,
 		# and allow more non existing courses to be processed
@@ -17,6 +17,7 @@ class Reply:
 		self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
 			date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + "(0?[469]|11))))"
 		# checks if is legit date.
+		self.db = db
 
 	def arbitrate(self, user_id, data):  # Chooses action based on message given
 		# Might change to regex expressions, but does not currently seem purposeful
@@ -88,52 +89,55 @@ class Reply:
 		# Note: Might still throw unexpected errors
 		# Note: Does not reply with until time, may be implemented by adding until field to message if it was changed
 		if content_list[0] == "deadline" or content_list[0] == "deadlines":
-			course = "ALL"
-			until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
-			self.reply(user_id, "I'll go get your deadlines right now", "text")
-			# TODO: maybe change to "seen" or "currently typing"
-			if len(content_list) == 1:  # Asks for all
-				pass
-			elif len(content_list) <= 3:  # Allows "in" and "until" to be dropped by the user
-				if re.fullmatch(self.course_code_format, content_list[-1]):
-					course = content_list[-1]
-				elif re.fullmatch(self.date_format, content_list[-1]):
-					until = content_list[-1]
-				else:
-					pass
-			elif len(content_list) == 5:  # Strict format
-				if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-					3] == "until" and re.fullmatch(self.date_format, content_list[4]):
-					# Format: get deadline in aaa1111 until DD/MM
-					course = content_list[2]
-					until = content_list[4]
-				elif content_list[1] == "until" and re.fullmatch(self.date_format, content_list[2]) and content_list[
-					3] == "in" and re.fullmatch(self.course_code_format, content_list[
-					4]):  # Format: get deadline until DD/MM deadline in aaa1111
-					until = content_list[2]
-					course = content_list[4]
+			self.deadlines(user_id, content_list)
+		elif content_list[0] == "reminders":
 
-			print(content_list, course, until)
-			ILdeads = help_methods.IL_scrape(user_id, course, until)
-			BBdeads = help_methods.BB_scrape(user_id, course, until)
-			print(ILdeads, BBdeads)
-			if ILdeads == "SQLerror" or BBdeads == "SQLerror":
-				self.reply(user_id, "Could not fetch deadlines. Check if your user info is correct", 'text')
-			elif course == "ALL":
-				msg = "ItsLearning:\n" + ILdeads
-				msg2 = "BlackBoard:\n" + BBdeads
-				self.reply(user_id, msg, 'text')
-				self.reply(user_id, msg2, 'text')
-			else:
-				if ILdeads or BBdeads:  # Both is returned as empty if does not have course
-					self.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads, "text")
-				else:
-					self.reply(user_id, "I couldn't find any deadlines for " + course, "text")
+			self.reply(user_id, "a", "text")
 		else:
 			self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
 
-	def
+	def deadlines(self, user_id, content_list):
+		course = "ALL"
+		until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
+		self.reply(user_id, "I'll go get your deadlines right now", "text")
+		# TODO: maybe change to "seen" or "currently typing"
+		if len(content_list) == 1:  # Asks for all
+			pass
+		elif len(content_list) <= 3:  # Allows "in" and "until" to be dropped by the user
+			if re.fullmatch(self.course_code_format, content_list[-1]):
+				course = content_list[-1]
+			elif re.fullmatch(self.date_format, content_list[-1]):
+				until = content_list[-1]
+			else:
+				pass
+		elif len(content_list) == 5:  # Strict format
+			if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
+				3] == "until" and re.fullmatch(self.date_format, content_list[4]):
+				# Format: get deadline in aaa1111 until DD/MM
+				course = content_list[2]
+				until = content_list[4]
+			elif content_list[1] == "until" and re.fullmatch(self.date_format, content_list[2]) and content_list[
+				3] == "in" and re.fullmatch(self.course_code_format, content_list[
+				4]):  # Format: get deadline until DD/MM deadline in aaa1111
+				until = content_list[2]
+				course = content_list[4]
 
+		# print(content_list, course, until)
+		ILdeads = help_methods.IL_scrape(user_id, course, until)
+		BBdeads = help_methods.BB_scrape(user_id, course, until)
+		# print(ILdeads, BBdeads)
+		if ILdeads == "SQLerror" or BBdeads == "SQLerror":
+			self.reply(user_id, "Could not fetch deadlines. Check if your user info is correct", 'text')
+		elif course == "ALL":
+			msg = "ItsLearning:\n" + ILdeads
+			msg2 = "BlackBoard:\n" + BBdeads
+			self.reply(user_id, msg, 'text')
+			self.reply(user_id, msg2, 'text')
+		else:
+			if ILdeads or BBdeads:  # Both is returned as empty if does not have course
+				self.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads, "text")
+			else:
+				self.reply(user_id, "I couldn't find any deadlines for " + course, "text")
 
 	def set_statements(self, user_id, content_list):
 ############DEVELOPMENT##################
