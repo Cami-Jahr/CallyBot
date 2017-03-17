@@ -64,7 +64,7 @@ class Reply:
 			self.reply(user_id, msg, 'text')
 			url = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
 			self.reply(user_id, url, 'image')
-		elif content == "who am I?":
+		elif content == "who am i?":
 			fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
 			msg = "You are " + fname + " " + lname + " and you look like this:"
 			self.reply(user_id, msg, 'text')

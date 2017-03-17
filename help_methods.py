@@ -17,8 +17,8 @@ def search_reminders(db):
 	"""Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
 	listing = db.get_all_reminders()
 	# print(listing)
-	min_ago = datetime.now() - timedelta(minutes=1)
-	min_til = datetime.now() + timedelta(minutes=1)
+	min_ago = datetime.now() - timedelta(minutes=5)
+	min_til = datetime.now() + timedelta(minutes=5)
 	current = []
 	app = current.append
 	for line in listing:
