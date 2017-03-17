@@ -5,6 +5,15 @@ import MySQLdb
 import json
 from datetime import datetime, timedelta
 
+def add_default_reminders(user_id,assignments,db):
+        current_reminders = db.getreminders(user_id)
+        for assignment in assignments:
+                if db.user_subscribed_to_course(user_id,assignment[0]) and assignment[1] not in [lambda x: x[0] for x in current_reminders]:
+                        db.add_reminder(assignment[1],assignment[2],1,user_id)
+                        
+                        
+
+        
 
 def search_reminders(db):
 	"""Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
@@ -69,13 +78,16 @@ def IL_scrape(user_id, course, until):
 		max_day = int(until.split("/")[0])
 		max_month = int(until.split("/")[1])
 		# Max time it should get deadlines to
+		reminders_to_set=[]
 		if course == "ALL":
 			for line in info:
 				due_day = int(line[3].split(".")[0])
 				due_month = int(line[3].split(".")[1])
 				if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before max deadlines
+				        reminders_to_set.insert([line[1],line[0]],line[3]+" "+line[4])
 					msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
 						4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
+			add_default_reminders(user_id,reminders_to_set,db)
 		else:
 			for line in info:
 				due_day = int(line[3].split(".")[0])
@@ -112,13 +124,16 @@ def BB_scrape(user_id, course, until):
 		max_day = int(until.split("/")[0])
 		max_month = int(until.split("/")[1])
 		# Max time it should get deadlines to
+		reminders_to_set=[]
 		if course == "ALL":
 			for line in info:
 				due_day = int(line[3].split(".")[0])
 				due_month = int(line[3].split(".")[1])
 				if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before  max deadlines
+				        reminders_to_set.insert([line[1],line[0],line[3]+" 23:59:00"])
 					msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
 						3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
+			add_default_reminders(user_id,reminders_to_set,db)
 		else:
 			for line in info:
 				due_day = int(line[3].split(".")[0])
