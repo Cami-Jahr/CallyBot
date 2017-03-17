@@ -5,15 +5,15 @@ import MySQLdb
 import json
 from datetime import datetime, timedelta
 
-def add_default_reminders(user_id,assignments,db):
-        current_reminders = db.getreminders(user_id)
-        for assignment in assignments:
-                if db.user_subscribed_to_course(user_id,assignment[0]) and assignment[1] not in [lambda x: x[0] for x in current_reminders]:
-                        db.add_reminder(assignment[1],assignment[2],1,user_id)
-                        
-                        
 
-        
+def add_default_reminders(user_id, assignments, db):
+	current_reminders = db.get_reminders(user_id)
+	for assignment in assignments:
+		if db.user_subscribed_to_course(user_id, assignment[0]) and assignment[1] not in [lambda x: x[0] for x in
+																						  current_reminders]:
+			print(assignment, user_id)
+			db.add_reminder(assignment[1], assignment[2], 1, user_id)
+
 
 def search_reminders(db):
 	"""Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
@@ -57,93 +57,67 @@ def get_user_info(access_token, user_id):  # Get user info from profile
 	return firstname, lastname, picture
 
 
-def IL_scrape(user_id, course, until):
+def IL_scrape(user_id, course, until, db):
 	course = course.upper()
-	# Open database connection
-	db = MySQLdb.connect("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
+	result = db.get_credential(user_id)
 
-	# prepare a cursor object using cursor() method
-	cursor = db.cursor()
-
-	# Prepare SQL query to INSERT a record into the database.
-	sql = "SELECT * FROM user WHERE fbid=" + str(user_id)
-	try:
-		# Execute the SQL command
-		cursor.execute(sql)
-		# Fetch all the rows in a list of lists.
-		results = cursor.fetchall()
-		result = results[0]
-		info = ilearn_scrape.scrape(result[2], result[3])
-		msg = ""
-		max_day = int(until.split("/")[0])
-		max_month = int(until.split("/")[1])
-		# Max time it should get deadlines to
-		reminders_to_set=[]
-		if course == "ALL":
-			for line in info:
-				due_day = int(line[3].split(".")[0])
-				due_month = int(line[3].split(".")[1])
-				if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before max deadlines
-				        reminders_to_set.insert([line[1],line[0]],line[3]+" "+line[4])
-					msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
-						4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
-			add_default_reminders(user_id,reminders_to_set,db)
-		else:
-			for line in info:
-				due_day = int(line[3].split(".")[0])
-				due_month = int(line[3].split(".")[1])
-				if line[1] == course and (max_month > due_month or (
-						max_month == due_month and max_day >= due_day)):  # Before  max deadlines and correct course
-					msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
-						4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
-	except IndexError:
-		msg = "SQLerror"
-	# disconnect from server
-	db.close()
+	info = ilearn_scrape.scrape(result[2], result[3])
+	msg = ""
+	max_day = int(until.split("/")[0])
+	max_month = int(until.split("/")[1])
+	# Max time it should get deadlines to
+	reminders_to_set = []
+	if course == "ALL":
+		for line in info:
+			due_day = int(line[3].split(".")[0])
+			due_month = int(line[3].split(".")[1])
+			if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before max deadlines
+				day, month, year = line[3].split(".")
+				reminders_to_set.append((line[1], line[0], "{}-{}-{}".format(year, month, day) + " " + line[4] + ":00"))
+				msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
+					4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
+		add_default_reminders(user_id, reminders_to_set, db)
+	else:
+		for line in info:
+			due_day = int(line[3].split(".")[0])
+			due_month = int(line[3].split(".")[1])
+			if line[1] == course and (max_month > due_month or (
+							max_month == due_month and max_day >= due_day)):  # Before  max deadlines and correct course
+				msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
+					4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
 	return msg
 
 
-def BB_scrape(user_id, course, until):
+def BB_scrape(user_id, course, until, db):
 	course = course.upper()
-	# Open database connection
-	db = MySQLdb.connect("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
+	result = db.get_credential(user_id)
+	info = iblack_scrape.scrape(result[2], result[3])
+	msg = ""
+	max_day = int(until.split("/")[0])
+	max_month = int(until.split("/")[1])
+	# Max time it should get deadlines to
+	reminders_to_set = []
+	if course == "ALL":
+		for line in info:
+			due_day = int(line[3].split(".")[0])
+			due_month = int(line[3].split(".")[1])
+			if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before  max deadlines
+				day, month, year = line[3].split(".")
+				reminders_to_set.append(
+					(line[1], line[0], "20{}-{}-{}".format(year, month, day) + " 23:59:00"))
 
-	# prepare a cursor object using cursor() method
-	cursor = db.cursor()
+				reminders_to_set.append((line[1], line[0], line[3] + " 23:59:00"))
+				print(reminders_to_set)
 
-	# Prepare SQL query to INSERT a record into the database.
-	sql = "SELECT * FROM user WHERE fbid=" + str(user_id)
-	try:
-		# Execute the SQL command
-		cursor.execute(sql)
-		# Fetch all the rows in a list of lists.
-		results = cursor.fetchall()
-		result = results[0]
-		info = iblack_scrape.scrape(result[2], result[3])
-		msg = ""
-		max_day = int(until.split("/")[0])
-		max_month = int(until.split("/")[1])
-		# Max time it should get deadlines to
-		reminders_to_set=[]
-		if course == "ALL":
-			for line in info:
-				due_day = int(line[3].split(".")[0])
-				due_month = int(line[3].split(".")[1])
-				if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before  max deadlines
-				        reminders_to_set.insert([line[1],line[0],line[3]+" 23:59:00"])
-					msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
-						3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
-			add_default_reminders(user_id,reminders_to_set,db)
-		else:
-			for line in info:
-				due_day = int(line[3].split(".")[0])
-				due_month = int(line[3].split(".")[1])
-				if line[1] == course and (max_month > due_month or (
-						max_month == due_month and max_day >= due_day)):  # Before  max deadlines and correct course
-					msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
-						3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
-	except IndexError:
-		msg = "SQLerror"
-	# disconnect from server
-	db.close()
+				msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
+					3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
+		add_default_reminders(user_id, reminders_to_set, db)
+	else:
+		for line in info:
+			due_day = int(line[3].split(".")[0])
+			due_month = int(line[3].split(".")[1])
+			if line[1] == course and (max_month > due_month or (
+							max_month == due_month and max_day >= due_day)):  # Before  max deadlines and correct course
+				msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
+					3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
 	return msg

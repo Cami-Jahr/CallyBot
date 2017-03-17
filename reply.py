@@ -91,8 +91,11 @@ class Reply:
 		if content_list[0] == "deadline" or content_list[0] == "deadlines":
 			self.deadlines(user_id, content_list)
 		elif content_list[0] == "reminders":
-
-			self.reply(user_id, "a", "text")
+			reminders = self.db.get_reminders(user_id)
+			msg = ""
+			for reminder in reminders:
+				msg += reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
+			self.reply(user_id, msg, "text")
 		else:
 			self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
 
@@ -123,8 +126,8 @@ class Reply:
 				course = content_list[4]
 
 		# print(content_list, course, until)
-		ILdeads = help_methods.IL_scrape(user_id, course, until)
-		BBdeads = help_methods.BB_scrape(user_id, course, until)
+		ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
+		BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
 		# print(ILdeads, BBdeads)
 		if ILdeads == "SQLerror" or BBdeads == "SQLerror":
 			self.reply(user_id, "Could not fetch deadlines. Check if your user info is correct", 'text')
@@ -140,24 +143,11 @@ class Reply:
 				self.reply(user_id, "I couldn't find any deadlines for " + course, "text")
 
 	def set_statements(self, user_id, content_list):
-############DEVELOPMENT##################
-
-		import Callybot_DB
-		import reminders
-		db = Callybot_DB.CallybotDB("mysql.stud.ntnu.no", "halvorkm", "kimjong", "ingritu_callybot")
-		rem = reminders.Reminders(db)
-		import datetime
-		if content_list[0] == "reminder":
-			db.add_user(user_id, "JJ")
-			db.add_reminder(content_list[1],
-							(datetime.datetime.now() + datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"), 0,
-							user_id)
-			self.reply(user_id, content_list[1] + " was sat at " + (
-			datetime.datetime.now() + datetime.timedelta(hours=1)).strftime("%Y-%m-%d %H:%M:%S"), "text")
-
+		if content_list[0] == "reminder":  # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
+			self.db.add_reminder(" ".join(content_list[1:-3]), " ".join(content_list[-2:]), 0, user_id)
+			self.reply(user_id, "The reminder" + " ".join(content_list[1:-3]) + " was sat at " +
+				" ".join(content_list[-2:]), "text")
 		else:
-			###############################
-
 			self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
 	def process_data(data):  # Classifies data type and extracts the data

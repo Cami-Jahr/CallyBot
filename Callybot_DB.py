@@ -13,6 +13,13 @@ class CallybotDB:
 	def close(self):
 		self.db.close()
 
+	def get_credential(self, user_id):
+		sql = "SELECT * FROM user WHERE fbid=" + str(user_id)
+		self.cursor.execute(sql)
+		results = self.cursor.fetchall()
+		return results[0]
+
+
 	def add_user(self, user_id, navn, username=None, password=None, df=0):  # test: DONE
 		# add user to database
 		if username is None or password is None:  # remember to change default value of username and password to null
@@ -139,6 +146,7 @@ class CallybotDB:
 	def add_reminder(self, what, deadline, coursemade, user_id):  # test: DONE
 		# adds a reminder to the database
 		# change the deadline specified by the defaulttime
+		print(what, deadline, coursemade, user_id)
 		df = self.get_defaulttime(user_id)
 		# only alter deadline if coursemade == 1
 		newdeadline = deadline
@@ -206,14 +214,14 @@ class CallybotDB:
 
 	def get_reminders(self, user_id):
 		# costum reminders
-		# find all reminders for a user where coursemade == 0
+		# find all reminders for a user
 		sql = """SELECT what, deadline, coursemade FROM reminder
                         WHERE userID='%s'""" % user_id
 		try:
 			self.cursor.execute(sql)
 			results = self.cursor.fetchall()
 			print(results)
-			# results format: [[what, deadline]]
+			# results format: ((what, deadline, coursemade),)
 			return results
 		except:
 			return []
