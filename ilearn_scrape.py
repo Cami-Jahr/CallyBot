@@ -7,6 +7,7 @@ from selenium.common.exceptions import TimeoutException
 
 
 def scrape(username, password):
+    """Scrapes It'slearning. Returns a list of lists [assignment_name, cource_code, course_name, due_date, due_time]"""
     driver = webdriver.Chrome()
     # Log in via Feide
     driver.get("http://www.ilearn.sexy")  # Shortcut to itslearning

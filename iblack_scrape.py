@@ -9,6 +9,7 @@ from collections import OrderedDict
 
 
 def scrape(username, password):
+    """Scrapes Blackboard. Returns a list of lists [assignment_name, cource_code, course_name, due_date]"""
     driver = webdriver.Chrome()
     # Log in via Feide
     driver.get("https://ntnu.blackboard.com")
@@ -41,7 +42,8 @@ def scrape(username, password):
         return "error"
 
     html = driver.execute_script("return document.documentElement.innerHTML;")  # Get element HTML for assignments
-    # with open("HTML/Blackboard_"+username+".txt", "w", encoding='utf-8') as f: #Write to file, to easier search inner HTML for needed enteties
+    # with open("HTML/Blackboard_"+username+".txt", "w", encoding='utf-8') as f:
+    # Write to file, to easier search inner HTML for needed enteties
     #    f.write(html)
     listing = re.findall('<li id="1-dueView::.*?"><span>.*?  <a id="nmenu::.*?" class="cmimg editmode" \
 href="#menuDiv" title="(.*?) Alternativer"><img id="cmimg_nmenu::.*?" src="https://ntnu.blackboard.com/images/ci/icons/cm_arrow.gif" \

@@ -21,7 +21,7 @@ class Thread_Settings:
             "setting_type": "call_to_actions",
             "thread_state": "new_thread",
             "call_to_actions": [{
-                "payload": "get_started"
+                "payload": "start_new_chat"
             }]
         }
         response = requests.post(self.get_thread_url(), json=data)

@@ -4,6 +4,9 @@ import re  # Regular expressions https://docs.python.org/3/library/re.html
 
 
 class Reply:
+    """The reply class handles all incoming messages. The input is the user id and the json element of the message.
+    The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
+
     def __init__(self, access_token, db):
         self.access_token = access_token
         # These regex allow a increasing amount of courses, They however also use longer time to check,
@@ -19,86 +22,117 @@ class Reply:
         # checks if is legit date.
         self.db = db
 
-    def arbitrate(self, user_id, data):  # Chooses action based on message given
-        # Might change to regex expressions, but does not currently seem purposeful
+    def arbitrate(self, user_id, data):
+        """Chooses action based on message given, does not return"""
         data_type, content = Reply.process_data(data)
         print("Data type:", data_type)
         print("Content:", content)
         if data_type == "unknown":  # Cant handle unknown
+            print("\x1b[0;34;0mWatermark message\x1b[0m")
             return
-        content = content.lower()
+        content_lower = content.lower()
+        content_list = content_lower.split()
         # ------------ COMMANDS --------------
-        content_list = content.lower().split()
+
         if content_list[0] == "get":
             self.get_statements(user_id, content_list[1:])
+
         elif content_list[0] == "set":
             self.set_statements(user_id, content_list[1:])
-        elif content == "hello":
+
+        elif content_lower == "hello":
             msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
             self.reply(user_id, msg, 'image')
-        elif content == "login":
+
+        elif content_lower == "login":
             self.login(user_id)
+
+        elif content_list[0] == "bug":
+            self.bug(user_id, content_list[1:])
+
+        elif content_list[0] == "request":
+            self.request(user_id, content_list[1:])
+
         # ------------ HELP METHODS -----------
-        elif content == "help":
-            msg = "Oh you need help?\nNo problem!\nFollowing commandoes are supported\n\n\
-- hello\n- login\n- get deadlines [in <course>][until <DD/MM>]\
-\n\nBut thats not all, theres also some more!\nIts up to you to find them :)"
-            self.reply(user_id, msg, 'text')
-        elif content == "hint":
+        elif content_list[0] == "help":
+            self.help(user_id, content_list[1:])
+
+        elif content_lower == "hint":
             msg = "This will be removed at launch!\n\n- juicy gif\n- juice gif\n- who am I?\n- who are you?\n- chicken\n- id"
             self.reply(user_id, msg, 'text')
+
         # ------------ EASTER EGGS --------------
-        elif content == "chicken":
+        elif content_lower == "chicken":
             msg = "http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
             self.reply(user_id, msg, 'video')
-        elif content == "id":
+
+        elif content_lower == "id":
             self.reply(user_id, user_id, 'text')
-        elif content == "juice gif":
+
+        elif content_lower == "juice gif":
             msg = "https://i.makeagif.com/media/10-01-2015/JzrY-u.gif"
             self.reply(user_id, msg, 'image')
-        elif content == "juicy gif":
+
+        elif content_lower == "juicy gif":
             msg = "http://68.media.tumblr.com/tumblr_m9pbdkoIDA1ra12qlo1_400.gif"
             self.reply(user_id, msg, 'image')
-        elif content == "who are you?":
+
+        elif content_lower == "who are you?":
             msg = "I am Cally, your lord and savior"
             self.reply(user_id, msg, 'text')
             url = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
             self.reply(user_id, url, 'image')
-        elif content == "who am i?":
+
+        elif content_lower == "who am i?":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             msg = "You are " + fname + " " + lname + " and you look like this:"
             self.reply(user_id, msg, 'text')
             self.reply(user_id, pic, 'image')
+
         # ------------ GET STARTED --------------
-        elif content == "get_started":
+        elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             msg = "Hi there " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nType 'help' to see" \
-                                        " what you can do. Enjoy!"
+                                        " what I can do. \n\n Please do enjoy!"
             self.reply(user_id, msg, 'text')
+
         # -------------- DEFAULT ----------------
         else:
             # with open("LOG/"+user_id+".txt", "a", encoding='utf-8') as f:  #W rite to log file, to see what errors
             # are made, per user
             #    f.write(content+"\n")
-            self.reply(user_id, content, data_type)
+            if data_type == "text":
+                self.reply(user_id,
+                           content + "\nDid you mean to ask me to do something? Type 'help' to see my supported "
+                                     "commands", data_type)
+            else:
+                self.reply(user_id, content, data_type)
 
     def get_statements(self, user_id, content_list):
-        # TODO: maybe add a list with what courses are on which platform, to not have
-        # to scrape Blackboard for requested courses on itslearning etc
-        # Note: Might still throw unexpected errors
-        # Note: Does not reply with until time, may be implemented by adding until field to message if it was changed
+        """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
             self.deadlines(user_id, content_list)
-        elif content_list[0] == "reminders":
+        elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
             msg = ""
             for reminder in reminders:
                 msg += reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
             self.reply(user_id, msg, "text")
+        elif content_list[0] == "exam" or content_list[0] == "exams":
+            msg = ""
+            for exam in content_list[1:]:
+                date = help_methods.get_course_exam_date(exam)
+                if date:
+                    msg += "The exam in " + exam + " is on " + date + "\n\n"
+                else:
+                    msg += "I cant find the exam date for " + exam + "\n\n"
+            self.reply(user_id, msg, "text")
         else:
-            self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that", "text")
+            self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that",
+                       "text")  # TODO: Return a list of all supported get statements
 
     def deadlines(self, user_id, content_list):
+        """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
         course = "ALL"
         until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
         self.reply(user_id, "I'll go get your deadlines right now", "text")
@@ -142,14 +176,69 @@ class Reply:
                 self.reply(user_id, "I couldn't find any deadlines for " + course, "text")
 
     def set_statements(self, user_id, content_list):
-        if content_list[0] == "reminder":  # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
+        """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
+        if content_list[0] == "reminder" or content_list[
+            0] == "reminders":  # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
             self.db.add_reminder(" ".join(content_list[1:-3]), " ".join(content_list[-2:]), 0, user_id)
             self.reply(user_id, "The reminder" + " ".join(content_list[1:-3]) + " was sat at " +
                        " ".join(content_list[-2:]), "text")
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
-    def process_data(data):  # Classifies data type and extracts the data
+    def bug(self, user_id, content_list):
+        """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
+        with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
+            f.write(user_id + ": " + " ".join(content_list) + "\n")
+        self.reply(user_id, "The bug was taken to my developers. One of them might contanct you if they need further "
+                            "help with the bug", "text")
+
+    def request(self, user_id, content_list):
+        """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
+        with open("REQUEST/user_bug_reports.txt", "a", encoding='utf-8') as f:
+            f.write(user_id + ": " + " ".join(content_list) + "\n")
+        self.reply(user_id, "The request was taken to my developers. I will try to make your wish come true, but keep"
+                            " in mind that not all request are feasible", "text")
+
+    def help(self, user_id, content_list):
+        """Replies to the user with a string explaining the method in content_list"""
+        # TODO: Add help strings to most funtions supported by the bot, to ease navigation
+        if not content_list:
+            self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commandoes are supported:\n\n\- hello\n- "
+                                "login\n- get deadlines [in <course>][until <DD/MM>]\
+            \n\nBut thats not all, theres also some more!\nIts up to you to find them :)\n\n"
+                                "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
+                                "You can try this with 'help help' now", 'text')
+
+        elif content_list[0] == "deadlines" or content_list[0] == "deadline":
+            self.reply(user_id, "Deadlines are fetched from It'slearning and Blackboard with the feide username and "
+                                "password you entered with the 'login' command. To get the deadlines you can write "
+                                "the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n\t- get deadlines "
+                                "from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n"
+                                "Without the <> and the course code, date and month you wish", "text")
+
+        elif content_list[0] == "help":
+            self.reply(user_id, "The help method gives more detailed information about my features, and their commands"
+                                ". Currently you can search up information for:\n\t-deadlines\n\t-help"
+                                "\n\t-reminders", "text")
+
+        elif content_list[0] == "reminder" or content_list[0] == "reminders":
+            self.reply(user_id, "I can give reminders to anyone who is logged in with the 'login' command. "
+                                "Anyone who is logged in can create and manage their own reminders. "
+                                "If you login with your feide username and password I can retrieve all your "
+                                "deadlines on It'slearning and Blackboard as well, and give you reminders to "
+                                "those when they are soon due. I will naturally never share your information with "
+                                "anyone.\n\nThe following commands are supported:\n\n\t"
+                                "- set reminder ¤Reminder text¤ at YYYY-MM-DD HH:mm:ss\n\t- get reminders\n\n"
+                                "Where ¤Reminder text¤ is what "
+                                "i should tell you when the reminder is due.", "text")
+
+        else:
+            self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
+                                "it with the 'bug' function. If it something you simply wish to be added, use the "
+                                "'request' function", "text")
+
+    def process_data(data):
+        """Classifies data type and extracts the data. Returns [data_type, content]"""
         try:
             content = data['entry'][0]['messaging'][0]['message']  # Pinpoint content
             if 'text' in content:  # Check if text
@@ -173,6 +262,7 @@ class Reply:
         return data_type, content
 
     def reply(self, user_id, msg, msg_type):
+        """Replies to the user with the given message"""
         if msg_type == 'text':  # Text reply
             data = {
                 "recipient": {"id": user_id},
@@ -196,7 +286,8 @@ class Reply:
         response = requests.post(self.get_reply_url(), json=data)
         print(response.content)
 
-    def login(self, user_id):  # Login url to login
+    def login(self, user_id):
+        """Sends the user to the login page"""
         fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Retrieve user info
         url = "https://folk.ntnu.no/halvorkm/TDT4140?userid=" + str(user_id) + "?name=" + fname + "%" + lname
         data = {

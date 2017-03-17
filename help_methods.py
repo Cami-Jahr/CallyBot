@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 
 def add_default_reminders(user_id, assignments, db):
+    """Adds all deadlines to db, if the do not already exist there"""
     names = [x[0] for x in db.get_reminders(user_id)]
     for assignment in assignments:
         if db.user_subscribed_to_course(user_id, assignment[0]) and assignment[1] not in names:
@@ -28,12 +29,13 @@ def search_reminders(db):
     return current
 
 
-def get_course_info(course):
+def get_course_exam_date(course_code):
+    """Returns the exam date of the given course"""
     # Other information may be fetched later, by reading from the info data
     try:
-        info = requests.get('http://www.ime.ntnu.no/api/course/' + course).json()
+        info = requests.get('http://www.ime.ntnu.no/api/course/' + course_code).json()
     except json.decoder.JSONDecodeError:  # course does not exist in ime api
-        return "Was unable to retrive exam date for " + course
+        return "Was unable to retrive exam date for " + course_code
     exam_date = None
     try:
         for i in range(len(info["course"]["assessment"])):
@@ -42,10 +44,11 @@ def get_course_info(course):
                 break
     except (KeyError, TypeError):  # Catch if date does not exist, or assessment does not exist
         pass
-    return course, exam_date
+    return exam_date
 
 
-def get_user_info(access_token, user_id):  # Get user info from profile
+def get_user_info(access_token, user_id):
+    """Get user info from profile, returns [firstname, lastname, picture]"""
     user_details_url = "https://graph.facebook.com/v2.8/" + str(user_id)
     user_details_params = {'fields': 'first_name,last_name,profile_pic', 'access_token': access_token}
     user_details = requests.get(user_details_url, user_details_params).json()
@@ -56,6 +59,7 @@ def get_user_info(access_token, user_id):  # Get user info from profile
 
 
 def IL_scrape(user_id, course, until, db):
+    """Scrapes It'slearing, and updates database. Returns a formatted reply message with deadlines"""
     course = course.upper()
     result = db.get_credential(user_id)
 
@@ -71,7 +75,8 @@ def IL_scrape(user_id, course, until, db):
             due_month = int(line[3].split(".")[1])
             if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before max deadlines
                 day, month, year = line[3].split(".")
-                reminders_to_set.append((line[1] + " in " + line[2], line[0], "{}-{}-{}".format(year, month, day) + " " + line[4] + ":00"))
+                reminders_to_set.append(
+                    (line[1] + " in " + line[2], line[0], "{}-{}-{}".format(year, month, day) + " " + line[4] + ":00"))
                 msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
                     4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
         add_default_reminders(user_id, reminders_to_set, db)
@@ -87,6 +92,7 @@ def IL_scrape(user_id, course, until, db):
 
 
 def BB_scrape(user_id, course, until, db):
+    """Scrapes Blackboard, and updates database. Returns a formatted reply message with deadlines"""
     course = course.upper()
     result = db.get_credential(user_id)
     info = iblack_scrape.scrape(result[2], result[3])

@@ -14,7 +14,7 @@ credential = credentials.Credentials()
 db_creds = credential.db_info
 db = Callybot_DB.CallybotDB(db_creds[0], db_creds[1], db_creds[2], db_creds[3])
 replier = reply.Reply(credential.access_token, db)
-sequence_numbers = []
+handled_timestamps = []
 
 
 def init():
@@ -53,26 +53,27 @@ def reminder_check():
 @app.route('/', methods=['POST'])
 def handle_incoming_messages():
     data = request.json
+    global handled_timestamps
     try:
-        global sequence_numbers
-        seq = data['entry'][0]['messaging'][0]['message']['seq']
-        if seq in sequence_numbers:
-            print("Duplicated message")
-            return 'ok', 200
-        else:
-            if len(sequence_numbers) > 100: sequence_numbers = []
-            sequence_numbers.append(seq)
+        timestamp = data['entry'][0]['time']
     except KeyError:
-        pass
-
-    print()
+        print("\x1b[0;31;0mError: Could not find timestamp\x1b[0m")
+        return "ok", 200
+    if timestamp in handled_timestamps:
+        print("\x1b[0;34;0mDuplicated message\x1b[0m")
+        return 'ok', 200
+    else:
+        if len(handled_timestamps) > 256:
+            handled_timestamps = handled_timestamps[-32:]
+        handled_timestamps.append(timestamp)
+    print("\n\n\n")
     print("----------------START--------------")
     print("DATA:")
     print(data)
     print("---------------END-----------------")
     user_id = data['entry'][0]['messaging'][0]['sender']['id']
     replier.arbitrate(user_id, data)
-    print("Everything is good in the good")
+    print("\x1b[0;32;0mok 200 for message with timestamp", timestamp, "\x1b[0m")
     return "ok", 200
 
 
