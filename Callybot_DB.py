@@ -141,7 +141,7 @@ class CallybotDB:
 		# change the deadline specified by the defaulttime
 		df = self.get_defaulttime(user_id)
 		# only alter deadline if coursemade == 1
-		newdeadline = deadline
+		newdeadline = deadline.replace('.','-')
 		# assumes deadline is a string of format 'YYYY-MM-DD hh:mm:ss'
 		if coursemade:
 			newdeadline = fix_new_deadline(deadline, df)
