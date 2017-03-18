@@ -1,6 +1,7 @@
 import requests
 import help_methods
 import re  # Regular expressions https://docs.python.org/3/library/re.html
+from datetime import datetime, timedelta
 
 
 class Reply:
@@ -23,6 +24,11 @@ class Reply:
         self.db = db
         self.scraper = Scraper(self, self.db)
         self.scraper.start()
+
+        self.rep = {" ": "-", "/": "-", "\\": "-", ":": "-", ";": "-"}  # define desired replacements here.
+        # Used in set reminder to get a standard format to work with
+        self.rep = dict((re.escape(k), v) for k, v in self.rep.items())
+        self.pattern = re.compile("|".join(self.rep.keys()))
 
     def arbitrate(self, user_id, data):
         """Chooses action based on message given, does not return"""
@@ -57,7 +63,7 @@ class Reply:
 
         elif content_list[0] == 'subscribe':
             self.subscribe(user_id, content_list[1:])
-        
+
         elif content_list[0] == 'unsubscribe':
             self.unsubscribe(user_id, content_list[1:])
 
@@ -80,8 +86,9 @@ class Reply:
 
         # ------------ EASTER EGGS --------------
         elif content_lower == "chicken":
-            msg = "http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
-            self.reply(user_id, msg, 'video')
+            # msg = "http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
+            msg = "Did I scare ya?"
+            self.reply(user_id, msg, 'text')
 
         elif content_lower == "id":
             self.reply(user_id, user_id, 'text')
@@ -130,7 +137,7 @@ class Reply:
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
         if not content_list:
-            self.reply(user_id,'Please specify what to get\nType help get if you need help','text')
+            self.reply(user_id, 'Please specify what to get\nType help get if you need help', 'text')
             return
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
             self.deadlines(user_id, content_list)
@@ -155,18 +162,20 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    self.reply(user_id, "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                                        "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                                        "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                                        "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                                        "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                                        "253Ditslearning", "text")
+                    self.reply(user_id,
+                               "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
+                               "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
+                               "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
+                               "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
+                               "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
+                               "253Ditslearning", "text")
                 elif content_list[1] == "blackboard":
                     self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
                                         "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
                                         "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
                                         "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                        "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e", "text")
+                                        "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
+                               "text")
 
                 else:
                     self.reply(user_id,
@@ -183,17 +192,19 @@ class Reply:
                                     "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
                            "text")
             except IndexError:
-                    self.reply(user_id, "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                                        "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                                        "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                                        "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                                        "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                                        "253Ditslearning", "text")
-                    self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
-                                        "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
-                                        "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
-                                        "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                        "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e", "text")
+                self.reply(user_id,
+                           "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
+                           "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
+                           "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
+                           "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
+                           "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
+                           "253Ditslearning", "text")
+                self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
+                                    "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
+                                    "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
+                                    "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
+                                    "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
+                           "text")
 
 
 
@@ -207,77 +218,110 @@ class Reply:
         self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
                             "this might take me some time", "text")
 
-
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
         if content_list[0] == "reminder" or content_list[0] == "reminders":
-            print(content_list[-2])
-            #if re.fullmatch()
+            date = content_list[-2]
+            current = datetime.now()
+            due_time = content_list[-1]
+            due_time = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
+                                        due_time)  # Makes any date string split with "-"
+            day = current.day
+            month = current.month
+            year = current.year
+            if re.fullmatch("[0-9 /\\\:;-]*", date):  # with date in front
+                date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
+                                        date)  # Makes any date string split with "-"
+                date_list = date.split("-")
+                if len(date_list) == 3:  # YYYY-MM-DD
+                    if len(date_list[0]) == 2:
+                        date_list[0] = "20" + date_list[0]
+                    year = int(date_list[0])
+                    month = int(date_list[1])
+                    day = int(date_list[2])
+                elif len(date_list) == 2:  # DD-MM
+                    month = int(date_list[1])
+                    day = int(date_list[0])
+                else:  # DD
+                    if int(date_list[0]) < day:
+                        month += 1
+                    day = int(date_list[0])
 
-            self.db.add_reminder(" ".join(content_list[1:-3]), " ".join(content_list[-2:]), 0, user_id)
-            # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-            self.reply(user_id, "The reminder" + " ".join(content_list[1:-3]) + " was sat at " +
-                       " ".join(content_list[-2:]), "text")
+            try:
+                hour, minute = [int(i) for i in due_time.split("-")]
+            except ValueError:
+                self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'", "text")
+                return
+            time = datetime(year, month, day, hour, minute)
+            if time < current:
+                time = time + timedelta(days=1)
+            if time < current:
+                self.reply(user_id, "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
+                            "as it tried to set itself to a time already past:" +
+                           time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
+                            "If you belive this was a bug, report it with the 'bug' function", "text")
+            else:
+                self.db.add_reminder(" ".join(content_list[1:-3]), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
+                self.reply(user_id, "The reminder " + " ".join(content_list[1:-3]) + " was sat at " +
+                           time.strftime("%Y-%m-%d %H:%M"), "text")
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
-
 
     def subscribe(self, user_id, content_list):
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to. Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id,'subsribe to what?\nType help subscribe if you need help','text')
+            self.reply(user_id, 'subsribe to what?\nType help subscribe if you need help', 'text')
             return
-        
-        self.reply(user_id,'Subscribing to '+','.join(content_list)+"...",'text')
-        non_existing,already_subscribed,success_subscribed=[],[],[]
+
+        self.reply(user_id, 'Subscribing to ' + ','.join(content_list) + "...", 'text')
+        non_existing, already_subscribed, success_subscribed = [], [], []
         for course in content_list:
-            course=course.upper()
+            course = course.upper()
             if self.db.course_exists(course):
-                if not self.db.user_subscribed_to_course(user_id,course):
-                    self.db.subscribe_to_course(user_id,course)
+                if not self.db.user_subscribed_to_course(user_id, course):
+                    self.db.subscribe_to_course(user_id, course)
                     success_subscribed.append(course)
                 else:
                     already_subscribed.append(course)
             else:
                 non_existing.append(course)
         if non_existing:
-            self.reply(user_id,'The following course(s) do(es) not exist: '+','.join(non_existing),'text')
+            self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
         if already_subscribed:
-            self.reply(user_id,'You are already subscribed to '+','.join(already_subscribed),'text')
+            self.reply(user_id, 'You are already subscribed to ' + ','.join(already_subscribed), 'text')
         if success_subscribed:
-            self.reply(user_id,'You have successfully subscribed to '+','.join(success_subscribed),'text')
-
+            self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
 
     def unsubscribe(self, user_id, content_list):
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to. Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id,'Unsubsribe from what?\nType help unsubscribe if you need help','text')
+            self.reply(user_id, 'Unsubsribe from what?\nType help unsubscribe if you need help', 'text')
             return
 
-        self.reply(user_id,'Unsubscribing from '+','.join(content_list)+"...",'text')
-        non_existing,not_subscribed,success_unsubscribed=[],[],[]
+        self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list) + "...", 'text')
+        non_existing, not_subscribed, success_unsubscribed = [], [], []
         for course in content_list:
-            course=course.upper()
+            course = course.upper()
             if self.db.course_exists(course):
-                if self.db.user_subscribed_to_course(user_id,course):
-                    self.db.unsubscribe(user_id,course)
+                if self.db.user_subscribed_to_course(user_id, course):
+                    self.db.unsubscribe(user_id, course)
                     success_unsubscribed.append(course)
                 else:
                     not_subscribed.append(course)
             else:
                 non_existing.append(course)
         if non_existing:
-            self.reply(user_id,'The following course(s) do(es) not exist: '+','.join(non_existing),'text')
+            self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
         if not_subscribed:
-            self.reply(user_id,'You are not subscribed to '+','.join(not_subscribed),'text')
+            self.reply(user_id, 'You are not subscribed to ' + ','.join(not_subscribed), 'text')
         if success_unsubscribed:
-            self.reply(user_id,'You have successfully unsubscribed from '+','.join(success_unsubscribed),'text')
-
+            self.reply(user_id, 'You have successfully unsubscribed from ' + ','.join(success_unsubscribed), 'text')
 
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         if not content_list:
-            self.reply(user_id,'Please specify atleast one bug\nType help bug if you need help','text')
+            self.reply(user_id, 'Please specify atleast one bug\nType help bug if you need help', 'text')
             return
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
             f.write(user_id + ": " + " ".join(content_list) + "\n")
@@ -305,11 +349,12 @@ class Reply:
         elif content_list[0] == "get":
             try:
                 if content_list[1] == "deadlines" or content_list[1] == "deadline":
-                    self.reply(user_id, "Deadlines are fetched from It'slearning and Blackboard with the feide username and"
-                                        " password you entered with the 'login' command. To get the deadlines you can write"
-                                        " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n"
-                                        "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n"
-                                        "Without the <> and the course code, date and month you wish", "text")
+                    self.reply(user_id,
+                               "Deadlines are fetched from It'slearning and Blackboard with the feide username and"
+                               " password you entered with the 'login' command. To get the deadlines you can write"
+                               " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n"
+                               "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n"
+                               "Without the <> and the course code, date and month you wish", "text")
 
                 elif content_list[1] == "exam" or content_list[1] == "exams":
                     self.reply(user_id, "I can get the exam date for any of your courses. Just write"
@@ -320,7 +365,7 @@ class Reply:
                                         "\n- Get links\n- Get link Itslearning\n- Get link Blackboard", "text")
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
                     self.reply(user_id, "This gives you an overview of all upcoming reminders I have in store for you."
-                                        , "text")
+                               , "text")
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
@@ -363,7 +408,8 @@ class Reply:
         elif content_list[0] == "bug":
             self.reply(user_id, "If you encounter a bug please let me know! You submit a bug report with a"
                                 "\n- bug <message> \n"
-                                "command. If it is a feature you wish added, please use the request command instead", "text")
+                                "command. If it is a feature you wish added, please use the request command instead",
+                       "text")
         elif content_list[0] == "request":
             self.reply(user_id, "If you have a request for a new feature please let me know! You submit a feature"
                                 " request with a\n- request <message> \ncommand. If you think this is already a feature"
@@ -466,6 +512,7 @@ from threading import Thread
 from collections import deque
 from time import sleep
 
+
 class Scraper(Thread):
     """The class inherits Thread, something that is necessary to make the Scraper start a new thread, which
     allows the server to send a '200 ok' fast after being prompted to scrape, and then scrape without facebook pushing
@@ -543,8 +590,7 @@ class Scraper(Thread):
             self.replier.reply(user_id, msg2, 'text')
         else:
             if ILdeads or BBdeads:  # Both is returned as empty if does not have course
-                self.replier.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads, "text")
+                self.replier.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads,
+                                   "text")
             else:
                 self.replier.reply(user_id, "I couldn't find any deadlines for " + course, "text")
-
-
