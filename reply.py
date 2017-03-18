@@ -242,7 +242,7 @@ class Reply:
         if already_subscribed:
             self.reply(user_id,'You are already subscribed to '+','.join(already_subscribed),'text')
         if success_subscribed:
-            self.reply(user_id,'You have successfully subscribed to'+','.join(success_subscribed),'text')
+            self.reply(user_id,'You have successfully subscribed to '+','.join(success_subscribed),'text')
 
 
     def unsubscribe(self, user_id, content_list):
@@ -268,7 +268,7 @@ class Reply:
         if not_subscribed:
             self.reply(user_id,'You are not subscribed to '+','.join(not_subscribed),'text')
         if success_unsubscribed:
-            self.reply(user_id,'You have successfully unsubscribed from'+','.join(success_unsubscribed),'text')
+            self.reply(user_id,'You have successfully unsubscribed from '+','.join(success_unsubscribed),'text')
 
 
     def bug(self, user_id, content_list):
