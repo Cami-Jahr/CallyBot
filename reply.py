@@ -126,6 +126,9 @@ class Reply:
 
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
+        if not content_list:
+            self.reply(user_id,'Please specify what to get\nType help get if you need help','text')
+            return
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
             self.deadlines(user_id, content_list)
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
@@ -215,14 +218,34 @@ class Reply:
 
     def subscribe(self, user_id, content_list):
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to. Replies with confirmation and ends"""
-        self.reply(user_id,'Subscribing to '+content_list+"...",'text')
-        for course in content_list.split(','):
-            self.db.subscribe_to_course(user_id,course)
-        self.reply(user_id,'Subscribe successful','text')
+        if not content_list:
+            self.reply(user_id,'subsribe to what?\nType help subscribe if you need help','text')
+            return
+        self.reply(user_id,'Subscribing to '+','.join(content_list)+"...",'text')
+        non_existing,already_subscribed,success_subscribed=[],[],[]
+        for course in content_list:
+            course=course.upper()
+            if self.db.course_exists(course):
+                if not self.db.user_subscribed_to_course(user_id,course):
+                    self.db.subscribe_to_course(user_id,course)
+                    success_subscribed.append(course)
+                else:
+                    already_subscribed.append(course)
+            else:
+                non_existing.append(course)
+        if non_existing:
+            self.reply(user_id,'The following course(s) do(es) not exist: '+','.join(non_existing),'text')
+        if already_subscribed:
+            self.reply(user_id,'You are already subscribed to '+','.join(already_subscribed),'text')
+        if success_subscribed:
+            self.reply(user_id,'You have successfully subscribed to'+','.join(success_subscribed),'text')
 
 
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
+        if not content_list:
+            self.reply(user_id,'Please specify atleast one bug\nType help bug if you need help','text')
+            return
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
             f.write(user_id + ": " + " ".join(content_list) + "\n")
         self.reply(user_id, "The bug was taken to my developers. One of them might contanct you if they need further "
