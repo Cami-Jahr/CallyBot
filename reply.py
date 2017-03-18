@@ -296,7 +296,7 @@ class Reply:
         if not content_list:
             self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders\n- Set reminder"
-                                "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Help"
+                                "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
                                 "\n\nBut thats not all, theres also some more hidden commands!\nIts up to you to find "
                                 "them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
@@ -369,8 +369,11 @@ class Reply:
                                 " request with a\n- request <message> \ncommand. If you think this is already a feature"
                                 ", and you encountered a bug, please use the bug command instead", "text")
         elif content_list[0] == "subscribe":
-           self.reply(user_id, "You can subscribe to courses you wish to get reminders from. To subscribe to a course "
-                               "just write\n- subscribe <course_code> (course_code2....)", "text")
+           self.reply(user_id, "You can subscribe to courses you want to get reminders from. To subscribe to a course "
+                               "just write\n- subscribe <course_code> (<course_code2>...)", "text")
+        elif content_list[0] == "unsubscribe":
+           self.reply(user_id, "You can unsubscribe to courses you dont want to get reminders from. To unsubscribe to a course "
+                               "just write\n- unsubscribe <course_code> (<course_code2>...)", "text")
 
         else:
             self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
