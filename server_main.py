@@ -33,7 +33,7 @@ def interrupt():
     scheduler.start()
     scheduler.add_job(
         func=reminder_check,
-        trigger=CronTrigger(minute='*/5,*/0'),  # checking every 5th minute
+        trigger=CronTrigger(minute='00,05,10,15,20,25,30,35,40,45,50,55'),  # checking every 5th minute
         id='reminder_check',
         name='Reminder',
         replace_existing=True)
@@ -42,7 +42,10 @@ def interrupt():
 
 def reminder_check():
     # Run reminder_check
-    print("Reminder trigger", time.ctime())
+    msg = "Reminder trigger" + str(time.ctime() + "\n")
+    print(msg)
+    with open("times.txt", "a", encoding="UTF-8") as f:
+        f.write(msg)
     current = help_methods.search_reminders(db)
     if current:
         for reminder in current:

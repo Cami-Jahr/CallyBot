@@ -34,8 +34,8 @@ class Reply:
             return
         content_lower = content.lower()
         content_list = content_lower.split()
-        # ------------ COMMANDS --------------
 
+        # ------------ COMMANDS --------------
         if content_list[0] == "get":
             self.get_statements(user_id, content_list[1:])
 
@@ -54,15 +54,25 @@ class Reply:
 
         elif content_list[0] == "request":
             self.request(user_id, content_list[1:])
+
         elif content_list[0] == 'subscribe':
             self.subscribe(user_id, content_list[1:])
 
-        # ------------ HELP METHODS -----------
+        elif content_lower == "delete me":
+            self.reply(user_id, "Are you sure? By deleting your information i will also delete all reminders you have "
+                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all "
+                                "my information'", "text")
+
+        elif content_lower == "yes, i agree to delete all my information":
+            self.db.remove_user(user_id)
+            self.reply(user_id, "I have now deleted all your information. If you have any feedback to give me, please "
+                                "do so with the 'request' function.\nI hope to see you again!", "text")
+
         elif content_list[0] == "help":
             self.help(user_id, content_list[1:])
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- juicy gif\n- juice gif\n- who am I?\n- who are you?\n- chicken\n- id"
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Id"
             self.reply(user_id, msg, 'text')
 
         # ------------ EASTER EGGS --------------
@@ -96,8 +106,10 @@ class Reply:
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
-            msg = "Hi there " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nType 'help' to see" \
-                                        " what I can do. \n\n Please do enjoy!"
+            msg = "Hi there " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
+                                        "date on your upcomming deadlines on It'slearning and Blackboard. Type 'login' " \
+                                        "or use the menu to get started. \nIf you need help, or want to know more about" \
+                                        " what i can do for you, just type 'help'.\n\n Please do enjoy!"
             self.reply(user_id, msg, 'text')
 
         # -------------- DEFAULT ----------------
@@ -118,9 +130,12 @@ class Reply:
             self.deadlines(user_id, content_list)
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
-            msg = ""
-            for reminder in reminders:
-                msg += reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
+            if reminders:
+                msg = ""
+                for reminder in reminders:
+                    msg += reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
+            else:
+                msg = "You don't appear to have any reminders scheduled with me"
             self.reply(user_id, msg, "text")
         elif content_list[0] == "exam" or content_list[0] == "exams":
             msg = ""
@@ -131,6 +146,51 @@ class Reply:
                 else:
                     msg += "I cant find the exam date for " + exam + "\n\n"
             self.reply(user_id, msg, "text")
+        elif content_list[0] == "link" or content_list[0] == "links":
+            try:
+                if content_list[1] == "itslearning":
+                    self.reply(user_id, "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
+                                        "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
+                                        "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
+                                        "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
+                                        "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
+                                        "253Ditslearning", "text")
+                elif content_list[1] == "blackboard":
+                    self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
+                                        "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
+                                        "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
+                                        "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
+                                        "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e", "text")
+
+                else:
+                    self.reply(user_id,
+                               "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
+                               "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
+                               "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
+                               "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
+                               "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
+                               "253Ditslearning", "text")
+                self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
+                                    "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
+                                    "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
+                                    "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
+                                    "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
+                           "text")
+            except IndexError:
+                    self.reply(user_id, "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
+                                        "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
+                                        "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
+                                        "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
+                                        "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
+                                        "253Ditslearning", "text")
+                    self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
+                                        "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
+                                        "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
+                                        "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
+                                        "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e", "text")
+
+
+
         else:
             self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that",
                        "text")  # TODO: Return a list of all supported get statements
@@ -179,35 +239,48 @@ class Reply:
         """Replies to the user with a string explaining the method in content_list"""
         # TODO: Add help strings to most funtions supported by the bot, to ease navigation
         if not content_list:
-            self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commandoes are supported:\n\n\- hello\n- "
-                    "login\n- subscribe <course1>(optional: ,<course2>,<course3>..)\n- get deadlines [in <course>][until <DD/MM>]\
-            \n\nBut thats not all, theres also some more!\nIts up to you to find them :)\n\n"
+            self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
+                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Set reminder"
+                                "\n- Delete me\n- Bug\n- Request\n- Subscribe"
+                                "\n\nBut thats not all, theres also some more hidden commands!\nIts up to you to find "
+                                "them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
-                                "You can try this with 'help help' now", 'text')
+                                "You can try this with 'help help' now!", 'text')
 
-        elif content_list[0] == "deadlines" or content_list[0] == "deadline":
-            self.reply(user_id, "Deadlines are fetched from It'slearning and Blackboard with the feide username and "
-                                "password you entered with the 'login' command. To get the deadlines you can write "
-                                "the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n\t- get deadlines "
-                                "from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n"
-                                "Without the <> and the course code, date and month you wish", "text")
+        elif content_list[0] == "get":
+            if content_list[1] == "deadlines" or content_list[1] == "deadline":
+                self.reply(user_id, "Deadlines are fetched from It'slearning and Blackboard with the feide username and"
+                                    " password you entered with the 'login' command. To get the deadlines you can write"
+                                    " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n"
+                                    "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n"
+                                    "Without the <> and the course code, date and month you wish", "text")
+            else:
+                self.reply(user_id,
+                           "I'm not sure that's a supported command, if you think this is a bug, please do report "
+                           "it with the 'bug' function! If it something you simply wish to be added, use the "
+                           "'request' function", "text")
 
         elif content_list[0] == "help":
             self.reply(user_id, "The help method gives more detailed information about my features, and their commands"
-                                ". Currently you can search up information for:\n\t-deadlines\n\t-help"
-                                "\n\t-reminders", "text")
+                                ". You may type help in front of any method to get a more detailed overview of what it"
+                                " does.", "text")
 
-        elif content_list[0] == "reminder" or content_list[0] == "reminders":
-            self.reply(user_id, "I can give reminders to anyone who is logged in with the 'login' command. "
-                                "Anyone who is logged in can create and manage their own reminders. "
-                                "If you login with your feide username and password I can retrieve all your "
-                                "deadlines on It'slearning and Blackboard as well, and give you reminders to "
-                                "those when they are soon due. I will naturally never share your information with "
-                                "anyone.\n\nThe following commands are supported:\n\n\t"
-                                "- set reminder ¤Reminder text¤ at YYYY-MM-DD HH:mm:ss\n\t- get reminders\n\n"
-                                "Where ¤Reminder text¤ is what "
-                                "i should tell you when the reminder is due.", "text")
-
+        elif content_list[0] == "set":
+            if content_list[0] == "reminder" or content_list[0] == "reminders":
+                self.reply(user_id, "I can give reminders to anyone who is logged in with the 'login' command. "
+                                    "Anyone who is logged in can create and manage their own reminders. "
+                                    "If you login with your feide username and password I can retrieve all your "
+                                    "deadlines on It'slearning and Blackboard as well, and give you reminders to "
+                                    "those when they are soon due. I will naturally never share your information with "
+                                    "anyone.\n\nThe following commands are supported:\n\n\t"
+                                    "- set reminder ¤Reminder text¤ at YYYY-MM-DD HH:mm:ss\n\n"
+                                    "Where ¤Reminder text¤ is what "
+                                    "i should tell you when the reminder is due.", "text")
+            else:
+                self.reply(user_id,
+                           "I'm not sure that's a supported command, if you think this is a bug, please do report "
+                           "it with the 'bug' function. If it something you simply wish to be added, use the "
+                           "'request' function", "text")
         else:
             self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
                                 "it with the 'bug' function. If it something you simply wish to be added, use the "
@@ -365,7 +438,10 @@ class Scraper(Thread):
         BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
         # print(ILdeads, BBdeads)
         if ILdeads == "SQLerror" or BBdeads == "SQLerror":
-            self.replier.reply(user_id, "Could not fetch deadlines. Check if your user info is correct", 'text')
+            self.replier.reply(user_id, "Could not fetch deadlines. Check if your user info is correct. You can "
+                                        "probably fix this by using the 'login' command and logging in again with your"
+                                        " feide username and password.\n\nIf you belive this is a bug, please report "
+                                        "it with the 'bug' function", 'text')
         elif course == "ALL":
             msg = "ItsLearning:\n" + ILdeads
             msg2 = "BlackBoard:\n" + BBdeads
