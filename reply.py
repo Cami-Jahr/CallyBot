@@ -220,7 +220,14 @@ class Reply:
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
+        if not content_list:
+            self.reply(user_id, 'Please specify what to set\nType help set if you need help', 'text')
+            return
+
         if content_list[0] == "reminder" or content_list[0] == "reminders":
+            if not contentlist[1:]:
+                self.reply(user_id,'Please specify what to be reminded of\nType help set reminder if you need help','text')
+                return
             date = content_list[-2]
             current = datetime.now()
             due_time = content_list[-1]
