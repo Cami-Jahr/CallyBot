@@ -19,13 +19,15 @@ class Reply:
         # ie course_code format on ntnu
         date_format_separator = "[\/]"  # Date separators allowed. Regex format
         self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + "(0?[469]|11))))"
+                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator +\
+                           "(0?[469]|11))))"
         # checks if is legit date.
         self.db = db
         self.scraper = Scraper(self, self.db)
         self.scraper.start()
 
-        self.rep = {" ": "-", "/": "-", "\\": "-", ":": "-", ";": "-"}  # define desired replacements here.
+        self.rep = {" ": "-", "/": "-", "\\": "-", ":": "-", ";": "-", ",": "-", ".": "-"}
+        # define desired replacements here.
         # Used in set reminder to get a standard format to work with
         self.rep = dict((re.escape(k), v) for k, v in self.rep.items())
         self.pattern = re.compile("|".join(self.rep.keys()))
@@ -225,8 +227,9 @@ class Reply:
             return
 
         if content_list[0] == "reminder" or content_list[0] == "reminders":
-            if not contentlist[1:]:
-                self.reply(user_id,'Please specify what to be reminded of\nType help set reminder if you need help','text')
+            if not content_list[1:]:
+                self.reply(user_id, 'Please specify what to be reminded of\nType help set reminder if you need help',
+                           'text')
                 return
             date = content_list[-2]
             current = datetime.now()
@@ -236,7 +239,7 @@ class Reply:
             day = current.day
             month = current.month
             year = current.year
-            if re.fullmatch("[0-9 /\\\:;-]*", date):  # with date in front
+            if date != "at":  # with date in front
                 date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
                                         date)  # Makes any date string split with "-"
                 date_list = date.split("-")
@@ -247,6 +250,8 @@ class Reply:
                     month = int(date_list[1])
                     day = int(date_list[2])
                 elif len(date_list) == 2:  # DD-MM
+                    if int(date_list[1]) < month or (int(date_list[1]) == month and int(date_list[0]) < day):
+                        year += 1
                     month = int(date_list[1])
                     day = int(date_list[0])
                 else:  # DD
@@ -262,11 +267,15 @@ class Reply:
             time = datetime(year, month, day, hour, minute)
             if time < current:
                 time = time + timedelta(days=1)
-            if time < current:
+            if time < current + timedelta(minutes=10):
                 self.reply(user_id, "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
-                            "as it tried to set itself to a time already past:" +
+                "as it tried to set itself to a time already past, or upcoming within the next 10 minutes: " +
                            time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                            "If you belive this was a bug, report it with the 'bug' function", "text")
+                                                 "If you belive this was a bug, report it with the 'bug' function.",
+                           "text")
+            elif time > current + timedelta(weeks=60):
+                self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
+                           time.strftime("%Y-%m-%d %H:%M"), "text")
             else:
                 self.db.add_reminder(" ".join(content_list[1:-3]), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                 # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
@@ -276,9 +285,10 @@ class Reply:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
     def subscribe(self, user_id, content_list):
-        """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to. Replies with confirmation and ends"""
+        """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to.
+        Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id, 'subsribe to what?\nType help subscribe if you need help', 'text')
+            self.reply(user_id, 'subscribe to what?\nType help subscribe if you need help', 'text')
             return
 
         self.reply(user_id, 'Subscribing to ' + ','.join(content_list) + "...", 'text')
@@ -301,7 +311,8 @@ class Reply:
             self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
 
     def unsubscribe(self, user_id, content_list):
-        """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to. Replies with confirmation and ends"""
+        """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
+         Replies with confirmation and ends"""
         if not content_list:
             self.reply(user_id, 'Unsubsribe from what?\nType help unsubscribe if you need help', 'text')
             return
@@ -391,10 +402,13 @@ class Reply:
                                     "If you login with your feide username and password I can retrieve all your "
                                     "deadlines on It'slearning and Blackboard as well, and give you reminders to "
                                     "those when they are soon due. I will naturally never share your information with "
-                                    "anyone!\n\nThe following commands are supported:\n\n\t"
-                                    "- set reminder ¤Reminder text¤ at YYYY-MM-DD HH:mm:ss\n\n"
-                                    "Where ¤Reminder text¤ is what "
-                                    "i should tell you when the reminder is due.", "text")
+                                    "anyone!\n\nThe following commands are supported:\n\n"
+                                    "- set reminder <Reminder text> at <Due_date>\n"
+                                    "where <Due_date> can have the following formats:"
+                                    "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n"
+                                    "and <Reminder text> is what "
+                                    "i should tell you when the reminder is due.\n"
+                                    "I will always answer in a YYYY-MM-DD HH:mm format", "text")
             else:
                 self.reply(user_id,
                            "I'm not sure that's a supported command, if you think this is a bug, please do report "
@@ -405,28 +419,36 @@ class Reply:
             self.reply(user_id, "The help method gives more detailed information about my features, and their commands"
                                 ". You may type help in front of any method to get a more detailed overview of what it"
                                 " does.", "text")
+
         elif content_list[0] == "login":
             self.reply(user_id, "You must log in for me to be able to give you reminders. If you log in with your "
                                 "feide username and password I can also fetch your deadlines from blackboard and "
-                                "It'slearning!", "text")
+                                "It'slearning! \nIf you submitted wrong username or password, don't worry! I will still"
+                                " remember any reminders or courses you have saved with me", "text")
+
         elif content_list[0] == "delete me":
             self.reply(user_id, "If you want me to delete all information I have on you, type in 'delete me', and "
                                 "follow the instructions i give you", "text")
+
         elif content_list[0] == "bug":
             self.reply(user_id, "If you encounter a bug please let me know! You submit a bug report with a"
                                 "\n- bug <message> \n"
                                 "command. If it is a feature you wish added, please use the request command instead",
                        "text")
+
         elif content_list[0] == "request":
             self.reply(user_id, "If you have a request for a new feature please let me know! You submit a feature"
                                 " request with a\n- request <message> \ncommand. If you think this is already a feature"
                                 ", and you encountered a bug, please use the bug command instead", "text")
+
         elif content_list[0] == "subscribe":
-           self.reply(user_id, "You can subscribe to courses you want to get reminders from. To subscribe to a course "
-                               "just write\n- subscribe <course_code> (<course_code2>...)", "text")
+            self.reply(user_id, "You can subscribe to courses you want to get reminders from. To subscribe to a course "
+                                "just write\n- subscribe <course_code> (<course_code2>...)", "text")
+
         elif content_list[0] == "unsubscribe":
-           self.reply(user_id, "You can unsubscribe to courses you dont want to get reminders from. To unsubscribe to a course "
-                               "just write\n- unsubscribe <course_code> (<course_code2>...)", "text")
+            self.reply(user_id,
+                       "You can unsubscribe to courses you dont want to get reminders from. To unsubscribe to a course "
+                       "just write\n- unsubscribe <course_code> (<course_code2>...)", "text")
 
         else:
             self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
@@ -542,7 +564,8 @@ class Scraper(Thread):
         # ie course_code format on ntnu
         date_format_separator = "[\/]"  # Date separators allowed. Regex format
         self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + "(0?[469]|11))))"
+                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
+                           "(0?[469]|11))))"
         self.db = db
 
     def run(self):
