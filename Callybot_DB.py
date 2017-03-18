@@ -1,5 +1,5 @@
 import MySQLdb
-
+from datetime import datetime, timedelta
 
 class CallybotDB:
     # Cally_Database turned into an object class
@@ -237,38 +237,5 @@ class CallybotDB:
 
 
 def fix_new_deadline(deadline, df):  # tested: Done
-    # print(deadline, df)
     # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
-    daysofmonth = {"1": 31, "2": 28, "3": 31, "4": 30, "5": 31, "6": 30,
-                   "7": 31, "8": 31, "9": 30, "10": 31, "11": 30, "12": 31, "13": 29}
-    year = int(deadline[:4])
-    month = int(deadline[5:7])
-    day = int(deadline[8:10])
-    # print(year, month, day)
-    # assumes df is not larger than 28 days
-    if day - df < 1:
-        # fix day/month/year accordingly
-        if month == 1:
-            # set back year
-            year -= 1
-            month = 12
-        else:
-            month -= 1
-        if year % 4 == 0 and month == 2:
-            day += daysofmonth["13"] - df
-        else:
-            day += daysofmonth[str(month)] - df
-    else:
-        day -= df
-    if day < 10:
-        day = "0" + str(day)
-    else:
-        day = str(day)
-    if month < 10:
-        month = "0" + str(month)
-    else:
-        month = str(month)
-    # might change time of day to a fixed time, because many deadlines are at 23:59:00
-    out = str(year) + "-" + str(month) + "-" + str(day) + deadline[10:]
-    # print(out)
-    return out
+    return (datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S") - timedelta(days=df)).strftime("%Y-%m-%d %H:%M:%S")

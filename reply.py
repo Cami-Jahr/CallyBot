@@ -210,9 +210,12 @@ class Reply:
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
-        if content_list[0] == "reminder" or content_list[
-            0] == "reminders":  # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
+        if content_list[0] == "reminder" or content_list[0] == "reminders":
+            print(content_list[-2])
+            #if re.fullmatch()
+
             self.db.add_reminder(" ".join(content_list[1:-3]), " ".join(content_list[-2:]), 0, user_id)
+            # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
             self.reply(user_id, "The reminder" + " ".join(content_list[1:-3]) + " was sat at " +
                        " ".join(content_list[-2:]), "text")
         else:
@@ -366,7 +369,8 @@ class Reply:
                                 " request with a\n- request <message> \ncommand. If you think this is already a feature"
                                 ", and you encountered a bug, please use the bug command instead", "text")
         elif content_list[0] == "subscribe":
-           self.reply(user_id, "You can subscribe to courses you wish to get reminders from", "text")
+           self.reply(user_id, "You can subscribe to courses you wish to get reminders from. To subscribe to a course "
+                               "just write\n- subscribe <course_code> (course_code2....)", "text")
 
         else:
             self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
