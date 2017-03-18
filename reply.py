@@ -57,6 +57,9 @@ class Reply:
 
         elif content_list[0] == 'subscribe':
             self.subscribe(user_id, content_list[1:])
+        
+        elif content_list[0] == 'unsubscribe':
+            self.unsubscribe(user_id, content_list[1:])
 
         elif content_lower == "delete me":
             self.reply(user_id, "Are you sure? By deleting your information i will also delete all reminders you have "
@@ -221,6 +224,7 @@ class Reply:
         if not content_list:
             self.reply(user_id,'subsribe to what?\nType help subscribe if you need help','text')
             return
+        
         self.reply(user_id,'Subscribing to '+','.join(content_list)+"...",'text')
         non_existing,already_subscribed,success_subscribed=[],[],[]
         for course in content_list:
@@ -239,6 +243,32 @@ class Reply:
             self.reply(user_id,'You are already subscribed to '+','.join(already_subscribed),'text')
         if success_subscribed:
             self.reply(user_id,'You have successfully subscribed to'+','.join(success_subscribed),'text')
+
+
+    def unsubscribe(self, user_id, content_list):
+        """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to. Replies with confirmation and ends"""
+        if not content_list:
+            self.reply(user_id,'Unsubsribe from what?\nType help unsubscribe if you need help','text')
+            return
+
+        self.reply(user_id,'Unsubscribing from '+','.join(content_list)+"...",'text')
+        non_existing,not_subscribed,success_unsubscribed=[],[],[]
+        for course in content_list:
+            course=course.upper()
+            if self.db.course_exists(course):
+                if self.db.user_subscribed_to_course(user_id,course):
+                    self.db.unsubscribe(user_id,course)
+                    success_unsubscribed.append(course)
+                else:
+                    not_subscribed.append(course)
+            else:
+                non_existing.append(course)
+        if non_existing:
+            self.reply(user_id,'The following course(s) do(es) not exist: '+','.join(non_existing),'text')
+        if not_subscribed:
+            self.reply(user_id,'You are not subscribed to '+','.join(not_subscribed),'text')
+        if success_unsubscribed:
+            self.reply(user_id,'You have successfully unsubscribed from'+','.join(success_unsubscribed),'text')
 
 
     def bug(self, user_id, content_list):
