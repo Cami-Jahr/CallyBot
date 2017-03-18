@@ -54,6 +54,8 @@ class Reply:
 
         elif content_list[0] == "request":
             self.request(user_id, content_list[1:])
+        elif content_list[0] == 'subscribe':
+            self.subscribe(user_id, content_list[1:])
 
         # ------------ HELP METHODS -----------
         elif content_list[0] == "help":
@@ -150,6 +152,15 @@ class Reply:
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
+
+    def subscribe(self, user_id, content_list):
+        """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to. Replies with confirmation and ends"""
+        self.reply(user_id,'Subscribing to '+content_list+"...",'text')
+        for course in content_list.split(','):
+            self.db.subscribe_to_course(user_id,course)
+        self.reply(user_id,'Subscribe successful','text')
+
+
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
@@ -169,7 +180,7 @@ class Reply:
         # TODO: Add help strings to most funtions supported by the bot, to ease navigation
         if not content_list:
             self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commandoes are supported:\n\n\- hello\n- "
-                                "login\n- get deadlines [in <course>][until <DD/MM>]\
+                    "login\n- subscribe <course1>(optional: ,<course2>,<course3>..)\n- get deadlines [in <course>][until <DD/MM>]\
             \n\nBut thats not all, theres also some more!\nIts up to you to find them :)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
                                 "You can try this with 'help help' now", 'text')
