@@ -21,6 +21,8 @@ class Reply:
                            date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + "(0?[469]|11))))"
         # checks if is legit date.
         self.db = db
+        self.scraper = Scraper(self, self.db)
+        self.scraper.start()
 
     def arbitrate(self, user_id, data):
         """Chooses action based on message given, does not return"""
@@ -133,47 +135,10 @@ class Reply:
 
     def deadlines(self, user_id, content_list):
         """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
-        course = "ALL"
-        until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
-        self.reply(user_id, "I'll go get your deadlines right now", "text")
-        # TODO: maybe change to "seen" or "currently typing"
-        if len(content_list) == 1:  # Asks for all
-            pass
-        elif len(content_list) <= 3:  # Allows "in" and "until" to be dropped by the user
-            if re.fullmatch(self.course_code_format, content_list[-1]):
-                course = content_list[-1]
-            elif re.fullmatch(self.date_format, content_list[-1]):
-                until = content_list[-1]
-            else:
-                pass
-        elif len(content_list) == 5:  # Strict format
-            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
-                # Format: get deadline in aaa1111 until DD/MM
-                course = content_list[2]
-                until = content_list[4]
-            elif content_list[1] == "until" and re.fullmatch(self.date_format, content_list[2]) and content_list[
-                3] == "in" and re.fullmatch(self.course_code_format, content_list[
-                4]):  # Format: get deadline until DD/MM deadline in aaa1111
-                until = content_list[2]
-                course = content_list[4]
+        self.scraper.scrape(user_id, content_list)
+        self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
+                            "this might take me some time", "text")
 
-        # print(content_list, course, until)
-        ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
-        BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
-        # print(ILdeads, BBdeads)
-        if ILdeads == "SQLerror" or BBdeads == "SQLerror":
-            self.reply(user_id, "Could not fetch deadlines. Check if your user info is correct", 'text')
-        elif course == "ALL":
-            msg = "ItsLearning:\n" + ILdeads
-            msg2 = "BlackBoard:\n" + BBdeads
-            self.reply(user_id, msg, 'text')
-            self.reply(user_id, msg2, 'text')
-        else:
-            if ILdeads or BBdeads:  # Both is returned as empty if does not have course
-                self.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads, "text")
-            else:
-                self.reply(user_id, "I couldn't find any deadlines for " + course, "text")
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
@@ -251,6 +216,9 @@ class Reply:
                     content = content['payload']['url']  # Get attachement url
                 else:  # Must be either location or multimedia which only have payload
                     content = content['payload']
+            else:
+                data_type = "unknown"
+                content = ""
         except KeyError:
             try:  # Check if payload from button (ie Get Started, persistent menu)
                 content = data['entry'][0]['messaging'][0]['postback']['payload']
@@ -314,3 +282,88 @@ class Reply:
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
+
+
+from threading import Thread
+from collections import deque
+from time import sleep
+
+class Scraper(Thread):
+    """The class inherits Thread, something that is necessary to make the Scraper start a new thread, which
+    allows the server to send a '200 ok' fast after being prompted to scrape, and then scrape without facebook pushing
+    new POST messages of the same get deadlines command.
+    To add a scrape request to the queue, run function scrape(user_id, content_list)"""
+
+    def __init__(self, reply_class, db):
+        Thread.__init__(self)
+        # Flag to run thread as a deamon (stops when no other threads are running)
+        self.daemon = True
+        self.requests = deque()
+        self.pop = self.requests.popleft
+        self.app = self.requests.append
+        self.replier = reply_class
+
+        course_code_format1 = '[a-z]{2,3}[0-9]{4}'
+        # course_code_format2 = "[æøåa-z]{1,6}[0-9]{1,6}"
+        # course_code_format3 = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
+        self.course_code_format = course_code_format1  # Checks if string is in format aaa1111 or aa1111,
+        # ie course_code format on ntnu
+        date_format_separator = "[\/]"  # Date separators allowed. Regex format
+        self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
+                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + "(0?[469]|11))))"
+        self.db = db
+
+    def run(self):
+        while True:
+            if self.requests:
+                self.process(self.pop())
+            else:
+                sleep(10)  # Delay until looks again if it did not find an active scrape request
+
+    def scrape(self, user_id, content_list):
+        """Queues the scrape request for the server to handle"""
+        self.app((user_id, content_list,))
+
+    def process(self, query):
+        user_id, content_list = query
+        course = "ALL"
+        until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
+        if len(content_list) == 1:  # Asks for all
+            pass
+        elif len(content_list) <= 3:  # Allows "in" and "until" to be dropped by the user
+            if re.fullmatch(self.course_code_format, content_list[-1]):
+                course = content_list[-1]
+            elif re.fullmatch(self.date_format, content_list[-1]):
+                until = content_list[-1]
+            else:
+                pass
+        elif len(content_list) == 5:  # Strict format
+            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
+                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
+                # Format: get deadline in aaa1111 until DD/MM
+                course = content_list[2]
+                until = content_list[4]
+            elif content_list[1] == "until" and re.fullmatch(self.date_format, content_list[2]) and content_list[
+                3] == "in" and re.fullmatch(self.course_code_format, content_list[
+                4]):  # Format: get deadline until DD/MM deadline in aaa1111
+                until = content_list[2]
+                course = content_list[4]
+
+        # print(content_list, course, until)
+        ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
+        BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
+        # print(ILdeads, BBdeads)
+        if ILdeads == "SQLerror" or BBdeads == "SQLerror":
+            self.replier.reply(user_id, "Could not fetch deadlines. Check if your user info is correct", 'text')
+        elif course == "ALL":
+            msg = "ItsLearning:\n" + ILdeads
+            msg2 = "BlackBoard:\n" + BBdeads
+            self.replier.reply(user_id, msg, 'text')
+            self.replier.reply(user_id, msg2, 'text')
+        else:
+            if ILdeads or BBdeads:  # Both is returned as empty if does not have course
+                self.replier.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads, "text")
+            else:
+                self.replier.reply(user_id, "I couldn't find any deadlines for " + course, "text")
+
+
