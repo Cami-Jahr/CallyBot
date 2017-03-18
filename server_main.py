@@ -33,7 +33,7 @@ def interrupt():
     scheduler.start()
     scheduler.add_job(
         func=reminder_check,
-        trigger=CronTrigger(minute=0),  # second = 0 for checking every minute
+        trigger=CronTrigger(minute='*/5'),  # second = 0 for checking every minute
         id='reminder_check',
         name='Reminder',
         replace_existing=True)
