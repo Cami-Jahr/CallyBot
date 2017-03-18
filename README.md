@@ -16,6 +16,7 @@ Now its time to look at the code. First you have to pull all the files from the 
 * Flask - To handle post/get requests from Facebook
 * requests - To handle incoming data from Flask, and to send data
 * selenium - To webscrape and general interaction with website<sup>1</sup>
+* apscheduler - To handle interrupts to check database for reminders
 
 Go into the **server_main.py** file and locate the variable **ACCESS_TOKEN**. Switch the value with the token you generated earlier.<br />
 Now when you run the **server_main.py** file the server will run locally. We want to put it online. To do so we use [ngrok](https://ngrok.com/download)<br />
@@ -29,7 +30,7 @@ ngrok http 5000
 ```
 Be sure to be in the folder in which ngrok was downloaded <br /><br />
 If everything went as it should ngrok has now given you a https url which points to your local port.<br />
-Copy this url then run the **server_main.py** file.<br />
+Copy this url then run the **server_main.py** file. The current code uses an MySQL server from NTNU, which requires the code to be launched from within NTNU's eudroam, or on a computer running the [NTNU VPN](https://innsida.ntnu.no/wiki/-/wiki/English/Install+VPN?_36_pageResourcePrimKey=915712) <br />
 Now go back to the app creation page and click on **+ Add Product**. Choose **webhook** and click **New subscription** and select **Page**<br /><br />
 In the **Callback URL** field, paste the url you got from ngrok. In the **Verify Token** field type in "**verifytoken**". This is already chosen in the code, under the variable name **VERIFY_TOKEN** in **server_main.py**. You are free to change this if you like, just be sure that it matches.<br /><br />
 In the **Subscription Fields** choose **messages** and **messaging_postbacks**. <br />
