@@ -11,7 +11,7 @@ import credentials
 
 
 def decrypt(encoded):
-    """Decrypts password with AES-256-CBV"""
+    """Decrypts with AES-256-CBV"""
     credential = credentials.Credentials()
     IV= 16* '\x00'
     obj=AES.new(credential.key,AES.MODE_CBC,IV)
@@ -76,7 +76,6 @@ def IL_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
-
         info = ilearn_scrape.scrape(result[2],decrypt(result[3]))
         msg = ""
         max_day = int(until.split("/")[0])

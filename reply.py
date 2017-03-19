@@ -161,6 +161,12 @@ class Reply:
                 else:
                     msg += "I cant find the exam date for " + exam + "\n\n"
             self.reply(user_id, msg, "text")
+        elif content_list[0] == "default-time":
+            df = self.db.get_defaulttime(user_id)
+            if df == -1:
+                self.reply(user_id,"To check default-time, please login",'text')
+            else:
+                self.reply(user_id,"Your default-time is: "+str(df),'text')
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
@@ -281,6 +287,17 @@ class Reply:
                 # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
                 self.reply(user_id, "The reminder " + " ".join(content_list[1:-3]) + " was sat at " +
                            time.strftime("%Y-%m-%d %H:%M"), "text")
+        elif content_list[0]=='default-time':
+            if not content_list[1:]:
+                self.reply(user_id,'Please specify default-time to set','text')
+                return
+            elif not isinstance(content_list[1],int):
+                self.reply(user_id,'Please type in an integer as default-time','text')
+                return
+            if(self.db.set_defaulttime(user_id,int(content_list[1]))):
+                self.reply(user_id,'Your default-time was set to :'+content_list[1],'text')
+            else:
+                self.reply(user_id,'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help','text')
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
@@ -357,7 +374,7 @@ class Reply:
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
             self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
-                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders\n- Set reminder"
+                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders\n- Get default-time\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
                                 "\n\nBut thats not all, theres also some more hidden commands!\nIts up to you to find "
                                 "them ;)\n\n"
@@ -384,6 +401,8 @@ class Reply:
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
                     self.reply(user_id, "This gives you an overview of all upcoming reminders I have in store for you."
                                , "text")
+                elif content_list[1] =="default-time":
+                    self.reply(user_id,'Default-time decides how many days before an assigment you will be reminded by default. Get default-time shows your current default-time','text')
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
@@ -409,6 +428,11 @@ class Reply:
                                     "and <Reminder text> is what "
                                     "i should tell you when the reminder is due.\n"
                                     "I will always answer in a YYYY-MM-DD HH:mm format", "text")
+            elif content_list[1] == 'default-time':
+                self.reply(user_id, "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
+                                    "To set your default-time please use the following format:\n\n"
+                                    "- set default-time <integer>\n\n"
+                                    "Where <integer> can be any number of days",'text')
             else:
                 self.reply(user_id,
                            "I'm not sure that's a supported command, if you think this is a bug, please do report "

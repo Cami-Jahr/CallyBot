@@ -173,7 +173,7 @@ class CallybotDB:
             return dt
         except:
             # could possibly be changed to whatever we decide wil be the defaulttime
-            return 0
+            return -1
 
     def set_defaulttime(self, user_id, df):  # test: DONE
         # set the defaulttime of a user
@@ -182,9 +182,11 @@ class CallybotDB:
             # print("trying to execute")
             self.cursor.execute(sql)
             self.db.commit()
+            return True
         # print("set defaulttime")
         except:
             print("could not set defaulttime")
+            return False
 
     def clean_course(self, user_id):
         # deletes all relations a user has to courses
