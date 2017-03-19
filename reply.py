@@ -275,7 +275,7 @@ class Reply:
                 time = time + timedelta(days=1)
             if time < current + timedelta(minutes=10):
                 self.reply(user_id, "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
-                "as it tried to set itself to a time already past, or upcoming within the next 10 minutes: " +
+                "as it tried to set itself to a time in the past, or within the next 10 minutes: " +
                            time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
                                                  "If you belive this was a bug, report it with the 'bug' function.",
                            "text")
