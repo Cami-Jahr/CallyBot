@@ -2,7 +2,8 @@ import requests
 import help_methods
 import re  # Regular expressions https://docs.python.org/3/library/re.html
 from datetime import datetime, timedelta
-
+import json
+import scraper
 
 class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
@@ -23,7 +24,7 @@ class Reply:
                            "(0?[469]|11))))"
         # checks if is legit date.
         self.db = db
-        self.scraper = Scraper(self, self.db)
+        self.scraper = scraper.Scraper(self, self.db)
         self.scraper.start()
 
         self.rep = {" ": "-", "/": "-", "\\": "-", ":": "-", ";": "-", ",": "-", ".": "-"}
@@ -158,7 +159,7 @@ class Reply:
             if reminders:
                 msg = ""
                 for reminder in reminders:
-                    msg += "<"+str(i)+">: "+reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
+                    msg += str(i)+": "+reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M") + "\n\n"
                     self.user_reminders[user_id][i]=reminder[3]
                     i+=1
                 print (self.user_reminders)
@@ -167,12 +168,25 @@ class Reply:
             self.reply(user_id, msg, "text")
         elif content_list[0] == "exam" or content_list[0] == "exams":
             msg = ""
-            for exam in content_list[1:]:
-                date = help_methods.get_course_exam_date(exam)
-                if date:
-                    msg += "The exam in " + exam + " is on " + date + "\n\n"
-                else:
-                    msg += "I cant find the exam date for " + exam + "\n\n"
+            if content_list[1:]:
+                for exam in content_list[1:]:
+                    date = help_methods.get_course_exam_date(exam)
+                    if date:
+                        msg += "The exam in " + exam + " is on " + date + "\n\n"
+                    else:
+                        msg += "I cant find the exam date for " + exam + "\n\n"
+                if not msg:
+                    msg = "I could not find any exam dates, are you sure you wrote the correct code?"
+            else:
+                courses = self.db.get_all_courses(user_id)
+                for exam in courses:
+                    date = help_methods.get_course_exam_date(exam)
+                    if date:
+                        msg += "The exam in " + exam + " is on " + date + "\n\n"
+                    else:
+                        msg += "I cant find the exam date for " + exam + "\n\n"
+                if not msg:
+                    msg = "I could not find any exam date, are you sure you are subscribed to courses?"
             self.reply(user_id, msg, "text")
         elif content_list[0] == "default-time":
             df = self.db.get_defaulttime(user_id)
@@ -282,6 +296,9 @@ class Reply:
                     self.reply(user_id, "The following reminders are not valid:\n"+",".join(not_valid)+"\nPlease try again",'text')
                 if complete:
                     self.reply(user_id, "The following reminders were deleted:\n"+",".join(complete),'text')
+        else:
+            self.reply(user_id, "Im not sure how to delete that, are you sure you wrote it correctly?\nType "
+                                "'help delete' for more information", "text")
 
 
     def set_statements(self, user_id, content_list):
@@ -604,7 +621,10 @@ class Reply:
             print("Error: Type not supported")
             return
         response = requests.post(self.get_reply_url(), json=data)
-        print(response.content)
+        feedback = json.loads(response.content.decode())
+        if "error" in feedback:
+            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
 
     def login(self, user_id):
         """Sends the user to the login page"""
@@ -630,106 +650,12 @@ class Reply:
             }
         }
         response = requests.post(self.get_reply_url(), json=data)
-        print(response.content)
+        feedback = json.loads(response.content.decode())
+        if "error" in feedback:
+            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
+
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
 
-
-from threading import Thread
-from collections import deque
-from time import sleep
-
-
-class Scraper(Thread):
-    """The class inherits Thread, something that is necessary to make the Scraper start a new thread, which
-    allows the server to send a '200 ok' fast after being prompted to scrape, and then scrape without facebook pushing
-    new POST messages of the same get deadlines command.
-    To add a scrape request to the queue, run function scrape(user_id, content_list)"""
-
-    def __init__(self, reply_class, db):
-        Thread.__init__(self)
-        # Flag to run thread as a deamon (stops when no other threads are running)
-        self.daemon = True
-        self.requests = deque()
-        self.pop = self.requests.popleft
-        self.app = self.requests.append
-        self.replier = reply_class
-
-        course_code_format1 = '[a-z]{2,3}[0-9]{4}'
-        # course_code_format2 = "[æøåa-z]{1,6}[0-9]{1,6}"
-        # course_code_format3 = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
-        self.course_code_format = course_code_format1  # Checks if string is in format aaa1111 or aa1111,
-        # ie course_code format on ntnu
-        date_format_separator = "[\/]"  # Date separators allowed. Regex format
-        self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
-                           "(0?[469]|11))))"
-        self.db = db
-
-    def run(self):
-        while True:
-            if self.requests:
-                self.process(self.pop())
-            else:
-                sleep(10)  # Delay until looks again if it did not find an active scrape request
-
-    def scrape(self, user_id, content_list):
-        """Queues the scrape request for the server to handle"""
-        self.app((user_id, content_list,))
-
-    def process(self, query):
-        user_id, content_list = query
-        course = "ALL"
-        until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
-        if len(content_list) == 1:  # Asks for all
-            pass
-        elif len(content_list) <= 3:  # Allows "in" and "until" to be dropped by the user
-            if re.fullmatch(self.course_code_format, content_list[-1]):
-                course = content_list[-1]
-            elif re.fullmatch(self.date_format, content_list[-1]):
-                until = content_list[-1]
-            else:
-                pass
-        elif len(content_list) == 5:  # Strict format
-            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
-                # Format: get deadline in aaa1111 until DD/MM
-                course = content_list[2]
-                until = content_list[4]
-            elif content_list[1] == "until" and re.fullmatch(self.date_format, content_list[2]) and content_list[
-                3] == "in" and re.fullmatch(self.course_code_format, content_list[
-                4]):  # Format: get deadline until DD/MM deadline in aaa1111
-                until = content_list[2]
-                course = content_list[4]
-
-        # print(content_list, course, until)
-        ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
-        BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
-        # print(ILdeads, BBdeads)
-        if ILdeads == "SQLerror" or BBdeads == "SQLerror":
-            self.replier.reply(user_id, "Could not fetch deadlines. Check if your user info is correct. You can "
-                                        "probably fix this by using the 'login' command and logging in again with your"
-                                        " feide username and password.\n\nIf you belive this is a bug, please report "
-                                        "it with the 'bug' function", 'text')
-        elif course == "ALL":
-            msg = "ItsLearning:\n" + ILdeads
-            msg2 = "BlackBoard:\n" + BBdeads
-            if len(msg)>640: # 640 is max limit for facebook API message size
-                msg,msg3=msg[:len(msg)//2],msg[len(msg)//2:] # Needs tuning
-                self.replier.reply(user_id, msg, 'text')
-                self.replier.reply(user_id, msg3, 'text')
-            else:
-                self.replier.reply(user_id, msg, 'text')
-            if len(msg2)>640: # 640 is max limit for facebook API message size
-                msg2,msg4=msg2[:len(msg2)//2],msg2[len(msg2)//2:] #Needs tuning
-                self.replier.reply(user_id, msg2, 'text')
-                self.replier.reply(user_id, msg4, 'text')
-            else:
-                self.replier.reply(user_id, msg2, 'text')
-        else:
-            if ILdeads or BBdeads:  # Both is returned as empty if does not have course
-                self.replier.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads,
-                                   "text")
-            else:
-                self.replier.reply(user_id, "I couldn't find any deadlines for " + course, "text")
