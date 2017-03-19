@@ -125,6 +125,12 @@ class Reply:
                                         "or use the menu to get started. \nIf you need help, or want to know more about" \
                                         " what i can do for you, just type 'help'.\n\n Please do enjoy!"
             self.reply(user_id, msg, 'text')
+            self.reply(user_id, "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, "
+                                "please report it as detailed as possible. If you wish a feature added please inform"
+                                " us about it. Please do report anything you can, from typos, to "
+                                "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
+                                "see. Thank you for helping with testing of "
+                                "the bot!\n\n- The developers of CallyBot", "text")
 
         # -------------- DEFAULT ----------------
         else:
@@ -518,12 +524,15 @@ class Reply:
             self.reply(user_id, "You must log in for me to be able to give you reminders. If you log in with your "
                                 "feide username and password I can also fetch your deadlines from blackboard and "
                                 "It'slearning! \nIf you submitted wrong username or password, don't worry! I will still"
-                                " remember any reminders or courses you have saved with me", "text")
+                                " remember any reminders or courses you have saved with me if you login with a new "
+                                "username and password", "text")
 
         elif content_list[0] == "bug":
             self.reply(user_id, "If you encounter a bug please let me know! You submit a bug report with a"
                                 "\n- bug <message> \n"
-                                "command. If it is a feature you wish added, please use the request command instead",
+                                "command. If it is a feature you wish added, please use the request command instead. "
+                                "\nA bug is anything from an unexpected output to no output at all. Please include as"
+                                "much information as possible about how you encountered the bug, so I can recreate it",
                        "text")
 
         elif content_list[0] == "request":
