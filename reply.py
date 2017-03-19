@@ -32,6 +32,8 @@ class Reply:
         self.rep = dict((re.escape(k), v) for k, v in self.rep.items())
         self.pattern = re.compile("|".join(self.rep.keys()))
 
+        self.user_reminders={}
+
     def arbitrate(self, user_id, data):
         """Chooses action based on message given, does not return"""
         data_type, content = Reply.process_data(data)
@@ -145,10 +147,15 @@ class Reply:
             self.deadlines(user_id, content_list)
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
+            self.user_reminders[user_id]=[]
+            i=1
             if reminders:
                 msg = ""
                 for reminder in reminders:
-                    msg += reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
+                    msg += "<"+str(i)+">: "+reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
+                    self.user_reminders[user_id].append((i,reminder[3]))
+                    i+=1
+                print (self.user_reminders)
             else:
                 msg = "You don't appear to have any reminders scheduled with me"
             self.reply(user_id, msg, "text")

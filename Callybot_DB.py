@@ -216,7 +216,21 @@ class CallybotDB:
     def get_reminders(self, user_id):
         # costum reminders
         # find all reminders for a user
-        sql = """SELECT what, deadline, coursemade FROM reminder
+        sql = """SELECT what, deadline, coursemade, RID FROM reminder
+                        WHERE userID='%s'""" % user_id
+        try:
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            # print(results)
+            # results format: ((what, deadline, coursemade),)
+            return results
+        except:
+            return []
+
+    def delete_reminder(self, user_id, RID):
+        # costum reminders
+        # find all reminders for a user
+        sql = """SELECT what, deadline, coursemade, RID FROM reminder
                         WHERE userID='%s'""" % user_id
         try:
             self.cursor.execute(sql)
