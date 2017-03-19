@@ -4,6 +4,19 @@ import requests
 import MySQLdb
 import json
 from datetime import datetime, timedelta
+from Crypto.Cipher import AES
+import base64
+import credentials
+
+
+
+def decrypt(encoded):
+    """Decrypts password with AES-256-CBV"""
+    credential = credentials.Credentials()
+    IV= 16* '\x00'
+    obj=AES.new(credential.key,AES.MODE_CBC,IV)
+    data = obj.decrypt(base64.b64decode(encoded))
+    return str(data.decode())
 
 
 def add_default_reminders(user_id, assignments, db):
@@ -64,7 +77,7 @@ def IL_scrape(user_id, course, until, db):
         course = course.upper()
         result = db.get_credential(user_id)
 
-        info = ilearn_scrape.scrape(result[2], result[3])
+        info = ilearn_scrape.scrape(result[2],decrypt(result[3]))
         msg = ""
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])
@@ -99,7 +112,7 @@ def BB_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
-        info = iblack_scrape.scrape(result[2], result[3])
+        info = iblack_scrape.scrape(result[2],decrypt(result[3]))
         msg = ""
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])
@@ -127,3 +140,5 @@ def BB_scrape(user_id, course, until, db):
     except IndexError:
         msg = "SQLerror"
     return msg
+
+
