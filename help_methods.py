@@ -125,7 +125,7 @@ def BB_scrape(user_id, course, until, db):
             for line in info:
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
-                due_year = int(line[3].split(".")[2])
+                due_year = int("20"+line[3].split(".")[2])
                 if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before  max deadlines
                     day, month, year = line[3].split(".")
                     if current<datetime(due_year,due_month,due_day): 

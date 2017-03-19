@@ -642,8 +642,18 @@ class Scraper(Thread):
         elif course == "ALL":
             msg = "ItsLearning:\n" + ILdeads
             msg2 = "BlackBoard:\n" + BBdeads
-            self.replier.reply(user_id, msg, 'text')
-            self.replier.reply(user_id, msg2, 'text')
+            if len(msg)>640:
+                msg,msg3=msg[:len(msg)//2],msg[len(msg)//2:]
+                self.replier.reply(user_id, msg, 'text')
+                self.replier.reply(user_id, msg3, 'text')
+            else:
+                self.replier.reply(user_id, msg, 'text')
+            if len(msg2)>640:
+                msg2,msg4=msg2[:len(msg2)//2],msg2[len(msg2)//2:]
+                self.replier.reply(user_id, msg2, 'text')
+                self.replier.reply(user_id, msg4, 'text')
+            else:
+                self.replier.reply(user_id, msg2, 'text')
         else:
             if ILdeads or BBdeads:  # Both is returned as empty if does not have course
                 self.replier.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads,
