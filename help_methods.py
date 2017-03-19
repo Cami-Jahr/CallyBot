@@ -82,6 +82,7 @@ def IL_scrape(user_id, course, until, db):
         current = datetime.now()
         # Max time it should get deadlines to
         reminders_to_set = []
+        defaulttime=db.get_defaulttime(user_id)
         if course == "ALL":
             for line in info:
                 due_day = int(line[3].split(".")[0])
@@ -89,7 +90,7 @@ def IL_scrape(user_id, course, until, db):
                 due_year = int(line[3].split(".")[2])
                 if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before max deadlines, may need fix in limit zones
                     day, month, year = line[3].split(".")
-                    if current<datetime(due_year,due_month,due_day): 
+                    if current<datetime(due_year,due_month,due_day-defaulttime): 
                         reminders_to_set.append(
                             (line[1], line[0] +" in "+line[1], "{}-{}-{}".format(year, month, day) + " " + line[4] + ":00"))
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
@@ -118,6 +119,7 @@ def BB_scrape(user_id, course, until, db):
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])
         current = datetime.now()
+        defaulttime=db.get_defaulttime(user_id)
         # Max time it should get deadlines to
         reminders_to_set = []
         if course == "ALL":
@@ -127,7 +129,7 @@ def BB_scrape(user_id, course, until, db):
                 due_year = int("20"+line[3].split(".")[2])
                 if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before  max deadlines
                     day, month, year = line[3].split(".")
-                    if current<datetime(due_year,due_month,due_day): 
+                    if current<datetime(due_year,due_month,due_day-defaulttime): 
                         reminders_to_set.append(
                             (line[1], line[0]+" in "+line[1], "20{}-{}-{}".format(year, month, day) + " 23:59:00"))
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
