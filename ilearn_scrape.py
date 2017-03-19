@@ -20,6 +20,10 @@ def scrape(username, password):
 
     wait = ui.WebDriverWait(driver, 10)
     try:
+        driver.find_element_by_id("yesbutton").click()
+    except:
+        pass
+    try:
         wait.until(lambda driver: driver.find_element_by_id('l-header'))  # Wait for the site to load properly
     except TimeoutException:
         print("Wrong username or password")
