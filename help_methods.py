@@ -18,7 +18,6 @@ def decrypt(encoded):
     print(data)
     return str(data.decode())
 
-print(decrypt("8WOo1WT/JdbrD5w1P620mQ=="))
 
 def add_default_reminders(user_id, assignments, db):
     """Adds all deadlines to db, if the do not already exist there"""
