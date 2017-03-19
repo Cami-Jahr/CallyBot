@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import json
 import scraper
 
+
 class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
@@ -20,7 +21,7 @@ class Reply:
         # ie course_code format on ntnu
         date_format_separator = "[\/]"  # Date separators allowed. Regex format
         self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator +\
+                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
                            "(0?[469]|11))))"
         # checks if is legit date.
         self.db = db
@@ -32,9 +33,9 @@ class Reply:
         # Used in set reminder to get a standard format to work with
         self.rep = dict((re.escape(k), v) for k, v in self.rep.items())
         self.pattern = re.compile("|".join(self.rep.keys()))
-        
-        self.delete_conf={}
-        self.user_reminders={}
+
+        self.delete_conf = {}
+        self.user_reminders = {}
 
     def arbitrate(self, user_id, data):
         """Chooses action based on message given, does not return"""
@@ -156,15 +157,15 @@ class Reply:
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
-            self.user_reminders[user_id]={}
-            i=1
+            self.user_reminders[user_id] = {}
+            i = 1
             if reminders:
                 msg = ""
                 for reminder in reminders:
-                    msg += str(i)+": "+reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M") + "\n\n"
-                    self.user_reminders[user_id][i]=reminder[3]
-                    i+=1
-                print (self.user_reminders)
+                    msg += str(i) + ": " + reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M") + "\n\n"
+                    self.user_reminders[user_id][i] = reminder[3]
+                    i += 1
+                print(self.user_reminders)
             else:
                 msg = "You don't appear to have any reminders scheduled with me"
             self.reply(user_id, msg, "text")
@@ -195,9 +196,9 @@ class Reply:
         elif content_list[0] == "default-time":
             df = self.db.get_defaulttime(user_id)
             if df == -1:
-                self.reply(user_id,"To check default-time, please login",'text')
+                self.reply(user_id, "To check default-time, please login", 'text')
             else:
-                self.reply(user_id,"Your default-time is: "+str(df),'text')
+                self.reply(user_id, "Your default-time is: " + str(df), 'text')
 
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
@@ -266,7 +267,6 @@ class Reply:
         self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
                             "this might take me some time", "text")
 
-
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
         if not content_list:
@@ -279,40 +279,46 @@ class Reply:
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
-                    if(self.delete_conf[user_id]['reminder']):
-                        self.reply(user_id, 'Deleting all reminders','text')
+                    if (self.delete_conf[user_id]['reminder']):
+                        self.reply(user_id, 'Deleting all reminders', 'text')
                         self.db.delete_all_reminders(user_id)
-                        self.reply(user_id, 'All reminders deleted','text')
-                        self.delete_conf[user_id]['reminder']=0
+                        self.reply(user_id, 'All reminders deleted', 'text')
+                        self.delete_conf[user_id]['reminder'] = 0
                     else:
-                        self.reply(user_id, 'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm','text')
-                        self.delete_conf[user_id]['reminder']=1
+                        self.reply(user_id,
+                                   'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
+                                   'text')
+                        self.delete_conf[user_id]['reminder'] = 1
                 except KeyError:
-                    self.reply(user_id, 'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm','text')
-                    self.delete_conf[user_id]={'reminder':1} # Needs to be changed to an init process to allow other delete confs
+                    self.reply(user_id,
+                               'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
+                               'text')
+                    self.delete_conf[user_id] = {
+                        'reminder': 1}  # Needs to be changed to an init process to allow other delete confs
             else:
-                self.reply(user_id, 'Deleting reminders...','text')
-                not_valid,complete=[],[]
+                self.reply(user_id, 'Deleting reminders...', 'text')
+                not_valid, complete = [], []
                 for reminder in content_list[1:]:
                     try:
-                        int_reminder=int(reminder)
+                        int_reminder = int(reminder)
                         try:
                             self.db.delete_reminder(self.user_reminders[user_id][int_reminder])
                             complete.append(reminder)
                         except KeyError:
-                            self.reply(user_id,"Please type <get reminders> before you try to delete",'text')
+                            self.reply(user_id, "Please type <get reminders> before you try to delete", 'text')
                             return
                     except ValueError:
                         not_valid.append(reminder)
                         continue
                 if not_valid:
-                    self.reply(user_id, "The following reminders are not valid:\n"+",".join(not_valid)+"\nPlease try again",'text')
+                    self.reply(user_id,
+                               "The following reminders are not valid:\n" + ",".join(not_valid) + "\nPlease try again",
+                               'text')
                 if complete:
-                    self.reply(user_id, "The following reminders were deleted:\n"+",".join(complete),'text')
+                    self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
         else:
             self.reply(user_id, "Im not sure how to delete that, are you sure you wrote it correctly?\nType "
                                 "'help delete' for more information", "text")
-
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
@@ -357,16 +363,18 @@ class Reply:
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
-                    self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'", "text")
+                    self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'",
+                               "text")
                     return
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
                     time = time + timedelta(days=1)
                 if time < current + timedelta(minutes=10):
-                    self.reply(user_id, "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
-                    "as it tried to set itself to a time in the past, or within the next 10 minutes: " +
+                    self.reply(user_id,
+                               "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
+                                                                                                             "as it tried to set itself to a time in the past, or within the next 10 minutes: " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                     "If you belive this was a bug, report it with the 'bug' function.",
+                                                                 "If you belive this was a bug, report it with the 'bug' function.",
                                "text")
                 elif time > current + timedelta(weeks=60):
                     self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
@@ -379,19 +387,21 @@ class Reply:
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats", "text")
-        elif content_list[0]=='default-time':
+        elif content_list[0] == 'default-time':
             if not content_list[1:]:
-                self.reply(user_id,'Please specify default-time to set','text')
+                self.reply(user_id, 'Please specify default-time to set', 'text')
                 return
             try:
                 df = int(content_list[1])
             except ValueError:
-                self.reply(user_id,'Please type in an integer as default-time','text')
+                self.reply(user_id, 'Please type in an integer as default-time', 'text')
                 return
-            if(self.db.set_defaulttime(user_id,df)):
-                self.reply(user_id,'Your default-time was set to :'+content_list[1],'text')
+            if (self.db.set_defaulttime(user_id, df)):
+                self.reply(user_id, 'Your default-time was set to :' + content_list[1], 'text')
             else:
-                self.reply(user_id,'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help','text')
+                self.reply(user_id,
+                           'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help',
+                           'text')
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
@@ -468,7 +478,8 @@ class Reply:
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
             self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
-                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders\n- Get default-time\n- Set reminder\n- Set default-time"
+                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
+                                "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
                                 "\n\nBut thats not all, theres also some more hidden commands!\nIts up to you to find "
                                 "them ;)\n\n"
@@ -495,15 +506,19 @@ class Reply:
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
                     self.reply(user_id, "This gives you an overview of all upcoming reminders I have in store for you."
                                , "text")
-                elif content_list[1] =="default-time":
-                    self.reply(user_id,'Default-time decides how many days before an assigment you will be reminded by default. Get default-time shows your current default-time','text')
+                elif content_list[1] == "default-time":
+                    self.reply(user_id,
+                               'Default-time decides how many days before an assigment you will be reminded by default. Get default-time shows your current default-time',
+                               'text')
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
                                "it with the 'bug' function! If it something you simply wish to be added, use the "
                                "'request' function", "text")
             except IndexError:
-                self.reply(user_id,"To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a list of what you can get", "text")
+                self.reply(user_id,
+                           "To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a list of what you can get",
+                           "text")
 
         elif content_list[0] == "set":
             try:
@@ -519,34 +534,41 @@ class Reply:
                                         "and <Reminder text> is what "
                                         "I should tell you when the reminder is due.", "text")
                 elif content_list[1] == 'default-time':
-                    self.reply(user_id, "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
-                                        "To set your default-time please use the following format:\n\n"
-                                        "- set default-time <integer>\n\n"
-                                        "Where <integer> can be any number of days",'text')
+                    self.reply(user_id,
+                               "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
+                               "To set your default-time please use the following format:\n\n"
+                               "- set default-time <integer>\n\n"
+                               "Where <integer> can be any number of days", 'text')
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
                                "it with the 'bug' function. If it something you simply wish to be added, use the "
                                "'request' function", "text")
             except IndexError:
-                self.reply(user_id,"To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType <help> for a list of what you can set", "text")
+                self.reply(user_id,
+                           "To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType <help> for a list of what you can set",
+                           "text")
 
         elif content_list[0] == "delete":
             try:
                 if content_list[1] == "reminder" or content_list[1] == "reminders":
-                    self.reply(user_id, "Do delete a specific reminder you first have to type <get reminders> to find reminder id, which will"
-                                        "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n"
-                                        "\nTo delete all reminders type:\n- delete reminders",'text')
-                elif content_list[1]=='me':
-                    self.reply(user_id, "If you want me to delete all information I have on you, type in 'delete me', and "
-                                        "follow the instructions i give you", "text")
+                    self.reply(user_id,
+                               "Do delete a specific reminder you first have to type <get reminders> to find reminder id, which will"
+                               "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n"
+                               "\nTo delete all reminders type:\n- delete reminders", 'text')
+                elif content_list[1] == 'me':
+                    self.reply(user_id,
+                               "If you want me to delete all information I have on you, type in 'delete me', and "
+                               "follow the instructions i give you", "text")
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
                                "it with the 'bug' function. If it something you simply wish to be added, use the "
                                "'request' function", "text")
             except IndexError:
-                self.reply(user_id,"To delete something type:\n- delete <what_to_delete> (opt:<value1> <value2>...)\nType <help> for a list of what you can delete", "text")
+                self.reply(user_id,
+                           "To delete something type:\n- delete <what_to_delete> (opt:<value1> <value2>...)\nType <help> for a list of what you can delete",
+                           "text")
 
 
         elif content_list[0] == "help":
@@ -672,7 +694,5 @@ class Reply:
             with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
 
-
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
-

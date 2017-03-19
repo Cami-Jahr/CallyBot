@@ -28,7 +28,7 @@ def scrape(username, password):
     except TimeoutException:
         print("Wrong username or password")
         with open("LOG/ILlogin.txt", "a", encoding="UTF-8") as f:
-            f.write("un:" + username+ "; pw: " + password + '\n')
+            f.write("un:" + username + "; pw: " + password + '\n')
         driver.quit()
         return "error"
     driver.switch_to.frame(

@@ -29,7 +29,7 @@ def scrape(username, password):
     except TimeoutException:
         print("Wrong username or password")
         with open("LOG/BBlogin.txt", "a", encoding="UTF-8") as f:
-            f.write("un:" + username+ "; pw: " + password + '\n')
+            f.write("un:" + username + "; pw: " + password + '\n')
         driver.quit()
         return "error"
 
