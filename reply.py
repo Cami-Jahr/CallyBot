@@ -490,6 +490,19 @@ class Reply:
                            "I'm not sure that's a supported command, if you think this is a bug, please do report "
                            "it with the 'bug' function. If it something you simply wish to be added, use the "
                            "'request' function", "text")
+        elif content_list[0] == "delete":
+            if content_list[1] == "reminder" or content_list[1] == "reminders":
+                self.reply(user_id, "Do delete a specific reminder you first have to type <get reminders> to find reminder id, which will"
+                                    "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n"
+                                    "\nTo delete all reminders type:\n- delete reminders",'text')
+            elif content_list[1]=='me':
+                self.reply(user_id, "If you want me to delete all information I have on you, type in 'delete me', and "
+                                    "follow the instructions i give you", "text")
+            else:
+                self.reply(user_id,
+                           "I'm not sure that's a supported command, if you think this is a bug, please do report "
+                           "it with the 'bug' function. If it something you simply wish to be added, use the "
+                           "'request' function", "text")
 
         elif content_list[0] == "help":
             self.reply(user_id, "The help method gives more detailed information about my features, and their commands"
@@ -501,10 +514,6 @@ class Reply:
                                 "feide username and password I can also fetch your deadlines from blackboard and "
                                 "It'slearning! \nIf you submitted wrong username or password, don't worry! I will still"
                                 " remember any reminders or courses you have saved with me", "text")
-
-        elif content_list[0] == "delete me":
-            self.reply(user_id, "If you want me to delete all information I have on you, type in 'delete me', and "
-                                "follow the instructions i give you", "text")
 
         elif content_list[0] == "bug":
             self.reply(user_id, "If you encounter a bug please let me know! You submit a bug report with a"
