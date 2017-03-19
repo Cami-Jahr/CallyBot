@@ -9,7 +9,6 @@ import base64
 import credentials
 
 
-
 def decrypt(encoded):
     """Decrypts with AES-256-CBV"""
     credential = credentials.Credentials()
