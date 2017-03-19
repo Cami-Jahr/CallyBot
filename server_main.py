@@ -42,10 +42,7 @@ def interrupt():
 
 def reminder_check():
     # Run reminder_check
-    msg = "Reminder trigger" + str(time.ctime() + "\n")
-    print(msg)
-    with open("times.txt", "a", encoding="UTF-8") as f:
-        f.write(msg)
+    print("Reminder trigger" + str(time.ctime()))
     current = help_methods.search_reminders(db)
     if current:
         for reminder in current:
