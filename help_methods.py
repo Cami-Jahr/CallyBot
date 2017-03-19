@@ -15,8 +15,10 @@ def decrypt(encoded):
     IV= 16* '\x00'
     obj=AES.new(credential.key,AES.MODE_CBC,IV)
     data = obj.decrypt(base64.b64decode(encoded))
+    print(data)
     return str(data.decode())
 
+print(decrypt("8WOo1WT/JdbrD5w1P620mQ=="))
 
 def add_default_reminders(user_id, assignments, db):
     """Adds all deadlines to db, if the do not already exist there"""
