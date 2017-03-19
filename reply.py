@@ -642,14 +642,14 @@ class Scraper(Thread):
         elif course == "ALL":
             msg = "ItsLearning:\n" + ILdeads
             msg2 = "BlackBoard:\n" + BBdeads
-            if len(msg)>640:
-                msg,msg3=msg[:len(msg)//2],msg[len(msg)//2:]
+            if len(msg)>640: # 640 is max limit for facebook API message size
+                msg,msg3=msg[:len(msg)//2],msg[len(msg)//2:] # Needs tuning
                 self.replier.reply(user_id, msg, 'text')
                 self.replier.reply(user_id, msg3, 'text')
             else:
                 self.replier.reply(user_id, msg, 'text')
-            if len(msg2)>640:
-                msg2,msg4=msg2[:len(msg2)//2],msg2[len(msg2)//2:]
+            if len(msg2)>640: # 640 is max limit for facebook API message size
+                msg2,msg4=msg2[:len(msg2)//2],msg2[len(msg2)//2:] #Needs tuning
                 self.replier.reply(user_id, msg2, 'text')
                 self.replier.reply(user_id, msg4, 'text')
             else:
