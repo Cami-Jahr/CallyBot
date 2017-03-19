@@ -31,7 +31,8 @@ class Reply:
         # Used in set reminder to get a standard format to work with
         self.rep = dict((re.escape(k), v) for k, v in self.rep.items())
         self.pattern = re.compile("|".join(self.rep.keys()))
-
+        
+        self.delete_conf={}
         self.user_reminders={}
 
     def arbitrate(self, user_id, data):
@@ -52,6 +53,9 @@ class Reply:
         elif content_list[0] == "set":
             self.set_statements(user_id, content_list[1:])
 
+        elif content_list[0] == "delete":
+            self.delete_statements(user_id, content_list[1:])
+
         elif content_lower == "hello":
             msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
             self.reply(user_id, msg, 'image')
@@ -71,10 +75,6 @@ class Reply:
         elif content_list[0] == 'unsubscribe':
             self.unsubscribe(user_id, content_list[1:])
 
-        elif content_lower == "delete me":
-            self.reply(user_id, "Are you sure? By deleting your information i will also delete all reminders you have "
-                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all "
-                                "my information'", "text")
 
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
@@ -147,13 +147,13 @@ class Reply:
             self.deadlines(user_id, content_list)
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
-            self.user_reminders[user_id]=[]
+            self.user_reminders[user_id]={}
             i=1
             if reminders:
                 msg = ""
                 for reminder in reminders:
                     msg += "<"+str(i)+">: "+reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
-                    self.user_reminders[user_id].append((i,reminder[3]))
+                    self.user_reminders[user_id][i]=reminder[3]
                     i+=1
                 print (self.user_reminders)
             else:
@@ -232,6 +232,51 @@ class Reply:
         self.scraper.scrape(user_id, content_list)
         self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
                             "this might take me some time", "text")
+
+
+    def delete_statements(self, user_id, content_list):
+        """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
+        if not content_list:
+            self.reply(user_id, 'Please specify what to delete\nType help delete if you need help', 'text')
+            return
+        if content_list[0] == 'me':
+            self.reply(user_id, "Are you sure? By deleting your information i will also delete all reminders you have "
+                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all "
+                                "my information'", "text")
+        elif content_list[0] == "reminder" or content_list[0] == "reminders":
+            if not content_list[1:]:
+                try:
+                    if(self.delete_conf[user_id]['reminder']):
+                        self.reply(user_id, 'Deleting all reminders','text')
+                        self.db.delete_all_reminders(user_id)
+                        self.reply(user_id, 'All reminders deleted','text')
+                        self.delete_conf[user_id]['reminder']=0
+                    else:
+                        self.reply(user_id, 'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm','text')
+                        self.delete_conf[user_id]['reminder']=1
+                except KeyError:
+                    self.reply(user_id, 'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm','text')
+                    self.delete_conf[user_id]={'reminder':1} # Needs to be changed to an init process to allow other delete confs
+            else:
+                self.reply(user_id, 'Deleting reminders...','text')
+                not_valid,complete=[],[]
+                for reminder in content_list[1:]:
+                    try:
+                        int_reminder=int(reminder)
+                        try:
+                            self.db.delete_reminder(self.user_reminders[user_id][int_reminder])
+                            complete.append(reminder)
+                        except KeyError:
+                            self.reply(user_id,"Please type <get reminders> before you try to delete",'text')
+                            return
+                    except ValueError:
+                        not_valid.append(reminder)
+                        continue
+                if not_valid:
+                    self.reply(user_id, "The following reminders are not valid:\n"+",".join(not_valid)+"\nPlease try again",'text')
+                if complete:
+                    self.reply(user_id, "The following reminders were deleted:\n"+",".join(complete),'text')
+
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
@@ -426,7 +471,6 @@ class Reply:
         elif content_list[0] == "set":
             if content_list[1] == "reminder" or content_list[1] == "reminders":
                 self.reply(user_id, "I can give reminders to anyone who is logged in with the 'login' command. "
-                                    "Anyone who is logged in can create and manage their own reminders. "
                                     "If you login with your feide username and password I can retrieve all your "
                                     "deadlines on It'slearning and Blackboard as well, and give you reminders to "
                                     "those when they are soon due. I will naturally never share your information with "
@@ -435,8 +479,7 @@ class Reply:
                                     "where <Due_date> can have the following formats:"
                                     "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n"
                                     "and <Reminder text> is what "
-                                    "i should tell you when the reminder is due.\n"
-                                    "I will always answer in a YYYY-MM-DD HH:mm format", "text")
+                                    "I should tell you when the reminder is due.", "text")
             elif content_list[1] == 'default-time':
                 self.reply(user_id, "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
                                     "To set your default-time please use the following format:\n\n"

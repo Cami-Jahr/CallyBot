@@ -220,6 +220,7 @@ class CallybotDB:
                         WHERE userID='%s'""" % user_id
         try:
             self.cursor.execute(sql)
+            
             results = self.cursor.fetchall()
             # print(results)
             # results format: ((what, deadline, coursemade),)
@@ -227,14 +228,30 @@ class CallybotDB:
         except:
             return []
 
-    def delete_reminder(self, user_id, RID):
+    def delete_all_reminders(self, user_id):
         # costum reminders
         # find all reminders for a user
-        sql = """SELECT what, deadline, coursemade, RID FROM reminder
+        sql = """DELETE FROM reminder
                         WHERE userID='%s'""" % user_id
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
+            self.db.commit()
+            # print(results)
+            # results format: ((what, deadline, coursemade),)
+            return results
+        except:
+            return []
+
+    def delete_reminder(self, RID):
+        # costum reminders
+        # find all reminders for a user
+        sql = """DELETE FROM reminder
+                        WHERE RID='%s'""" % RID
+        try:
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            self.db.commit()
             # print(results)
             # results format: ((what, deadline, coursemade),)
             return results
