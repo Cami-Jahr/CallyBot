@@ -312,56 +312,60 @@ class Reply:
                 self.reply(user_id, 'Please specify what to be reminded of\nType help set reminder if you need help',
                            'text')
                 return
-            date = content_list[-2]
-            current = datetime.now()
-            due_time = content_list[-1]
-            due_time = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
-                                        due_time)  # Makes any date string split with "-"
-            day = current.day
-            month = current.month
-            year = current.year
-            if date != "at":  # with date in front
-                date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
-                                        date)  # Makes any date string split with "-"
-                date_list = date.split("-")
-                if len(date_list) == 3:  # YYYY-MM-DD
-                    if len(date_list[0]) == 2:
-                        date_list[0] = "20" + date_list[0]
-                    year = int(date_list[0])
-                    month = int(date_list[1])
-                    day = int(date_list[2])
-                elif len(date_list) == 2:  # DD-MM
-                    if int(date_list[1]) < month or (int(date_list[1]) == month and int(date_list[0]) < day):
-                        year += 1
-                    month = int(date_list[1])
-                    day = int(date_list[0])
-                else:  # DD
-                    if int(date_list[0]) < day:
-                        month += 1
-                    day = int(date_list[0])
-
             try:
-                hour, minute = [int(i) for i in due_time.split("-")]
+                date = content_list[-2]
+                current = datetime.now()
+                due_time = content_list[-1]
+                due_time = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
+                                            due_time)  # Makes any date string split with "-"
+                day = current.day
+                month = current.month
+                year = current.year
+                if date != "at":  # with date in front
+                    date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
+                                            date)  # Makes any date string split with "-"
+                    date_list = date.split("-")
+                    if len(date_list) == 3:  # YYYY-MM-DD
+                        if len(date_list[0]) == 2:
+                            date_list[0] = "20" + date_list[0]
+                        year = int(date_list[0])
+                        month = int(date_list[1])
+                        day = int(date_list[2])
+                    elif len(date_list) == 2:  # DD-MM
+                        if int(date_list[1]) < month or (int(date_list[1]) == month and int(date_list[0]) < day):
+                            year += 1
+                        month = int(date_list[1])
+                        day = int(date_list[0])
+                    else:  # DD
+                        if int(date_list[0]) < day:
+                            month += 1
+                        day = int(date_list[0])
+
+                try:
+                    hour, minute = [int(i) for i in due_time.split("-")]
+                except ValueError:
+                    self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'", "text")
+                    return
+                time = datetime(year, month, day, hour, minute)
+                if time < current:
+                    time = time + timedelta(days=1)
+                if time < current + timedelta(minutes=10):
+                    self.reply(user_id, "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
+                    "as it tried to set itself to a time in the past, or within the next 10 minutes: " +
+                               time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
+                                                     "If you belive this was a bug, report it with the 'bug' function.",
+                               "text")
+                elif time > current + timedelta(weeks=60):
+                    self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
+                               time.strftime("%Y-%m-%d %H:%M"), "text")
+                else:
+                    self.db.add_reminder(" ".join(content_list[1:-3]), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                    # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
+                    self.reply(user_id, "The reminder " + " ".join(content_list[1:-3]) + " was sat at " +
+                               time.strftime("%Y-%m-%d %H:%M"), "text")
             except ValueError:
-                self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'", "text")
-                return
-            time = datetime(year, month, day, hour, minute)
-            if time < current:
-                time = time + timedelta(days=1)
-            if time < current + timedelta(minutes=10):
-                self.reply(user_id, "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
-                "as it tried to set itself to a time in the past, or within the next 10 minutes: " +
-                           time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                 "If you belive this was a bug, report it with the 'bug' function.",
-                           "text")
-            elif time > current + timedelta(weeks=60):
-                self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
-                           time.strftime("%Y-%m-%d %H:%M"), "text")
-            else:
-                self.db.add_reminder(" ".join(content_list[1:-3]), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
-                # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                self.reply(user_id, "The reminder " + " ".join(content_list[1:-3]) + " was sat at " +
-                           time.strftime("%Y-%m-%d %H:%M"), "text")
+                self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
+                                    "supported format? Type 'help set reminders' to see supported formats", "text")
         elif content_list[0]=='default-time':
             if not content_list[1:]:
                 self.reply(user_id,'Please specify default-time to set','text')
