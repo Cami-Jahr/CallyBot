@@ -37,7 +37,9 @@ def search_reminders(db):
     for line in listing:
         if min_ago < line[0] < min_til:
             app(line)
+            db.delete_reminder(line[4])
     # print(current)
+
     return current
 
 

@@ -259,7 +259,7 @@ class CallybotDB:
             return []
 
     def get_all_reminders(self):
-        sql = """SELECT deadline, userID, what, coursemade FROM reminder"""
+        sql = """SELECT deadline, userID, what, coursemade, RID FROM reminder"""
         try:
             self.cursor.execute(sql)
             results = self.cursor.fetchall()
