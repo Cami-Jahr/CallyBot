@@ -15,6 +15,7 @@ Now its time to look at the code. First you have to pull all the files from the 
 * Flask - To handle post/get requests from Facebook
 * requests - To handle incoming data from Flask, and to send data
 * selenium - To webscrape and general interaction with website<sup>1</sup>
+* pycrypto - to decrypt passwords from database
 
 Go into the **server_main.py** file and locate the variable **ACCESS_TOKEN**. Switch the value with the token you generated earlier.<br />
 Now when you run the **server_main.py** file the server will run locally. We want to put it online. To do so we use [ngrok](https://ngrok.com/download)<br />
