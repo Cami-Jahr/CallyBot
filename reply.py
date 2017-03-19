@@ -150,8 +150,10 @@ class Reply:
         if not content_list:
             self.reply(user_id, 'Please specify what to get\nType help get if you need help', 'text')
             return
+
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
             self.deadlines(user_id, content_list)
+
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
             self.user_reminders[user_id]={}
@@ -166,6 +168,7 @@ class Reply:
             else:
                 msg = "You don't appear to have any reminders scheduled with me"
             self.reply(user_id, msg, "text")
+
         elif content_list[0] == "exam" or content_list[0] == "exams":
             msg = ""
             if content_list[1:]:
@@ -188,12 +191,14 @@ class Reply:
                 if not msg:
                     msg = "I could not find any exam date, are you sure you are subscribed to courses?"
             self.reply(user_id, msg, "text")
+
         elif content_list[0] == "default-time":
             df = self.db.get_defaulttime(user_id)
             if df == -1:
                 self.reply(user_id,"To check default-time, please login",'text')
             else:
                 self.reply(user_id,"Your default-time is: "+str(df),'text')
+
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
@@ -241,7 +246,15 @@ class Reply:
                                     "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
                            "text")
 
-
+        elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
+            courses = self.db.get_all_courses(user_id)
+            if courses:
+                msg = "You are subscribed to:\n"
+                for course in courses:
+                    msg += course + "\n"
+            else:
+                msg = "You are not subscribed to any courses currently"
+            self.reply(user_id, msg, "text")
 
         else:
             self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that",
