@@ -217,7 +217,7 @@ class CallybotDB:
         # costum reminders
         # find all reminders for a user
         sql = """SELECT what, deadline, coursemade, RID FROM reminder
-                        WHERE userID='%s'""" % user_id
+                        WHERE userID='%s' ORDER BY deadline ASC""" % user_id
         try:
             self.cursor.execute(sql)
             
