@@ -42,4 +42,4 @@ Now you should be good to go! Have fun chatting! <br/><br />
 <sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*. 
 #### Notes
 Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
-For further help or questions ask [here](https://github.com/halkver)
+For further help or questions ask [here](http://m.me/CallyBot)
