@@ -355,7 +355,7 @@ class Reply:
                 self.reply(user_id,'Please type in an integer as default-time','text')
                 return
             if(self.db.set_defaulttime(user_id,df)):
-                self.reply(user_id,'Your default-time was set to :'+content_list[1],'text')
+                self.reply(user_id,'Your default-time was set to: '+content_list[1],'text')
             else:
                 self.reply(user_id,'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help','text')
         else:
