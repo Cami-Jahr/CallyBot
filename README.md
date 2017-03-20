@@ -1,6 +1,7 @@
 # CallyBot
 NTNU Software Development Project - Group 57</br></br>
-You can talk with Cally [here](http://m.me/CallyBot) (She will not answer until the bot is made public, or you are added as a tester. To be added as a tester send her a message and we will add you as soon as possible!)
+CallyBot is a project under development. She helps you with reminders, assignment deadlines and exam dates. More functions may be added in the future. Assignment deadlines are currently only supported for students using itslearning and blackboard through feide. The only courses currently availible are NTNU courses, which means that the only exam dates you can get are from these courses. </br></br>  
+To talk with Cally click [here](http://m.me/CallyBot) (She will not answer until the bot is made public, or you are added as a tester. To be added as a tester, send her a message and we will add you as soon as possible!)
 ## Instructions - How to set up CallyBot from scratch 
 ### 1. Create a Facebook page
 First you have to [create](https://www.facebook.com/pages/create/) a Facebook page from which the bot will communicate through.<br /> 
