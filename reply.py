@@ -471,7 +471,7 @@ class Reply:
 
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
-        with open("REQUEST/user_bug_reports.txt", "a", encoding='utf-8') as f:
+        with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
             f.write(user_id + ": " + " ".join(content_list) + "\n")
         self.reply(user_id, "The request was taken to my developers. I will try to make your wish come true, but keep"
                             " in mind that not all request are feasible", "text")

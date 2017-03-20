@@ -16,7 +16,7 @@ Now its time to look at the code. First you have to pull all the files from the 
 * Flask - To handle post/get requests from Facebook
 * requests - To handle incoming data from Flask, and to send data
 * selenium - To webscrape and general interaction with website<sup>1</sup>
-* pycrypto - to decrypt passwords from database
+* pycrypto - To decrypt passwords from database<sup>2</sup>
 * apscheduler - To handle interrupts to check database for reminders
 
 Go into the **server_main.py** file and locate the variable **ACCESS_TOKEN**. Switch the value with the token you generated earlier.<br />
@@ -38,7 +38,8 @@ In the **Subscription Fields** choose **messages** and **messaging_postbacks**. 
 Now cross your fingers then press **Verify and save**. Now you should see a **POST** request in ngrok and server_main with **200 ok** or similar as answer. If you dont, go over the steps and see if you missed anything. <br /><br />
 To complete the setup go back to **Messenger** under **Products** and go to the **Webhooks** section. Select your page and make it subscribe to the webook. <br /><br />
 Now you should be good to go! Have fun chatting! <br/><br />
-<sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*. 
+<sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*.
+<sup>2</sup> This is not currently supported by python 3.6, but is supported by python versions up to 3.5.3
 #### Notes
 Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
 For further help or questions contact ask [here](https://github.com/halkver)
