@@ -342,7 +342,7 @@ class Reply:
                 day = current.day
                 month = current.month
                 year = current.year
-                if date != "at":  # with date in front
+                if date != "at":  # with date in front. Format reminder <text> at date time
                     date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
                                             date)  # Makes any date string split with "-"
                     date_list = date.split("-")
@@ -361,7 +361,9 @@ class Reply:
                         if int(date_list[0]) < day:
                             month += 1
                         day = int(date_list[0])
-
+                    msg = " ".join(content_list[1:-3])
+                else:  # without date in front. Format reminder <text> at time
+                    msg = " ".join(content_list[1:-2])
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
@@ -373,18 +375,20 @@ class Reply:
                     time = time + timedelta(days=1)
                 if time < current + timedelta(minutes=10):
                     self.reply(user_id,
-                               "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
-                                                                                                             "as it tried to set itself to a time in the past, or within the next 10 minutes: " +
+                               "I am sorry, I could not set the reminder '" + msg + "' as it tried to set itself to a "
+                                                                                    "time in the past, or within the "
+                                                                                    "next 10 minutes: " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                                 "If you belive this was a bug, report it with the 'bug' function.",
+                                                                 "If you belive this was a bug, report it with the "
+                                                                 "'bug' function.",
                                "text")
                 elif time > current + timedelta(weeks=60):
                     self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
                                time.strftime("%Y-%m-%d %H:%M"), "text")
                 else:
-                    self.db.add_reminder(" ".join(content_list[1:-3]), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                    self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                    self.reply(user_id, "The reminder " + " ".join(content_list[1:-3]) + " was sat at " +
+                    self.reply(user_id, "The reminder " + msg + " was sat at " +
                                time.strftime("%Y-%m-%d %H:%M"), "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
