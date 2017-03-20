@@ -42,6 +42,8 @@ class Reply:
         data_type, content = Reply.process_data(data)
         print("Data type:", data_type)
         print("Content:", content)
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  User: " + content + "\n")
         if data_type == "unknown":  # Cant handle unknown
             print("\x1b[0;34;0mUnknown data type\x1b[0m")
             return
@@ -664,6 +666,8 @@ class Reply:
         if "error" in feedback:
             with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
 
     def login(self, user_id):
         """Sends the user to the login page"""
@@ -691,7 +695,7 @@ class Reply:
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
         if "error" in feedback:
-            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
+            with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
 
     def get_reply_url(self):
