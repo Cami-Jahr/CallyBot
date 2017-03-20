@@ -1,6 +1,8 @@
 
 # CallyBot
-NTNU Software Development Project - Group 57
+NTNU Software Development Project - Group 57</br></br>
+CallyBot is a project under development. She helps you with reminders, assignment deadlines and exam dates. More functions may be added in the future. Assignment deadlines are currently only supported for students using itslearning and blackboard through feide. The only courses currently availible are NTNU courses, which means that the only exam dates you can get are from these courses. </br></br>
+To talk with Cally click [here](http://m.me/CallyBot) (She will not answer until the bot is made public, or you are added as a tester. To be added as a tester, send her a message and we will add you as soon as possible!)
 ## Instructions - How to set up CallyBot from scratch 
 ### 1. Create a Facebook page
 First you have to [create](https://www.facebook.com/pages/create/) a Facebook page from which the bot will communicate through.<br /> 
@@ -42,4 +44,4 @@ Now you should be good to go! Have fun chatting! <br/><br />
 <sup>2</sup> This is not currently supported by python 3.6, but is supported by python versions up to 3.5.3
 #### Notes
 Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
-For further help or questions contact ask [here](https://github.com/halkver)
+For further help or questions contact ask [here](http://m.me/CallyBot)
