@@ -1,5 +1,5 @@
 # CallyBot
-NTNU Software Development Project - Group 57</br>
+NTNU Software Development Project - Group 57</br></br>
 You can talk with Cally [here](http://m.me/CallyBot) (She will not answer until the bot is made public, or you are added as a tester. Send a message to her if you want to be a tester, and we will add you as soon as possible!)
 ## Instructions - How to set up CallyBot from scratch 
 ### 1. Create a Facebook page
