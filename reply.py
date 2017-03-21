@@ -494,17 +494,17 @@ class Reply:
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify atleast one bug\nType help bug if you need help', 'text')
+            self.reply(user_id, 'Please specify at least one bug\nType help bug if you need help', 'text')
             return
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
-            f.write(user_id + ": " + " ".join(content_list) + "\n")
-        self.reply(user_id, "The bug was taken to my developers. One of them might contanct you if they need further "
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
+        self.reply(user_id, "The bug was taken to my developers. One of them might contact you if they need further "
                             "help with the bug", "text")
 
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
         with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
-            f.write(user_id + ": " + " ".join(content_list) + "\n")
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         self.reply(user_id, "The request was taken to my developers. I will try to make your wish come true, but keep"
                             " in mind that not all request are feasible", "text")
 
@@ -515,8 +515,8 @@ class Reply:
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nBut thats not all, theres also some more hidden commands!\nIts up to you to find "
-                                "them ;)\n\n"
+                                "\n\nBut that's not all, there's also some more hidden commands!\nIts up to you to find"
+                                " them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
                                 "You can try this with 'help help' now!", 'text')
 
