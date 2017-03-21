@@ -140,7 +140,7 @@ class Reply:
         elif content_lower == "developer: id":
             self.reply(user_id, user_id, 'text')
 
-        elif content_list == "developer: get requests":
+        elif content_lower == "developer: get requests":
             with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
                 all_requests = f.readlines()
                 msg = ""
@@ -152,7 +152,7 @@ class Reply:
                         msg += request
                 self.reply(user_id, msg, "text")
 
-        elif content_list == "developer: get bugs":
+        elif content_lower == "developer: get bugs":
             with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
                 reports = f.readlines()
                 msg = ""
