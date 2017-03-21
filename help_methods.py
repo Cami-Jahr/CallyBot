@@ -21,9 +21,9 @@ def decrypt(encoded):
 
 def add_default_reminders(user_id, assignments, db):
     """Adds all deadlines to db, if the do not already exist there"""
-    tasks = [x[0] for x in db.get_reminders(user_id)]
+    db.delete_all_coursemade_reminders(user_id)
     for assignment in assignments:
-        if db.user_subscribed_to_course(user_id, assignment[0]) and assignment[1] not in tasks:
+        if db.user_subscribed_to_course(user_id, assignment[0]):
             db.add_reminder(assignment[1], assignment[2], 1, user_id)
 
 
