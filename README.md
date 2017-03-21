@@ -44,6 +44,6 @@ Now you should be good to go! Have fun chatting! <br/><br />
 Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
 
 ## Support
-Our team is here to help if you have any questions. There are several ways to get in touch with our team member. Please contact us by
-* Open a Facebook Messenger [here](http://m.me/CallyBot) to .
+Our team is here to help if you have any questions. There are several ways to get in touch with our team member. Please
+* Join our communication channel by opening Facebook Messenger [here](http://m.me/CallyBot).
 * Open a Github Issue on this repository.
