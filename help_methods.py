@@ -21,7 +21,6 @@ def decrypt(encoded):
 
 def add_default_reminders(user_id, assignments, db):
     """Adds all deadlines to db, if the do not already exist there"""
-    db.delete_all_coursemade_reminders(user_id)
     for assignment in assignments:
         if db.user_subscribed_to_course(user_id, assignment[0]):
             db.add_reminder(assignment[1], assignment[2], 1, user_id)
@@ -101,6 +100,7 @@ def IL_scrape(user_id, course, until, db):
                              "{}-{}-{}".format(year, month, day) + " " + line[4] + ":00"))
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
                         4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
+            db.delete_all_coursemade_reminders(user_id)  # Clears database of old reminders from classes
             add_default_reminders(user_id, reminders_to_set, db)
         else:
             for line in info:
