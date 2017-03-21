@@ -45,5 +45,5 @@ Everytime you start ngrok you get a new url. Be sure to change the webhook url t
 
 ## Support
 Our team is here to help if you have any questions. There are several ways to get in touch with our team member. Please contact us by
-	* Open a Facebook MEssenger [here](http://m.me/CallyBot).
-	* Open a Github Issue on this repository.
+* Open a Facebook Messenger [here](http://m.me/CallyBot) to .
+* Open a Github Issue on this repository.
