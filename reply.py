@@ -89,7 +89,7 @@ class Reply:
             self.help(user_id, content_list[1:])
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Id\n- Hello"
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello"
             self.reply(user_id, msg, 'text')
 
         # ------------ EASTER EGGS --------------
@@ -97,9 +97,6 @@ class Reply:
             # msg = "http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
             msg = "Did I scare ya?"
             self.reply(user_id, msg, 'text')
-
-        elif content_lower == "id":
-            self.reply(user_id, user_id, 'text')
 
         elif content_lower == "juice gif":
             msg = "https://i.makeagif.com/media/10-01-2015/JzrY-u.gif"
@@ -135,6 +132,37 @@ class Reply:
                                 "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
                                 "see. Thank you for helping with testing of "
                                 "the bot!\n\n- The developers of CallyBot", "text")
+
+        # ------------- DEVELOPER - --------------
+
+        # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
+
+        elif content_lower == "id":
+            self.reply(user_id, user_id, 'text')
+
+        elif content_list == "get requests":
+            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
+                all_requests = f.readlines()
+                msg = ""
+                for request in all_requests:
+                    if len(msg) + len(request) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = request
+                    else:
+                        msg += request
+                self.reply(user_id, msg, "text")
+
+        elif content_list == "get bugs":
+            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
+                reports = f.readlines()
+                msg = ""
+                for report in reports:
+                    if len(msg) + len(report) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = report
+                    else:
+                        msg += report
+                self.reply(user_id, msg, "text")
 
         # -------------- DEFAULT ----------------
         else:

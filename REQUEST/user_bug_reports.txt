@@ -1,5 +1,0 @@
-1275645312550452: function set help reminder to be both for setting and remebering
-1275645312550452: function y u no norwegian?
-1275645312550452: function send a lovely juicy gif every monday morning to help start the week and remind people of callybot
-1275645312550452: function "profile" you are subscribed to x clas, x class and x class. you have x reminders there are x deadlines within the two next weeks.
-1550995208259075: reminder default time for class reminders
