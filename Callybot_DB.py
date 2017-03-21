@@ -263,6 +263,21 @@ class CallybotDB:
         except:
             return []
 
+    def delete_all_coursemade_reminders(self, user_id):
+        # costum reminders
+        # find all reminders for a user
+        sql = """DELETE FROM reminder
+                        WHERE userID='%s' AND coursemade = 1""" % user_id
+        try:
+            self.cursor.execute(sql)
+            results = self.cursor.fetchall()
+            self.db.commit()
+            # print(results)
+            # results format: ((what, deadline, coursemade),)
+            return results
+        except:
+            return []
+
     def delete_reminder(self, RID):
         """Deletes reminder with this RID,
         :returns a list of lists"""

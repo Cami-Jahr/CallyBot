@@ -89,7 +89,7 @@ class Reply:
             self.help(user_id, content_list[1:])
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Id\n- Hello"
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello"
             self.reply(user_id, msg, 'text')
 
         # ------------ EASTER EGGS --------------
@@ -97,9 +97,6 @@ class Reply:
             # msg = "http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
             msg = "Did I scare ya?"
             self.reply(user_id, msg, 'text')
-
-        elif content_lower == "id":
-            self.reply(user_id, user_id, 'text')
 
         elif content_lower == "juice gif":
             msg = "https://i.makeagif.com/media/10-01-2015/JzrY-u.gif"
@@ -135,6 +132,37 @@ class Reply:
                                 "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
                                 "see. Thank you for helping with testing of "
                                 "the bot!\n\n- The developers of CallyBot", "text")
+
+        # ------------- DEVELOPER - --------------
+
+        # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
+
+        elif content_lower == "developer: id":
+            self.reply(user_id, user_id, 'text')
+
+        elif content_lower == "developer: get requests":
+            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
+                all_requests = f.readlines()
+                msg = ""
+                for request in all_requests:
+                    if len(msg) + len(request) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = request
+                    else:
+                        msg += request
+                self.reply(user_id, msg, "text")
+
+        elif content_lower == "developer: get bugs":
+            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
+                reports = f.readlines()
+                msg = ""
+                for report in reports:
+                    if len(msg) + len(report) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = report
+                    else:
+                        msg += report
+                self.reply(user_id, msg, "text")
 
         # -------------- DEFAULT ----------------
         else:
@@ -466,17 +494,17 @@ class Reply:
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify atleast one bug\nType help bug if you need help', 'text')
+            self.reply(user_id, 'Please specify at least one bug\nType help bug if you need help', 'text')
             return
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
-            f.write(user_id + ": " + " ".join(content_list) + "\n")
-        self.reply(user_id, "The bug was taken to my developers. One of them might contanct you if they need further "
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
+        self.reply(user_id, "The bug was taken to my developers. One of them might contact you if they need further "
                             "help with the bug", "text")
 
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
         with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
-            f.write(user_id + ": " + " ".join(content_list) + "\n")
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         self.reply(user_id, "The request was taken to my developers. I will try to make your wish come true, but keep"
                             " in mind that not all request are feasible", "text")
 
@@ -487,8 +515,8 @@ class Reply:
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nBut thats not all, theres also some more hidden commands!\nIts up to you to find "
-                                "them ;)\n\n"
+                                "\n\nBut that's not all, there's also some more hidden commands!\nIts up to you to find"
+                                " them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
                                 "You can try this with 'help help' now!", 'text')
 
