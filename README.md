@@ -1,12 +1,13 @@
 # CallyBot
-NTNU Software Development Project - Group 57</br></br>
-## Introduction
+NTNU Software Development Project - Team 57 </br></br>
+
 CallyBot is a project under development. She helps you with reminders, assignment deadlines and exam dates. More functions may be added in the future. Assignment deadlines are currently only supported for students using itslearning and blackboard through feide. The only courses currently availible are NTNU courses, which means that the only exam dates you can get are from these courses. </br></br>
 
-To talk with Cally click [here](http://m.me/CallyBot). The bot CallyBot will not answer until it is released public, or you are added as a test user. To be added as a test user, send her a message [here](http://m.me/CallyBot) and you will be added as soon as possible).
+## Join and talk to CallyBot today 
+To talk with Cally click [here](http://m.me/CallyBot). The bot CallyBot will not answer until it is released public, or you are added as a test user. To be added as a test user, send her a message [here](http://m.me/CallyBot) and you will be added as soon as possible.
 
-## Features
-Upcoming infomation 
+### Features
+Upcoming information 
 
 ## Instructions - How to set up CallyBot from scratch 
 ### 1. Create a Facebook page
@@ -54,5 +55,5 @@ In this project, the chosen coding convention is PEP 8 for the Python Code. Furt
 
 ## Support
 Our team is here to help if you have any questions. There are several ways to get in touch with our team member. Please
-* Join our communication channel by opening Facebook Messenger [here](http://m.me/CallyBot).
-* Open a Github Issue on this repository.
+* Get support by joining our communication channel on Facebook Messenger [here](http://m.me/CallyBot).
+* Report issuses [here](https://github.com/Folstad/TDT4140/issues) by opening a Github Issue on our repository.
