@@ -43,6 +43,9 @@ Now you should be good to go! Have fun chatting! <br/><br />
 #### Notes
 Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
 
+## Coding Convention
+In this project, the chosen coding convention is PEP 8 for the Python Code. Further detailed information can be found [here](https://www.python.org/dev/peps/pep-0008/#introduction).
+
 ## Support
 Our team is here to help if you have any questions. There are several ways to get in touch with our team member. Please
 * Join our communication channel by opening Facebook Messenger [here](http://m.me/CallyBot).
