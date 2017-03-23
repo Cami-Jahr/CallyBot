@@ -121,7 +121,7 @@ class Reply:
         elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
             msg = "Bye now!"
             self.reply(user_id, msg, 'text')
-            url = "http://i.imgur.com/NBUNSSG.gif"
+            url = "http://www.gifimagesdownload.com/wp-content/uploads/2016/02/latest-bye-gif-466.gif"
             self.reply(user_id, url, 'image')
 
         # ------------ GET STARTED --------------
