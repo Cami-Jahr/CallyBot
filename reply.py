@@ -541,8 +541,8 @@ class Reply:
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nBut that's not all, there's also some more hidden commands!\nIts up to you to find"
-                                " them ;)\n\n"
+                                "\n\nBut that's not all, there are also some more hidden commands!\nIt "
+                                "is up to you to find them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
                                 "You can try this with 'help help' now!", 'text')
 
