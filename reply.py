@@ -122,6 +122,7 @@ class Reply:
             msg = "Bye now!"
             self.reply(user_id, msg, 'text')
             url = "http://www.gifimagesdownload.com/wp-content/uploads/2016/02/latest-bye-gif-466.gif"
+                #http://i.imgur.com/NBUNSSG.gif maybe use this one instead?
             self.reply(user_id, url, 'image')
 
         elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
@@ -552,7 +553,7 @@ class Reply:
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nThere is also a persistent menu to the left of the input field, it has"
+                                "\n\nThere is also a persistent menu to the left of the input field, it has "
                                 "shortcuts to some of the commands!"
                                 "\n\nBut that's not all, there are also some more hidden commands!\nIt "
                                 "is up to you to find them ;)\n\n"
@@ -676,8 +677,19 @@ class Reply:
 
         elif content_list[0] == "unsubscribe":
             self.reply(user_id,
-                       "You can unsubscribe to courses you dont want to get reminders from. To unsubscribe to a course "
+                       "You can unsubscribe to courses you don't want to get reminders from. To unsubscribe to a course "
                        "just write\n- unsubscribe <course_code> (<course_code2>...)", "text")
+
+        elif content_list[0] == "reminder" or content_list[0] == "reminders":
+            self.reply(user_id,
+                       "There is no 'reminder' command, but type 'Set reminder' to add a new reminder, or 'Get"
+                       " reminders' to see all currently active reminders. If you want more info on the format"
+                       " of 'Set reminder', type 'help Set reminder'.", "text")
+
+        elif content_list[0] == "deadlines" or content_list[0] == "deadline":
+            self.reply(user_id,
+                       "Type 'Get deadlines' to get a full overview of all of your deadlines on it's learning and"
+                       " blackboard! You need to log in to use this command.", "text")
 
         else:
             self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
