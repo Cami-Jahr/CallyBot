@@ -72,10 +72,13 @@ class CallybotDB:
     def get_user_ids(self):
         """Returns all existing users"""
         sql = """SELECT fbid FROM user"""
+        out=[]
         try:
             self.cursor.execute(sql)
             result = self.cursor.fetchall()
-            return result
+            for row in result:
+                out.append(row[0])
+            return out
         except:
             return []
 
