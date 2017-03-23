@@ -142,33 +142,8 @@ class Reply:
         # ------------- DEVELOPER - --------------
 
         # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
-
-        elif content_lower == "developer: id":
-            self.reply(user_id, user_id, 'text')
-
-        elif content_lower == "developer: get requests":
-            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
-                all_requests = f.readlines()
-                msg = ""
-                for request in all_requests:
-                    if len(msg) + len(request) >= 600:
-                        self.reply(user_id, msg, "text")
-                        msg = request
-                    else:
-                        msg += request
-                self.reply(user_id, msg, "text")
-
-        elif content_lower == "developer: get bugs":
-            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
-                reports = f.readlines()
-                msg = ""
-                for report in reports:
-                    if len(msg) + len(report) >= 600:
-                        self.reply(user_id, msg, "text")
-                        msg = report
-                    else:
-                        msg += report
-                self.reply(user_id, msg, "text")
+        elif content_list[0] == "developer":
+            self.developer_statements(user_id, content_list[1:])
 
         # -------------- DEFAULT ----------------
         else:
@@ -181,6 +156,49 @@ class Reply:
                                      "commands", data_type)
             else:
                 self.reply(user_id, content, data_type)
+
+        # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
+    def developer_statements(self,user_id,content_list):
+
+        if user_id not in (1214261795354796,1212139502226885,1439762959401510,1550995208259075):
+            self.reply(user_id,"Error: You are not a developer","text")
+            return
+        if not content_list:
+            self.reply(user_id,"Specify developer command",'text')
+
+        elif content_list[0] == "id":
+            self.reply(user_id, user_id, 'text')
+
+        elif content_list[0] == "requests":
+            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
+                all_requests = f.readlines()
+                msg = ""
+                for request in all_requests:
+                    if len(msg) + len(request) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = request
+                    else:
+                        msg += request
+                self.reply(user_id, msg, "text")
+
+        elif content_list[0] == "bugs":
+            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
+                reports = f.readlines()
+                msg = ""
+                for report in reports:
+                    if len(msg) + len(report) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = report
+                    else:
+                        msg += report
+                self.reply(user_id, msg, "text")
+
+        elif content_list[0] == "users":
+            msg='\n'.join(self.db.get_users())
+            self.reply(user_id,msg,'text')
+
+        else:
+            self.reply(user_id,"Unknown command",'text')
 
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
