@@ -121,6 +121,8 @@ class Reply:
         elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
             msg = "Bye now!"
             self.reply(user_id, msg, 'text')
+            url = "http://www.gifimagesdownload.com/wp-content/uploads/2016/02/latest-bye-gif-466.gif"
+            self.reply(user_id, url, 'image')
 
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
@@ -441,7 +443,7 @@ class Reply:
                     self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
                     self.reply(user_id, "The reminder " + msg + " was sat at " +
-                               time.strftime("%Y-%m-%d %H:%M"), "text")
+                               time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats", "text")
@@ -590,7 +592,8 @@ class Reply:
                                         "where <Due_date> can have the following formats:"
                                         "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n"
                                         "and <Reminder text> is what "
-                                        "I should tell you when the reminder is due.", "text")
+                                        "I should tell you when the reminder is due. I will check "
+                                        "reminders every 5 minutes.", "text")
                 elif content_list[1] == 'default-time':
                     self.reply(user_id,
                                "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
