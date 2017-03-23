@@ -131,6 +131,14 @@ class Reply:
             url = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
             self.reply(user_id, url, 'image')
 
+        elif content_lower == "thanks" or content_lower == "thank you" or content_lower == "ty":
+            msg = "You're welcome!"
+            self.reply(user_id, msg, 'text')
+
+        elif content_lower.__contains__("please"):
+            msg = "You're so polite!"
+            self.reply(user_id, msg, 'text')
+
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
