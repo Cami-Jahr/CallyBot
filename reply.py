@@ -118,6 +118,10 @@ class Reply:
             self.reply(user_id, msg, 'text')
             self.reply(user_id, pic, 'image')
 
+        elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
+            msg = "Bye now!"
+            self.reply(user_id, msg, 'text')
+
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
