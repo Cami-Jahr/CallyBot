@@ -79,8 +79,7 @@ class Reply:
         elif content_list[0] == 'unsubscribe':
             self.unsubscribe(user_id, content_list[1:])
 
-
-        elif content_lower == "yes, I agree to delete all my information":
+        elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
             self.reply(user_id, "I have now deleted all your information. If you have any feedback to give me, please "
                                 "do so with the 'request' function.\nI hope to see you again!", "text")
@@ -112,7 +111,7 @@ class Reply:
             url = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
             self.reply(user_id, url, 'image')
 
-        elif content_lower == "who am I?":
+        elif content_lower == "who am i?":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             msg = "You are " + fname + " " + lname + " and you look like this:"
             self.reply(user_id, msg, 'text')
@@ -135,7 +134,8 @@ class Reply:
             msg = "You're welcome!"
             self.reply(user_id, msg, 'text')
 
-        elif content_lower.__contains__("please"):
+        elif content_lower.__contains__("please"):  # TODO: This blocks "Did you mean to ask me to do something?
+            # Type 'help' to see my supported commands", also seems kinda rude/ sarcastic.....
             msg = "You're so polite!"
             self.reply(user_id, msg, 'text')
 

@@ -43,7 +43,7 @@ class CallybotDB:
         results = self.cursor.fetchall()
         return results[0]
 
-    def add_user(self, user_id, navn, username=None, password=None, df=1):  # test: DONE
+    def add_user(self, user_id, navn, username=None, password=None, df=1):  
         """Add a user to the database, void"""
         self.test_connection()
         if username is None or password is None:  # remember to change default value of username and password to null
@@ -56,7 +56,7 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def remove_user(self, user_id):  # test: DONE
+    def remove_user(self, user_id):  
         """Deletes a user from the database, void"""
         self.test_connection()
         sql = """DELETE FROM user WHERE fbid=""" + str(user_id)
@@ -66,7 +66,7 @@ class CallybotDB:
         else: # TODO: Can be removed? Does it matter?
             print("could not find user")
 
-    def user_exists(self, user_id):  # test: DONE
+    def user_exists(self, user_id):  
         """Checks if a user is already in the database,
         :returns Boolean value"""
         self.test_connection()
@@ -94,7 +94,7 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def add_course(self, course, coursename):  # test: DONE
+    def add_course(self, course, coursename):  
         """Adds course to database if it does not already exist, void"""
         self.test_connection()
         sql = """INSERT INTO course(coursecode, courseName) VALUES ('%s', '%s')""" % (course, coursename)
@@ -104,7 +104,7 @@ class CallybotDB:
         else:# TODO: Can be removed? Does it matter?
             print("course is already in database")
 
-    def remove_course(self, course):  # test: DONE
+    def remove_course(self, course):  
         """Deletes course from the database if it is in the database, void"""
         self.test_connection()
         sql = """DELETE FROM course WHERE coursecode='%s'""" % str(course)
@@ -112,7 +112,7 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def course_exists(self, course):  # test: DONE
+    def course_exists(self, course):  
         """Checks if a course is in the database,
         :returns Boolean value,
         Default return value is False indicating that course is not in database"""
@@ -122,7 +122,7 @@ class CallybotDB:
         result = self.cursor.fetchall()
         return len(result) != 0
 
-    def subscribe_to_course(self, user_id, course):  # test: DONE
+    def subscribe_to_course(self, user_id, course):  
         """Creates a relation between course and user in table subscribed if the relation does not already exist,
          assumes both course and user is already in the database, void"""
         self.test_connection()
@@ -131,7 +131,7 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def user_subscribed_to_course(self, user_id, course):  # test: DONE
+    def user_subscribed_to_course(self, user_id, course):  
         """Checks if a user is subscribed to a course,
         :returns Boolean value"""
         self.test_connection()
@@ -142,7 +142,7 @@ class CallybotDB:
         # result is entire table so if result has 0 rows then the realtion dos not exist
         return len(result) != 0
 
-    def unsubscribe(self, user_id, course):  # test: DONE
+    def unsubscribe(self, user_id, course):  
         """Deletes the relation between user and course if the relation exists, void"""
         self.test_connection()
         sql = """DELETE FROM subscribed
@@ -151,7 +151,7 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def add_reminder(self, what, deadline, coursemade, user_id):  # test: DONE
+    def add_reminder(self, what, deadline, coursemade, user_id):  
         """Add reminder to the database,
         what: <String> whatever user wants to be reminded of,
         deadline: <'YYYY-MM-DD HH:MM> whenever user wants to be reminded of it,
@@ -170,7 +170,7 @@ class CallybotDB:
         self.cursor.execute(sql)
         self.db.commit()
 
-    def get_defaulttime(self, user_id):  # test: DONE
+    def get_defaulttime(self, user_id):  
         """:returns a users defaulttime <Integer>"""
         # gets the defaulttime set by the user of how long before a deadline the user wish to reminded of it
         self.test_connection()
