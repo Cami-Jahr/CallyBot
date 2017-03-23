@@ -202,7 +202,7 @@ class Reply:
                 self.reply(user_id, msg, "text")
 
         elif content_list[0] == "users":
-            msg='\n'.join(self.db.get_users())
+            msg='\n'.join(self.db.get_user_ids())
             self.reply(user_id,msg,'text')
 
         else:

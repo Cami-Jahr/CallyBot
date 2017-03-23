@@ -68,15 +68,20 @@ class CallybotDB:
         except:
             return False
 
-    def get_users(self):
+
+    def get_user_ids(self):
         """Returns all existing users"""
-        sql = """SELECT * FROM user"""
+        sql = """SELECT fbid FROM user"""
+        out=[]
         try:
             self.cursor.execute(sql)
             result = self.cursor.fetchall()
-            return result
+            for row in result:
+                out.append(row[0])
+            return out
         except:
             return []
+
 
     def set_username_password(self, user_id, username, password):
         """Sets username and password for a user that already exists, void"""
