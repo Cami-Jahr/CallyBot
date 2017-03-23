@@ -69,9 +69,12 @@ def handle_incoming_messages():
     print("\n\n\n")
     print("----------------START--------------")
     print("DATA:")
-    print(data)
-    print("---------------END-----------------")
-    user_id = data['entry'][0]['messaging'][0]['sender']['id']
+    try:
+        print(data)
+        print("---------------END-----------------")
+        user_id = data['entry'][0]['messaging'][0]['sender']['id']
+    except:
+        return "ok", 200
     replier.arbitrate(user_id, data)
     print("\x1b[0;32;0mok 200 for message with timestamp", timestamp, "\x1b[0m")
     return "ok", 200

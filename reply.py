@@ -2,6 +2,8 @@ import requests
 import help_methods
 import re  # Regular expressions https://docs.python.org/3/library/re.html
 from datetime import datetime, timedelta
+import json
+import scraper
 
 
 class Reply:
@@ -19,11 +21,11 @@ class Reply:
         # ie course_code format on ntnu
         date_format_separator = "[\/]"  # Date separators allowed. Regex format
         self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator +\
+                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
                            "(0?[469]|11))))"
         # checks if is legit date.
         self.db = db
-        self.scraper = Scraper(self, self.db)
+        self.scraper = scraper.Scraper(self, self.db)
         self.scraper.start()
 
         self.rep = {" ": "-", "/": "-", "\\": "-", ":": "-", ";": "-", ",": "-", ".": "-"}
@@ -31,15 +33,17 @@ class Reply:
         # Used in set reminder to get a standard format to work with
         self.rep = dict((re.escape(k), v) for k, v in self.rep.items())
         self.pattern = re.compile("|".join(self.rep.keys()))
-        
-        self.delete_conf={}
-        self.user_reminders={}
+
+        self.delete_conf = {}
+        self.user_reminders = {}
 
     def arbitrate(self, user_id, data):
         """Chooses action based on message given, does not return"""
         data_type, content = Reply.process_data(data)
         print("Data type:", data_type)
         print("Content:", content)
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  User: " + content + "\n")
         if data_type == "unknown":  # Cant handle unknown
             print("\x1b[0;34;0mUnknown data type\x1b[0m")
             return
@@ -85,7 +89,7 @@ class Reply:
             self.help(user_id, content_list[1:])
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Id\n- Hello"
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello"
             self.reply(user_id, msg, 'text')
 
         # ------------ EASTER EGGS --------------
@@ -93,9 +97,6 @@ class Reply:
             # msg = "http://folk.ntnu.no/halvorkm/TDT4140/chickenattack.mp4"
             msg = "Did I scare ya?"
             self.reply(user_id, msg, 'text')
-
-        elif content_lower == "id":
-            self.reply(user_id, user_id, 'text')
 
         elif content_lower == "juice gif":
             msg = "https://i.makeagif.com/media/10-01-2015/JzrY-u.gif"
@@ -117,6 +118,10 @@ class Reply:
             self.reply(user_id, msg, 'text')
             self.reply(user_id, pic, 'image')
 
+        elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
+            msg = "Bye now!"
+            self.reply(user_id, msg, 'text')
+
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
@@ -131,6 +136,39 @@ class Reply:
                                 "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
                                 "see. Thank you for helping with testing of "
                                 "the bot!\n\n- The developers of CallyBot", "text")
+            self.db.add_user(user_id,fname+lname)
+
+
+        # ------------- DEVELOPER - --------------
+
+        # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
+
+        elif content_lower == "developer: id":
+            self.reply(user_id, user_id, 'text')
+
+        elif content_lower == "developer: get requests":
+            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
+                all_requests = f.readlines()
+                msg = ""
+                for request in all_requests:
+                    if len(msg) + len(request) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = request
+                    else:
+                        msg += request
+                self.reply(user_id, msg, "text")
+
+        elif content_lower == "developer: get bugs":
+            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
+                reports = f.readlines()
+                msg = ""
+                for report in reports:
+                    if len(msg) + len(report) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = report
+                    else:
+                        msg += report
+                self.reply(user_id, msg, "text")
 
         # -------------- DEFAULT ----------------
         else:
@@ -149,37 +187,55 @@ class Reply:
         if not content_list:
             self.reply(user_id, 'Please specify what to get\nType help get if you need help', 'text')
             return
+
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
             self.deadlines(user_id, content_list)
+
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
-            self.user_reminders[user_id]={}
-            i=1
+            self.user_reminders[user_id] = {}
+            i = 1
             if reminders:
                 msg = ""
                 for reminder in reminders:
-                    msg += "<"+str(i)+">: "+reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M:%S") + "\n\n"
-                    self.user_reminders[user_id][i]=reminder[3]
-                    i+=1
-                print (self.user_reminders)
+                    msg += str(i) + ": " + reminder[0] + "\nat " + reminder[1].strftime("%d.%m.%Y %H:%M") + "\n\n"
+                    self.user_reminders[user_id][i] = reminder[3]
+                    i += 1
+                print(self.user_reminders)
             else:
                 msg = "You don't appear to have any reminders scheduled with me"
             self.reply(user_id, msg, "text")
+
         elif content_list[0] == "exam" or content_list[0] == "exams":
             msg = ""
-            for exam in content_list[1:]:
-                date = help_methods.get_course_exam_date(exam)
-                if date:
-                    msg += "The exam in " + exam + " is on " + date + "\n\n"
-                else:
-                    msg += "I cant find the exam date for " + exam + "\n\n"
+            if content_list[1:]:
+                for exam in content_list[1:]:
+                    date = help_methods.get_course_exam_date(exam)
+                    if date:
+                        msg += "The exam in " + exam + " is on " + date + "\n\n"
+                    else:
+                        msg += "I cant find the exam date for " + exam + "\n\n"
+                if not msg:
+                    msg = "I could not find any exam dates, are you sure you wrote the correct code?"
+            else:
+                courses = self.db.get_all_courses(user_id)
+                for exam in courses:
+                    date = help_methods.get_course_exam_date(exam)
+                    if date:
+                        msg += "The exam in " + exam + " is on " + date + "\n\n"
+                    else:
+                        msg += "I cant find the exam date for " + exam + "\n\n"
+                if not msg:
+                    msg = "I could not find any exam date, are you sure you are subscribed to courses?"
             self.reply(user_id, msg, "text")
+
         elif content_list[0] == "default-time":
             df = self.db.get_defaulttime(user_id)
             if df == -1:
-                self.reply(user_id,"To check default-time, please login",'text')
+                self.reply(user_id, "To check default-time, please login", 'text')
             else:
-                self.reply(user_id,"Your default-time is: "+str(df),'text')
+                self.reply(user_id, "Your default-time is: " + str(df), 'text')
+
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
@@ -227,7 +283,15 @@ class Reply:
                                     "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
                            "text")
 
-
+        elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
+            courses = self.db.get_all_courses(user_id)
+            if courses:
+                msg = "You are subscribed to:\n"
+                for course in courses:
+                    msg += course + "\n"
+            else:
+                msg = "You are not subscribed to any courses currently"
+            self.reply(user_id, msg, "text")
 
         else:
             self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that",
@@ -238,7 +302,6 @@ class Reply:
         self.scraper.scrape(user_id, content_list)
         self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
                             "this might take me some time", "text")
-
 
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
@@ -252,37 +315,46 @@ class Reply:
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
-                    if(self.delete_conf[user_id]['reminder']):
-                        self.reply(user_id, 'Deleting all reminders','text')
+                    if (self.delete_conf[user_id]['reminder']):
+                        self.reply(user_id, 'Deleting all reminders', 'text')
                         self.db.delete_all_reminders(user_id)
-                        self.reply(user_id, 'All reminders deleted','text')
-                        self.delete_conf[user_id]['reminder']=0
+                        self.reply(user_id, 'All reminders deleted', 'text')
+                        self.delete_conf[user_id]['reminder'] = 0
                     else:
-                        self.reply(user_id, 'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm','text')
-                        self.delete_conf[user_id]['reminder']=1
+                        self.reply(user_id,
+                                   'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
+                                   'text')
+                        self.delete_conf[user_id]['reminder'] = 1
                 except KeyError:
-                    self.reply(user_id, 'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm','text')
-                    self.delete_conf[user_id]={'reminder':1} # Needs to be changed to an init process to allow other delete confs
+                    self.reply(user_id,
+                               'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
+                               'text')
+                    self.delete_conf[user_id] = {
+                        'reminder': 1}  # Needs to be changed to an init process to allow other delete confs
             else:
-                self.reply(user_id, 'Deleting reminders...','text')
-                not_valid,complete=[],[]
+                self.reply(user_id, 'Deleting reminders...', 'text')
+                not_valid, complete = [], []
                 for reminder in content_list[1:]:
                     try:
-                        int_reminder=int(reminder)
+                        int_reminder = int(reminder)
                         try:
                             self.db.delete_reminder(self.user_reminders[user_id][int_reminder])
                             complete.append(reminder)
                         except KeyError:
-                            self.reply(user_id,"Please type <get reminders> before you try to delete",'text')
+                            self.reply(user_id, "Please type <get reminders> before you try to delete", 'text')
                             return
                     except ValueError:
                         not_valid.append(reminder)
                         continue
                 if not_valid:
-                    self.reply(user_id, "The following reminders are not valid:\n"+",".join(not_valid)+"\nPlease try again",'text')
+                    self.reply(user_id,
+                               "The following reminders are not valid:\n" + ",".join(not_valid) + "\nPlease try again",
+                               'text')
                 if complete:
-                    self.reply(user_id, "The following reminders were deleted:\n"+",".join(complete),'text')
-
+                    self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
+        else:
+            self.reply(user_id, "Im not sure how to delete that, are you sure you wrote it correctly?\nType "
+                                "'help delete' for more information", "text")
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
@@ -295,69 +367,86 @@ class Reply:
                 self.reply(user_id, 'Please specify what to be reminded of\nType help set reminder if you need help',
                            'text')
                 return
-            date = content_list[-2]
-            current = datetime.now()
-            due_time = content_list[-1]
-            due_time = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
-                                        due_time)  # Makes any date string split with "-"
-            day = current.day
-            month = current.month
-            year = current.year
-            if date != "at":  # with date in front
-                date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
-                                        date)  # Makes any date string split with "-"
-                date_list = date.split("-")
-                if len(date_list) == 3:  # YYYY-MM-DD
-                    if len(date_list[0]) == 2:
-                        date_list[0] = "20" + date_list[0]
-                    year = int(date_list[0])
-                    month = int(date_list[1])
-                    day = int(date_list[2])
-                elif len(date_list) == 2:  # DD-MM
-                    if int(date_list[1]) < month or (int(date_list[1]) == month and int(date_list[0]) < day):
-                        year += 1
-                    month = int(date_list[1])
-                    day = int(date_list[0])
-                else:  # DD
-                    if int(date_list[0]) < day:
-                        month += 1
-                    day = int(date_list[0])
-
             try:
-                hour, minute = [int(i) for i in due_time.split("-")]
+                date = content_list[-2]
+                current = datetime.now()
+                due_time = content_list[-1]
+                due_time = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
+                                            due_time)  # Makes any date string split with "-"
+                day = current.day
+                month = current.month
+                year = current.year
+                if date != "at":  # with date in front. Format reminder <text> at date time
+                    date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
+                                            date)  # Makes any date string split with "-"
+                    date_list = date.split("-")
+                    if len(date_list) == 3:  # YYYY-MM-DD
+                        if len(date_list[0]) == 2:
+                            date_list[0] = "20" + date_list[0]
+                        year = int(date_list[0])
+                        month = int(date_list[1])
+                        day = int(date_list[2])
+                    elif len(date_list) == 2:  # DD-MM
+                        if int(date_list[1]) < month or (int(date_list[1]) == month and int(date_list[0]) < day):
+                            year += 1
+                        month = int(date_list[1])
+                        day = int(date_list[0])
+                    else:  # DD
+                        if int(date_list[0]) < day:
+                            month += 1
+                        day = int(date_list[0])
+                    msg = " ".join(content_list[1:-3])
+                else:  # without date in front. Format reminder <text> at time
+                    msg = " ".join(content_list[1:-2])
+                try:
+                    hour, minute = [int(i) for i in due_time.split("-")]
+                except ValueError:
+                    self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'",
+                               "text")
+                    return
+                time = datetime(year, month, day, hour, minute)
+                if time < current:
+                    time = time + timedelta(days=1)
+                if time < current + timedelta(minutes=10):
+                    self.reply(user_id,
+                               "I am sorry, I could not set the reminder '" + msg + "' as it tried to set itself to a "
+                                                                                    "time in the past, or within the "
+                                                                                    "next 10 minutes: " +
+                               time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
+                                                                 "If you belive this was a bug, report it with the "
+                                                                 "'bug' function.",
+                               "text")
+                elif time > current + timedelta(weeks=60):
+                    self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
+                               time.strftime("%Y-%m-%d %H:%M"), "text")
+                else:
+                    self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                    # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
+                    self.reply(user_id, "The reminder " + msg + " was sat at " +
+                               time.strftime("%Y-%m-%d %H:%M"), "text")
             except ValueError:
-                self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'", "text")
-                return
-            time = datetime(year, month, day, hour, minute)
-            if time < current:
-                time = time + timedelta(days=1)
-            if time < current + timedelta(minutes=10):
-                self.reply(user_id, "I am sorry, I could not set the reminder '" + " ".join(content_list[1:-3]) + "' "
-                "as it tried to set itself to a time in the past, or within the next 10 minutes: " +
-                           time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                 "If you belive this was a bug, report it with the 'bug' function.",
-                           "text")
-            elif time > current + timedelta(weeks=60):
-                self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
-                           time.strftime("%Y-%m-%d %H:%M"), "text")
-            else:
-                self.db.add_reminder(" ".join(content_list[1:-3]), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
-                # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                self.reply(user_id, "The reminder " + " ".join(content_list[1:-3]) + " was sat at " +
-                           time.strftime("%Y-%m-%d %H:%M"), "text")
-        elif content_list[0]=='default-time':
+                self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
+                                    "supported format? Type 'help set reminders' to see supported formats", "text")
+        elif content_list[0] == 'default-time':
             if not content_list[1:]:
-                self.reply(user_id,'Please specify default-time to set','text')
+                self.reply(user_id, 'Please specify default-time to set', 'text')
                 return
             try:
                 df = int(content_list[1])
             except ValueError:
-                self.reply(user_id,'Please type in an integer as default-time','text')
+                self.reply(user_id, 'Please type in an integer as default-time', 'text')
                 return
+<<<<<<< HEAD
             if(self.db.set_defaulttime(user_id,df)):
                 self.reply(user_id,'Your default-time was set to: '+content_list[1],'text')
+=======
+            if (self.db.set_defaulttime(user_id, df)):
+                self.reply(user_id, 'Your default-time was set to :' + content_list[1], 'text')
+>>>>>>> 949c24ba778edeb80202bfdb63227cb1e0cc7e67
             else:
-                self.reply(user_id,'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help','text')
+                self.reply(user_id,
+                           'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help',
+                           'text')
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember", "text")
 
@@ -416,17 +505,17 @@ class Reply:
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify atleast one bug\nType help bug if you need help', 'text')
+            self.reply(user_id, 'Please specify at least one bug\nType help bug if you need help', 'text')
             return
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
-            f.write(user_id + ": " + " ".join(content_list) + "\n")
-        self.reply(user_id, "The bug was taken to my developers. One of them might contanct you if they need further "
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
+        self.reply(user_id, "The bug was taken to my developers. One of them might contact you if they need further "
                             "help with the bug", "text")
 
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
-        with open("REQUEST/user_bug_reports.txt", "a", encoding='utf-8') as f:
-            f.write(user_id + ": " + " ".join(content_list) + "\n")
+        with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         self.reply(user_id, "The request was taken to my developers. I will try to make your wish come true, but keep"
                             " in mind that not all request are feasible", "text")
 
@@ -434,10 +523,11 @@ class Reply:
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
             self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
-                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders\n- Get default-time\n- Set reminder\n- Set default-time"
+                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
+                                "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nBut thats not all, theres also some more hidden commands!\nIts up to you to find "
-                                "them ;)\n\n"
+                                "\n\nBut that's not all, there's also some more hidden commands!\nIts up to you to find"
+                                " them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
                                 "You can try this with 'help help' now!", 'text')
 
@@ -461,15 +551,19 @@ class Reply:
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
                     self.reply(user_id, "This gives you an overview of all upcoming reminders I have in store for you."
                                , "text")
-                elif content_list[1] =="default-time":
-                    self.reply(user_id,'Default-time decides how many days before an assigment you will be reminded by default. Get default-time shows your current default-time','text')
+                elif content_list[1] == "default-time":
+                    self.reply(user_id,
+                               'Default-time decides how many days before an assigment you will be reminded by default. Get default-time shows your current default-time',
+                               'text')
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
                                "it with the 'bug' function! If it something you simply wish to be added, use the "
                                "'request' function", "text")
             except IndexError:
-                self.reply(user_id,"To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a list of what you can get", "text")
+                self.reply(user_id,
+                           "To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a list of what you can get",
+                           "text")
 
         elif content_list[0] == "set":
             try:
@@ -485,34 +579,41 @@ class Reply:
                                         "and <Reminder text> is what "
                                         "I should tell you when the reminder is due.", "text")
                 elif content_list[1] == 'default-time':
-                    self.reply(user_id, "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
-                                        "To set your default-time please use the following format:\n\n"
-                                        "- set default-time <integer>\n\n"
-                                        "Where <integer> can be any number of days",'text')
+                    self.reply(user_id,
+                               "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
+                               "To set your default-time please use the following format:\n\n"
+                               "- set default-time <integer>\n\n"
+                               "Where <integer> can be any number of days", 'text')
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
                                "it with the 'bug' function. If it something you simply wish to be added, use the "
                                "'request' function", "text")
             except IndexError:
-                self.reply(user_id,"To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType <help> for a list of what you can set", "text")
+                self.reply(user_id,
+                           "To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType <help> for a list of what you can set",
+                           "text")
 
         elif content_list[0] == "delete":
             try:
                 if content_list[1] == "reminder" or content_list[1] == "reminders":
-                    self.reply(user_id, "Do delete a specific reminder you first have to type <get reminders> to find reminder id, which will"
-                                        "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n"
-                                        "\nTo delete all reminders type:\n- delete reminders",'text')
-                elif content_list[1]=='me':
-                    self.reply(user_id, "If you want me to delete all information I have on you, type in 'delete me', and "
-                                        "follow the instructions i give you", "text")
+                    self.reply(user_id,
+                               "Do delete a specific reminder you first have to type <get reminders> to find reminder id, which will"
+                               "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n"
+                               "\nTo delete all reminders type:\n- delete reminders", 'text')
+                elif content_list[1] == 'me':
+                    self.reply(user_id,
+                               "If you want me to delete all information I have on you, type in 'delete me', and "
+                               "follow the instructions i give you", "text")
                 else:
                     self.reply(user_id,
                                "I'm not sure that's a supported command, if you think this is a bug, please do report "
                                "it with the 'bug' function. If it something you simply wish to be added, use the "
                                "'request' function", "text")
             except IndexError:
-                self.reply(user_id,"To delete something type:\n- delete <what_to_delete> (opt:<value1> <value2>...)\nType <help> for a list of what you can delete", "text")
+                self.reply(user_id,
+                           "To delete something type:\n- delete <what_to_delete> (opt:<value1> <value2>...)\nType <help> for a list of what you can delete",
+                           "text")
 
 
         elif content_list[0] == "help":
@@ -604,7 +705,12 @@ class Reply:
             print("Error: Type not supported")
             return
         response = requests.post(self.get_reply_url(), json=data)
-        print(response.content)
+        feedback = json.loads(response.content.decode())
+        if "error" in feedback:
+            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
 
     def login(self, user_id):
         """Sends the user to the login page"""
@@ -630,106 +736,10 @@ class Reply:
             }
         }
         response = requests.post(self.get_reply_url(), json=data)
-        print(response.content)
+        feedback = json.loads(response.content.decode())
+        if "error" in feedback:
+            with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
-
-
-from threading import Thread
-from collections import deque
-from time import sleep
-
-
-class Scraper(Thread):
-    """The class inherits Thread, something that is necessary to make the Scraper start a new thread, which
-    allows the server to send a '200 ok' fast after being prompted to scrape, and then scrape without facebook pushing
-    new POST messages of the same get deadlines command.
-    To add a scrape request to the queue, run function scrape(user_id, content_list)"""
-
-    def __init__(self, reply_class, db):
-        Thread.__init__(self)
-        # Flag to run thread as a deamon (stops when no other threads are running)
-        self.daemon = True
-        self.requests = deque()
-        self.pop = self.requests.popleft
-        self.app = self.requests.append
-        self.replier = reply_class
-
-        course_code_format1 = '[a-z]{2,3}[0-9]{4}'
-        # course_code_format2 = "[æøåa-z]{1,6}[0-9]{1,6}"
-        # course_code_format3 = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
-        self.course_code_format = course_code_format1  # Checks if string is in format aaa1111 or aa1111,
-        # ie course_code format on ntnu
-        date_format_separator = "[\/]"  # Date separators allowed. Regex format
-        self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
-                           "(0?[469]|11))))"
-        self.db = db
-
-    def run(self):
-        while True:
-            if self.requests:
-                self.process(self.pop())
-            else:
-                sleep(10)  # Delay until looks again if it did not find an active scrape request
-
-    def scrape(self, user_id, content_list):
-        """Queues the scrape request for the server to handle"""
-        self.app((user_id, content_list,))
-
-    def process(self, query):
-        user_id, content_list = query
-        course = "ALL"
-        until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
-        if len(content_list) == 1:  # Asks for all
-            pass
-        elif len(content_list) <= 3:  # Allows "in" and "until" to be dropped by the user
-            if re.fullmatch(self.course_code_format, content_list[-1]):
-                course = content_list[-1]
-            elif re.fullmatch(self.date_format, content_list[-1]):
-                until = content_list[-1]
-            else:
-                pass
-        elif len(content_list) == 5:  # Strict format
-            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
-                # Format: get deadline in aaa1111 until DD/MM
-                course = content_list[2]
-                until = content_list[4]
-            elif content_list[1] == "until" and re.fullmatch(self.date_format, content_list[2]) and content_list[
-                3] == "in" and re.fullmatch(self.course_code_format, content_list[
-                4]):  # Format: get deadline until DD/MM deadline in aaa1111
-                until = content_list[2]
-                course = content_list[4]
-
-        # print(content_list, course, until)
-        ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
-        BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
-        # print(ILdeads, BBdeads)
-        if ILdeads == "SQLerror" or BBdeads == "SQLerror":
-            self.replier.reply(user_id, "Could not fetch deadlines. Check if your user info is correct. You can "
-                                        "probably fix this by using the 'login' command and logging in again with your"
-                                        " feide username and password.\n\nIf you belive this is a bug, please report "
-                                        "it with the 'bug' function", 'text')
-        elif course == "ALL":
-            msg = "ItsLearning:\n" + ILdeads
-            msg2 = "BlackBoard:\n" + BBdeads
-            if len(msg)>640: # 640 is max limit for facebook API message size
-                msg,msg3=msg[:len(msg)//2],msg[len(msg)//2:] # Needs tuning
-                self.replier.reply(user_id, msg, 'text')
-                self.replier.reply(user_id, msg3, 'text')
-            else:
-                self.replier.reply(user_id, msg, 'text')
-            if len(msg2)>640: # 640 is max limit for facebook API message size
-                msg2,msg4=msg2[:len(msg2)//2],msg2[len(msg2)//2:] #Needs tuning
-                self.replier.reply(user_id, msg2, 'text')
-                self.replier.reply(user_id, msg4, 'text')
-            else:
-                self.replier.reply(user_id, msg2, 'text')
-        else:
-            if ILdeads or BBdeads:  # Both is returned as empty if does not have course
-                self.replier.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads,
-                                   "text")
-            else:
-                self.replier.reply(user_id, "I couldn't find any deadlines for " + course, "text")
