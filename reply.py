@@ -658,7 +658,7 @@ class Reply:
                                 "command. If it is a feature you wish added, please use the request command instead. "
                                 "\nA bug is anything from an unexpected output to no output at all. Please include as"
                                 "much information as possible about how you encountered the bug, so I can recreate it",
-                       "text")
+                        "text")
 
         elif content_list[0] == "request":
             self.reply(user_id, "If you have a request for a new feature please let me know! You submit a feature"
