@@ -124,6 +124,12 @@ class Reply:
             url = "http://www.gifimagesdownload.com/wp-content/uploads/2016/02/latest-bye-gif-466.gif"
             self.reply(user_id, url, 'image')
 
+        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
+            msg = "Uh huh"
+            self.reply(user_id, msg, 'text')
+            url = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
+            self.reply(user_id, url, 'image')
+
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
