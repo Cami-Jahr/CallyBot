@@ -132,6 +132,8 @@ class Reply:
                                 "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
                                 "see. Thank you for helping with testing of "
                                 "the bot!\n\n- The developers of CallyBot", "text")
+            self.db.add_user(user_id,fname+lname)
+
 
         # ------------- DEVELOPER - --------------
 
