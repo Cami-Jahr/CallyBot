@@ -725,7 +725,7 @@ class Reply:
             try:  # Check if payload from button (ie Get Started, persistent menu)
                 content = data['entry'][0]['messaging'][0]['postback']['payload']
                 data_type = 'text'
-            except:
+            except:  # TODO: Specify what it catches
                 data_type = "unknown"
                 content = ""
 

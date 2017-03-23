@@ -3,7 +3,7 @@
 
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
 
 def scrape(username, password):
@@ -20,9 +20,10 @@ def scrape(username, password):
 
     wait = ui.WebDriverWait(driver, 10)
     try:
-        driver.find_element_by_id("yesbutton").click()
-    except:
-        pass
+        driver.find_element_by_id("yesbutton").click()  # First time the user logs onto itslearning from a new device
+        # he must allow the device to access feide
+    except NoSuchElementException:
+        pass # Not first time the user logs on with Cally
     try:
         wait.until(lambda driver: driver.find_element_by_id('l-header'))  # Wait for the site to load properly
     except TimeoutException:
