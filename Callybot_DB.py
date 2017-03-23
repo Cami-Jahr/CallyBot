@@ -41,7 +41,7 @@ class CallybotDB:
         sql = "SELECT * FROM user WHERE fbid=" + str(user_id)
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
-        return results[0]
+        return results[0] if results else []
 
     def add_user(self, user_id, navn, username=None, password=None, df=1):  
         """Add a user to the database, void"""
@@ -59,8 +59,8 @@ class CallybotDB:
     def remove_user(self, user_id):  
         """Deletes a user from the database, void"""
         self.test_connection()
-        sql = """DELETE FROM user WHERE fbid=""" + str(user_id)
         if self.user_exists(user_id):
+            sql = """DELETE FROM user WHERE fbid=""" + str(user_id)
             self.cursor.execute(sql)
             self.db.commit()
         else: # TODO: Can be removed? Does it matter?
@@ -89,16 +89,16 @@ class CallybotDB:
     def set_username_password(self, user_id, username, password):
         """Sets username and password for a user that already exists, void"""
         self.test_connection()
-        sql = """UPDATE user SET username='%s' AND password='%s' WHERE fbid='%s'""" % (username, password, user_id)
+        sql = """UPDATE user SET username='%s', password='%s' WHERE fbid='%s'""" % (username, password, user_id)
         if self.user_exists(user_id):
             self.cursor.execute(sql)
             self.db.commit()
 
-    def add_course(self, course, coursename):  
+    def add_course(self, course_code, course_name):
         """Adds course to database if it does not already exist, void"""
         self.test_connection()
-        sql = """INSERT INTO course(coursecode, courseName) VALUES ('%s', '%s')""" % (course, coursename)
-        if not self.course_exists(course):
+        sql = """INSERT INTO course(coursecode, courseName) VALUES ('%s', '%s')""" % (course_code, course_name)
+        if not self.course_exists(course_code):
             self.cursor.execute(sql)
             self.db.commit()
         else:# TODO: Can be removed? Does it matter?
@@ -127,7 +127,7 @@ class CallybotDB:
          assumes both course and user is already in the database, void"""
         self.test_connection()
         sql = """INSERT INTO subscribed (userID, course) VALUES ('%s', '%s')""" % (user_id, course)
-        if not self.user_subscribed_to_course(user_id, course):
+        if not self.user_subscribed_to_course(user_id, course) and self.user_exists(user_id) and self.course_exists(course):
             self.cursor.execute(sql)
             self.db.commit()
 
@@ -158,26 +158,27 @@ class CallybotDB:
         coursemade: <Boolean> True if this reminder is an assignment, False if costum reminder,
         user_id: <String> the user who wants to reminded of what,
         void"""
-        self.test_connection()
-        # change the deadline specified by the defaulttime
-        df = self.get_defaulttime(user_id)  # TODO: fix_new_deadline can be changed to method and do this itself?
-        # only alter deadline if coursemade == 1
-        new_deadline = deadline.replace('.', '-')  # TODO: Can this be removed?
-        if coursemade:
-            new_deadline = fix_new_deadline(deadline, df)
-        sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
-              "VALUES ('%s', '%s', '%s', '%d')" % (what, new_deadline, user_id, coursemade)
-        self.cursor.execute(sql)
-        self.db.commit()
+        if self.user_exists(user_id):
+            self.test_connection()
+            # change the deadline specified by the defaulttime
+            df = self.get_defaulttime(user_id)  # TODO: fix_new_deadline can be changed to method and do this itself?
+            # only alter deadline if coursemade == 1
+            new_deadline = deadline.replace('.', '-')  # TODO: Can this be removed?
+            if coursemade:
+                new_deadline = fix_new_deadline(deadline, df)
+            sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
+                  "VALUES ('%s', '%s', '%s', '%d')" % (what, new_deadline, user_id, coursemade)
+            self.cursor.execute(sql)
+            self.db.commit()
 
     def get_defaulttime(self, user_id):  
-        """:returns a users defaulttime <Integer>"""
+        """:returns a users defaulttime <Integer>. 0 if user does not exist"""
         # gets the defaulttime set by the user of how long before a deadline the user wish to reminded of it
         self.test_connection()
         sql = """SELECT defaulttime FROM user WHERE fbid='%s'""" % user_id
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
-        return result[0][0]
+        return result[0][0] if result else 0  # 0 if user does not exist
 
     def set_defaulttime(self, user_id, df):  # TODO: Does this need to return?
         """Sets a user's defaulttime to be df <Integer>, void"""
