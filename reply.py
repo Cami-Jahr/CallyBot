@@ -121,6 +121,8 @@ class Reply:
         elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
             msg = "Bye now!"
             self.reply(user_id, msg, 'text')
+            url = "http://i.imgur.com/NBUNSSG.gif"
+            self.reply(user_id, url, 'image')
 
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
