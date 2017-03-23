@@ -124,6 +124,12 @@ class Reply:
             url = "http://www.gifimagesdownload.com/wp-content/uploads/2016/02/latest-bye-gif-466.gif"
             self.reply(user_id, url, 'image')
 
+        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
+            msg = "Uh huh"
+            self.reply(user_id, msg, 'text')
+            url = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
+            self.reply(user_id, url, 'image')
+
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
@@ -162,7 +168,7 @@ class Reply:
         # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
     def developer_statements(self,user_id,content_list):
 
-        if user_id not in (1214261795354796,1212139502226885,1439762959401510,1550995208259075):
+        if user_id not in ('1214261795354796','1212139502226885','1439762959401510','1550995208259075'):
             self.reply(user_id,"Error: You are not a developer","text")
             return
         if not content_list:
@@ -541,8 +547,10 @@ class Reply:
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nBut that's not all, there's also some more hidden commands!\nIts up to you to find"
-                                " them ;)\n\n"
+                                "\n\nThere is also a persistent menu to the left of the input field, it has"
+                                "shortcuts to some of the commands!"
+                                "\n\nBut that's not all, there are also some more hidden commands!\nIt "
+                                "is up to you to find them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
                                 "You can try this with 'help help' now!", 'text')
 
