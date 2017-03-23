@@ -80,7 +80,7 @@ class Reply:
             self.unsubscribe(user_id, content_list[1:])
 
 
-        elif content_lower == "yes, i agree to delete all my information":
+        elif content_lower == "yes, I agree to delete all my information":
             self.db.remove_user(user_id)
             self.reply(user_id, "I have now deleted all your information. If you have any feedback to give me, please "
                                 "do so with the 'request' function.\nI hope to see you again!", "text")
@@ -89,7 +89,7 @@ class Reply:
             self.help(user_id, content_list[1:])
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello"
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello\n- Good bye"
             self.reply(user_id, msg, 'text')
 
         # ------------ EASTER EGGS --------------
@@ -112,7 +112,7 @@ class Reply:
             url = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
             self.reply(user_id, url, 'image')
 
-        elif content_lower == "who am i?":
+        elif content_lower == "who am I?":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             msg = "You are " + fname + " " + lname + " and you look like this:"
             self.reply(user_id, msg, 'text')
@@ -133,7 +133,7 @@ class Reply:
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
-            msg = "Hi there " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
+            msg = "Welcome" + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
                                         "date on your upcomming deadlines on It'slearning and Blackboard. Type 'login' " \
                                         "or use the menu to get started. \nIf you need help, or want to know more about" \
                                         " what i can do for you, just type 'help'.\n\n Please do enjoy!"
