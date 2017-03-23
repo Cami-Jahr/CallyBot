@@ -425,7 +425,7 @@ class Reply:
                     self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
                     self.reply(user_id, "The reminder " + msg + " was sat at " +
-                               time.strftime("%Y-%m-%d %H:%M"), "text")
+                               time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats", "text")
