@@ -339,9 +339,13 @@ class Reply:
 
     def deadlines(self, user_id, content_list):
         """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
-        self.scraper.scrape(user_id, content_list)
-        self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
+        if self.db.user_exists(user_id):
+            self.scraper.scrape(user_id, content_list)
+            self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
                             "this might take me some time", "text")
+        else:
+            self.reply(user_id, "You don't appear to be logged in. To use the 'get deadlines' function you need to log"
+                                "in with your feide username and password with the 'login' command", "text")
 
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
