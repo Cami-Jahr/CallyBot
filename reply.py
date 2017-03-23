@@ -205,6 +205,11 @@ class Reply:
             msg='\n'.join(self.db.get_user_ids())
             self.reply(user_id,msg,'text')
 
+        elif content_list[0] == 'announcement':
+            users=self.db.get_user_ids()
+            for user in users:
+                self.reply(user,'Announcement: '+' '.join(content_list[1:]),'text')
+
         else:
             self.reply(user_id,"Unknown command",'text')
 
