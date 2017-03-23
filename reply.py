@@ -168,7 +168,7 @@ class Reply:
         # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
     def developer_statements(self,user_id,content_list):
 
-        if user_id not in (1214261795354796,1212139502226885,1439762959401510,1550995208259075):
+        if user_id not in ('1214261795354796','1212139502226885','1439762959401510','1550995208259075'):
             self.reply(user_id,"Error: You are not a developer","text")
             return
         if not content_list:
