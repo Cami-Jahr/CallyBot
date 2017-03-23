@@ -462,13 +462,8 @@ class Reply:
             except ValueError:
                 self.reply(user_id, 'Please type in an integer as default-time', 'text')
                 return
-<<<<<<< HEAD
             if(self.db.set_defaulttime(user_id,df)):
                 self.reply(user_id,'Your default-time was set to: '+content_list[1],'text')
-=======
-            if (self.db.set_defaulttime(user_id, df)):
-                self.reply(user_id, 'Your default-time was set to :' + content_list[1], 'text')
->>>>>>> 949c24ba778edeb80202bfdb63227cb1e0cc7e67
             else:
                 self.reply(user_id,
                            'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help',
