@@ -574,7 +574,8 @@ class Reply:
                                         "where <Due_date> can have the following formats:"
                                         "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n"
                                         "and <Reminder text> is what "
-                                        "I should tell you when the reminder is due.", "text")
+                                        "I should tell you when the reminder is due. I will check "
+                                        "reminders every 5 minutes.", "text")
                 elif content_list[1] == 'default-time':
                     self.reply(user_id,
                                "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
