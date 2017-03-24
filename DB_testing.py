@@ -113,3 +113,45 @@ class Test_Callybot_DB(unittest.TestCase):  # alot of failures still
 
 if __name__ == '__main__':
     unittest.main()
+
+
+'''
+Current functions and relevant information 23/03/17
+
+import Callybot_DB
+
+
+c = Callybot_DB.CallybotDB("mysql.stud.ntnu.no", "joachija", "Tossu796", "ingritu_callybot")
+u = "1550995208259075"
+co = "TEST"
+con = "_test"
+from time import sleep
+
+print(c.remove_user(u))
+print(c.add_user(u, "j",))
+print(c.get_credential(u))
+print(c.add_reminder("text", "2020-10-10 10:10:10", 0, u))
+print(c.get_defaulttime(u))
+print(c.set_defaulttime(u, 2))
+print(c.get_all_courses(u))
+print(c.get_reminders(u))
+print(c.delete_all_coursemade_reminders(u))
+print(c.delete_all_reminders(u))
+print(c.delete_reminder(1))
+print(c.clean_course(u))
+
+print(c.user_exists(u))
+print(c.set_username_password(u, "J", "l"))
+print(c.get_credential(u))
+print("\n\n")
+
+print(c.add_course(co, con))
+print(c.remove_course(co))
+print(c.course_exists(co))
+
+print(c.subscribe_to_course(u, co))
+print(c.user_subscribed_to_course(u, co))
+print(c.unsubscribe(u, co))
+print(c.get_all_reminders())
+print(c.get_user_ids())
+'''

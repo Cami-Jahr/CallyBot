@@ -79,7 +79,6 @@ class Reply:
         elif content_list[0] == 'unsubscribe':
             self.unsubscribe(user_id, content_list[1:])
 
-
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
             self.reply(user_id, "I have now deleted all your information. If you have any feedback to give me, please "
@@ -89,7 +88,7 @@ class Reply:
             self.help(user_id, content_list[1:])
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello"
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello\n- Good bye"
             self.reply(user_id, msg, 'text')
 
         # ------------ EASTER EGGS --------------
@@ -118,10 +117,32 @@ class Reply:
             self.reply(user_id, msg, 'text')
             self.reply(user_id, pic, 'image')
 
+        elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
+            msg = "Bye now!"
+            self.reply(user_id, msg, 'text')
+            url = "http://www.gifimagesdownload.com/wp-content/uploads/2016/02/latest-bye-gif-466.gif"
+                #http://i.imgur.com/NBUNSSG.gif maybe use this one instead?
+            self.reply(user_id, url, 'image')
+
+        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
+            msg = "Uh huh"
+            self.reply(user_id, msg, 'text')
+            url = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
+            self.reply(user_id, url, 'image')
+
+        elif content_lower == "thanks" or content_lower == "thank you" or content_lower == "ty":
+            msg = "You're welcome!"
+            self.reply(user_id, msg, 'text')
+
+        elif content_lower.__contains__("please"):  # TODO: This blocks "Did you mean to ask me to do something?
+            # Type 'help' to see my supported commands", also seems kinda rude/ sarcastic.....
+            msg = "You're so polite!"
+            self.reply(user_id, msg, 'text')
+
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
-            msg = "Hi there " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
+            msg = "Welcome" + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
                                         "date on your upcomming deadlines on It'slearning and Blackboard. Type 'login' " \
                                         "or use the menu to get started. \nIf you need help, or want to know more about" \
                                         " what i can do for you, just type 'help'.\n\n Please do enjoy!"
@@ -132,37 +153,14 @@ class Reply:
                                 "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
                                 "see. Thank you for helping with testing of "
                                 "the bot!\n\n- The developers of CallyBot", "text")
+            self.db.add_user(user_id,fname+lname)
+
 
         # ------------- DEVELOPER - --------------
 
         # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
-
-        elif content_lower == "developer: id":
-            self.reply(user_id, user_id, 'text')
-
-        elif content_lower == "developer: get requests":
-            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
-                all_requests = f.readlines()
-                msg = ""
-                for request in all_requests:
-                    if len(msg) + len(request) >= 600:
-                        self.reply(user_id, msg, "text")
-                        msg = request
-                    else:
-                        msg += request
-                self.reply(user_id, msg, "text")
-
-        elif content_lower == "developer: get bugs":
-            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
-                reports = f.readlines()
-                msg = ""
-                for report in reports:
-                    if len(msg) + len(report) >= 600:
-                        self.reply(user_id, msg, "text")
-                        msg = report
-                    else:
-                        msg += report
-                self.reply(user_id, msg, "text")
+        elif content_list[0] == "developer":
+            self.developer_statements(user_id, content_list[1:])
 
         # -------------- DEFAULT ----------------
         else:
@@ -175,6 +173,54 @@ class Reply:
                                      "commands", data_type)
             else:
                 self.reply(user_id, content, data_type)
+
+        # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
+    def developer_statements(self,user_id,content_list):
+
+        if user_id not in ('1214261795354796','1212139502226885','1439762959401510','1550995208259075'):
+            self.reply(user_id,"Error: You are not a developer","text")
+            return
+        if not content_list:
+            self.reply(user_id,"Specify developer command",'text')
+
+        elif content_list[0] == "id":
+            self.reply(user_id, user_id, 'text')
+
+        elif content_list[0] == "requests":
+            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
+                all_requests = f.readlines()
+                msg = ""
+                for request in all_requests:
+                    if len(msg) + len(request) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = request
+                    else:
+                        msg += request
+                self.reply(user_id, msg, "text")
+
+        elif content_list[0] == "bugs":
+            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
+                reports = f.readlines()
+                msg = ""
+                for report in reports:
+                    if len(msg) + len(report) >= 600:
+                        self.reply(user_id, msg, "text")
+                        msg = report
+                    else:
+                        msg += report
+                self.reply(user_id, msg, "text")
+
+        elif content_list[0] == "users":
+            msg='\n'.join(self.db.get_user_ids())
+            self.reply(user_id,msg,'text')
+
+        elif content_list[0] == 'announcement':
+            users=self.db.get_user_ids()
+            for user in users:
+                self.reply(user,'Announcement: '+' '.join(content_list[1:]),'text')
+
+        else:
+            self.reply(user_id,"Unknown command",'text')
 
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
@@ -293,9 +339,13 @@ class Reply:
 
     def deadlines(self, user_id, content_list):
         """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
-        self.scraper.scrape(user_id, content_list)
-        self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
+        if self.db.user_exists(user_id):
+            self.scraper.scrape(user_id, content_list)
+            self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
                             "this might take me some time", "text")
+        else:
+            self.reply(user_id, "You don't appear to be logged in. To use the 'get deadlines' function you need to log"
+                                "in with your feide username and password with the 'login' command", "text")
 
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
@@ -417,7 +467,7 @@ class Reply:
                     self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
                     self.reply(user_id, "The reminder " + msg + " was sat at " +
-                               time.strftime("%Y-%m-%d %H:%M"), "text")
+                               time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats", "text")
@@ -430,8 +480,8 @@ class Reply:
             except ValueError:
                 self.reply(user_id, 'Please type in an integer as default-time', 'text')
                 return
-            if (self.db.set_defaulttime(user_id, df)):
-                self.reply(user_id, 'Your default-time was set to :' + content_list[1], 'text')
+            if(self.db.set_defaulttime(user_id,df)):
+                self.reply(user_id,'Your default-time was set to: '+content_list[1],'text')
             else:
                 self.reply(user_id,
                            'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help',
@@ -515,8 +565,10 @@ class Reply:
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
                                 "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nBut that's not all, there's also some more hidden commands!\nIts up to you to find"
-                                " them ;)\n\n"
+                                "\n\nThere is also a persistent menu to the left of the input field, it has "
+                                "shortcuts to some of the commands!"
+                                "\n\nBut that's not all, there are also some more hidden commands!\nIt "
+                                "is up to you to find them ;)\n\n"
                                 "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
                                 "You can try this with 'help help' now!", 'text')
 
@@ -566,7 +618,8 @@ class Reply:
                                         "where <Due_date> can have the following formats:"
                                         "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n"
                                         "and <Reminder text> is what "
-                                        "I should tell you when the reminder is due.", "text")
+                                        "I should tell you when the reminder is due. I will check "
+                                        "reminders every 5 minutes.", "text")
                 elif content_list[1] == 'default-time':
                     self.reply(user_id,
                                "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
@@ -623,7 +676,7 @@ class Reply:
                                 "command. If it is a feature you wish added, please use the request command instead. "
                                 "\nA bug is anything from an unexpected output to no output at all. Please include as"
                                 "much information as possible about how you encountered the bug, so I can recreate it",
-                       "text")
+                        "text")
 
         elif content_list[0] == "request":
             self.reply(user_id, "If you have a request for a new feature please let me know! You submit a feature"
@@ -636,8 +689,19 @@ class Reply:
 
         elif content_list[0] == "unsubscribe":
             self.reply(user_id,
-                       "You can unsubscribe to courses you dont want to get reminders from. To unsubscribe to a course "
+                       "You can unsubscribe to courses you don't want to get reminders from. To unsubscribe to a course "
                        "just write\n- unsubscribe <course_code> (<course_code2>...)", "text")
+
+        elif content_list[0] == "reminder" or content_list[0] == "reminders":
+            self.reply(user_id,
+                       "There is no 'reminder' command, but type 'Set reminder' to add a new reminder, or 'Get"
+                       " reminders' to see all currently active reminders. If you want more info on the format"
+                       " of 'Set reminder', type 'help Set reminder'.", "text")
+
+        elif content_list[0] == "deadlines" or content_list[0] == "deadline":
+            self.reply(user_id,
+                       "Type 'Get deadlines' to get a full overview of all of your deadlines on it's learning and"
+                       " blackboard! You need to log in to use this command.", "text")
 
         else:
             self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
@@ -665,7 +729,7 @@ class Reply:
             try:  # Check if payload from button (ie Get Started, persistent menu)
                 content = data['entry'][0]['messaging'][0]['postback']['payload']
                 data_type = 'text'
-            except:
+            except:  # TODO: Specify what it catches
                 data_type = "unknown"
                 content = ""
 
