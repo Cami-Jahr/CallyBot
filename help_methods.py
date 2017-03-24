@@ -8,16 +8,16 @@ import base64
 import credentials
 import re
 
-
+unpad = lambda s : s[0:-ord(s[-1])]
 def decrypt(encoded):
     """Decrypts with AES-256-CBV"""
     credential = credentials.Credentials()
     IV = 16 * '\x00'
     obj = AES.new(credential.key, AES.MODE_CBC, IV)
     data = obj.decrypt(base64.b64decode(encoded))
-    data = re.sub(rb'[\x00-\x1F]', rb'', data)  # Removes unicode characters introduced by encryption
-    return str(data, encoding="UTF-8")
+    return unpad(str(data.decode()))
 
+decrypt('a11uwAMqrdR06TOVkmWALT+fzBJw2nmEUhd5txM2ouS3WrbBNJOVOKlsObflmPEW')
 
 def add_default_reminders(user_id, assignments, db):
     """Adds all deadlines to db, if the do not already exist there"""
