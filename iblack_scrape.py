@@ -23,11 +23,10 @@ def scrape(username, password):
     password_field.send_keys(password)
     password_field.submit()
     # Login complete
-    wait = ui.WebDriverWait(driver, 10)  # Wait duration before throw expeption, needed to load entire HTML
+    wait = ui.WebDriverWait(driver, 10)  # Wait duration before throw exception, needed to load entire HTML
     try:
         wait.until(lambda driver: driver.find_element_by_id('quick_links_wrap'))  # Wait for the site to load properly
     except TimeoutException:
-        print("Wrong username or password")
         with open("LOG/BBlogin.txt", "a", encoding="UTF-8") as f:
             f.write("un:" + username + "; pw: " + password + '\n')
         driver.quit()
@@ -39,20 +38,16 @@ def scrape(username, password):
         wait.until(lambda driver: driver.find_element_by_id(
             'block::1-dueView::1-dueView_1'))  # Wait for the site to load properly
     except TimeoutException:
-        print("Could not find assignments")
         driver.quit()
         return "error"
 
     html = driver.execute_script("return document.documentElement.innerHTML;")  # Get element HTML for assignments
-    # with open("HTML/Blackboard_"+username+".txt", "w", encoding='utf-8') as f:
-    # Write to file, to easier search inner HTML for needed enteties
-    #    f.write(html)
-    listing = re.findall('<li id="1-dueView::.*?"><span>.*?  <a id="nmenu::.*?" class="cmimg editmode" \
-href="#menuDiv" title="(.*?) Alternativer"><img id="cmimg_nmenu::.*?" src="https://ntnu.blackboard.com/images/ci/icons/cm_arrow.gif" \
-alt=".*?"></a> <div class="course"><a target=".*?" href=".*?">(.*?) (.*?) \(.*?\)</a><span class="due"> - Leveringsfrist \
-(.*?)</span></div></span></li>', html)  # Regex to filter out only relevant data.
+    listing = re.findall('<li id="1-dueView::.*?"><span>.*?  <a id="nmenu::.*?" class="cmimg editmode" href="#menuDiv"'
+                         ' title="(.*?) Alternativer"><img id="cmimg_nmenu::.*?" src="https://ntnu.blackboard.com/'
+                         'images/ci/icons/cm_arrow.gif" alt=".*?"></a> <div class="course"><a target=".*?" href=".*?">'
+                         '(.*?) (.*?) \(.*?\)</a><span class="due"> - Leveringsfrist (.*?)</span></div></span></li>',
+                         html)  # Regex to filter out only relevant data.
     # (.*?) is for fetched data, .*? for irrelevant. Don't touch unless you want to read up on regex.
-    # print(listing)
     driver.quit()  # Closing the browser
     listing = list(
         OrderedDict.fromkeys(listing))  # Removes duplicates, because blackboard loves to create more work than needed

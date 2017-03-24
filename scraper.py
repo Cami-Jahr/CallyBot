@@ -20,11 +20,8 @@ class Scraper(Thread):
         self.app = self.requests.append
         self.replier = reply_class
 
-        course_code_format1 = '[a-z]{2,3}[0-9]{4}'
-        # course_code_format2 = "[æøåa-z]{1,6}[0-9]{1,6}"
-        # course_code_format3 = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
-        self.course_code_format = course_code_format1  # Checks if string is in format aaa1111 or aa1111,
-        # ie course_code format on ntnu
+        self.course_code_format = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
+        # Checks if string is in course_code format on ntnu
         date_format_separator = "[\/]"  # Date separators allowed. Regex format
         self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
                            date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
@@ -43,9 +40,10 @@ class Scraper(Thread):
         self.app((user_id, content_list,))
 
     def process(self, query):
+        """Scrapes Blackboard and It'slearning for deadlines"""
         user_id, content_list = query
         course = "ALL"
-        until = "31/12"  # TODO: Changed to default duration of user from sql server. Must still be in format DD/MM
+        until = "31/12"
         if len(content_list) == 1:  # Asks for all
             pass
         elif len(content_list) <= 3:  # Allows "in" and "until" to be dropped by the user
@@ -67,26 +65,24 @@ class Scraper(Thread):
                 until = content_list[2]
                 course = content_list[4]
 
-        # print(content_list, course, until)
         ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
         BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
-        # print(ILdeads, BBdeads)
         if ILdeads == "SQLerror" or BBdeads == "SQLerror":
             self.replier.reply(user_id, "Could not fetch deadlines. Check if your user info is correct. You can "
                                         "probably fix this by using the 'login' command and logging in again with your"
-                                        " feide username and password.\n\nIf you belive this is a bug, please report "
+                                        " feide username and password.\n\nIf you believe this is a bug, please report "
                                         "it with the 'bug' function", 'text')
         elif course == "ALL":
             msg = "ItsLearning:\n" + ILdeads
             msg2 = "BlackBoard:\n" + BBdeads
             if len(msg) > 640:  # 640 is max limit for facebook API message size
-                msg, msg3 = msg[:len(msg) // 2], msg[len(msg) // 2:]  # Needs tuning
+                msg, msg3 = msg[:len(msg) // 2], msg[len(msg) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
                 self.replier.reply(user_id, msg, 'text')
                 self.replier.reply(user_id, msg3, 'text')
             else:
                 self.replier.reply(user_id, msg, 'text')
             if len(msg2) > 640:  # 640 is max limit for facebook API message size
-                msg2, msg4 = msg2[:len(msg2) // 2], msg2[len(msg2) // 2:]  # Needs tuning
+                msg2, msg4 = msg2[:len(msg2) // 2], msg2[len(msg2) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
                 self.replier.reply(user_id, msg2, 'text')
                 self.replier.reply(user_id, msg4, 'text')
             else:

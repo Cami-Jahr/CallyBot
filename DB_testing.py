@@ -114,7 +114,6 @@ class Test_Callybot_DB(unittest.TestCase):  # alot of failures still
 if __name__ == '__main__':
     unittest.main()
 
-
 '''
 Current functions and relevant information 23/03/17
 

@@ -43,7 +43,7 @@ class CallybotDB:
         results = self.cursor.fetchall()
         return results[0] if results else []
 
-    def add_user(self, user_id, navn, username=None, password=None, df=1):  
+    def add_user(self, user_id, navn, username=None, password=None, df=1):
         """Add a user to the database, void"""
         self.test_connection()
         if username is None or password is None:  # remember to change default value of username and password to null
@@ -56,17 +56,15 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def remove_user(self, user_id):  
+    def remove_user(self, user_id):
         """Deletes a user from the database, void"""
         self.test_connection()
         if self.user_exists(user_id):
             sql = """DELETE FROM user WHERE fbid=""" + str(user_id)
             self.cursor.execute(sql)
             self.db.commit()
-        else: # TODO: Can be removed? Does it matter?
-            print("could not find user")
 
-    def user_exists(self, user_id):  
+    def user_exists(self, user_id):
         """Checks if a user is already in the database,
         :returns Boolean value"""
         self.test_connection()
@@ -81,10 +79,7 @@ class CallybotDB:
         sql = """SELECT fbid FROM user"""
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
-        out = []
-        for row in result:
-            out.append(row[0])
-        return out  # Can be cahnged to [row[0] for row in result] ?
+        return [row[0] for row in result]
 
     def set_username_password(self, user_id, username, password):
         """Sets username and password for a user that already exists, void"""
@@ -101,10 +96,8 @@ class CallybotDB:
         if not self.course_exists(course_code):
             self.cursor.execute(sql)
             self.db.commit()
-        else:# TODO: Can be removed? Does it matter?
-            print("course is already in database")
 
-    def remove_course(self, course):  
+    def remove_course(self, course):
         """Deletes course from the database if it is in the database, void"""
         self.test_connection()
         sql = """DELETE FROM course WHERE coursecode='%s'""" % str(course)
@@ -112,7 +105,7 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def course_exists(self, course):  
+    def course_exists(self, course):
         """Checks if a course is in the database,
         :returns Boolean value,
         Default return value is False indicating that course is not in database"""
@@ -122,16 +115,17 @@ class CallybotDB:
         result = self.cursor.fetchall()
         return len(result) != 0
 
-    def subscribe_to_course(self, user_id, course):  
+    def subscribe_to_course(self, user_id, course):
         """Creates a relation between course and user in table subscribed if the relation does not already exist,
          assumes both course and user is already in the database, void"""
         self.test_connection()
         sql = """INSERT INTO subscribed (userID, course) VALUES ('%s', '%s')""" % (user_id, course)
-        if not self.user_subscribed_to_course(user_id, course) and self.user_exists(user_id) and self.course_exists(course):
+        if not self.user_subscribed_to_course(user_id, course) and self.user_exists(user_id) and self.course_exists(
+                course):
             self.cursor.execute(sql)
             self.db.commit()
 
-    def user_subscribed_to_course(self, user_id, course):  
+    def user_subscribed_to_course(self, user_id, course):
         """Checks if a user is subscribed to a course,
         :returns Boolean value"""
         self.test_connection()
@@ -139,10 +133,10 @@ class CallybotDB:
                 WHERE userID='%s' AND course='%s'""" % (user_id, course)
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
-        # result is entire table so if result has 0 rows then the realtion dos not exist
+        # result is entire table so if result has 0 rows then the realtion does not exist
         return len(result) != 0
 
-    def unsubscribe(self, user_id, course):  
+    def unsubscribe(self, user_id, course):
         """Deletes the relation between user and course if the relation exists, void"""
         self.test_connection()
         sql = """DELETE FROM subscribed
@@ -151,7 +145,7 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
 
-    def add_reminder(self, what, deadline, coursemade, user_id):  
+    def add_reminder(self, what, deadline, coursemade, user_id):
         """Add reminder to the database,
         what: <String> whatever user wants to be reminded of,
         deadline: <'YYYY-MM-DD HH:MM> whenever user wants to be reminded of it,
@@ -161,17 +155,16 @@ class CallybotDB:
         if self.user_exists(user_id):
             self.test_connection()
             # change the deadline specified by the defaulttime
-            df = self.get_defaulttime(user_id)  # TODO: fix_new_deadline can be changed to method and do this itself?
             # only alter deadline if coursemade == 1
-            new_deadline = deadline.replace('.', '-')  # TODO: Can this be removed?
             if coursemade:
-                new_deadline = fix_new_deadline(deadline, df)
+                df = self.get_defaulttime(user_id)
+                new_deadline = CallybotDB.fix_new_deadline(deadline, df)
             sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
                   "VALUES ('%s', '%s', '%s', '%d')" % (what, new_deadline, user_id, coursemade)
             self.cursor.execute(sql)
             self.db.commit()
 
-    def get_defaulttime(self, user_id):  
+    def get_defaulttime(self, user_id):
         """:returns a users defaulttime <Integer>. 0 if user does not exist"""
         # gets the defaulttime set by the user of how long before a deadline the user wish to reminded of it
         self.test_connection()
@@ -180,7 +173,7 @@ class CallybotDB:
         result = self.cursor.fetchall()
         return result[0][0] if result else 0  # 0 if user does not exist
 
-    def set_defaulttime(self, user_id, df):  # TODO: Does this need to return?
+    def set_defaulttime(self, user_id, df):
         """Sets a user's defaulttime to be df <Integer>, void"""
         self.test_connection()
         sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
@@ -219,18 +212,16 @@ class CallybotDB:
         results = self.cursor.fetchall()
         return results
 
-    def delete_all_reminders(self, user_id):  # TODO: Que? Denne må endes, skal den returnere?
-        """Deletes all reminders a user has,
-        :returns a list of lists"""
+    def delete_all_reminders(self, user_id):
+        """Deletes all reminders a user has,"""
         self.test_connection()
         sql = """DELETE FROM reminder
                         WHERE userID='%s'""" % user_id
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         self.db.commit()
-        return results
 
-    def delete_all_coursemade_reminders(self, user_id):  # TODO: Que? Denne må endes, skal den returnere?
+    def delete_all_coursemade_reminders(self, user_id):
         """Deletes all reminders that are coursemade for a user_id"""
         self.test_connection()
         sql = """DELETE FROM reminder
@@ -238,9 +229,8 @@ class CallybotDB:
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         self.db.commit()
-        return results
 
-    def delete_reminder(self, RID):  # TODO: Que? Denne må endes, skal den returnere?
+    def delete_reminder(self, RID):
         """Deletes reminder with this RID,
         :returns a list of lists with format: ((what, deadline, coursemade),)"""
         self.test_connection()
@@ -249,7 +239,6 @@ class CallybotDB:
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
         self.db.commit()
-        return results
 
     def get_all_reminders(self):
         """Returns all reminders in the database,
@@ -260,8 +249,7 @@ class CallybotDB:
         results = self.cursor.fetchall()
         return results
 
-
-def fix_new_deadline(deadline, df):
-    """:returns deadline minus df days"""
-    # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
-    return (datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S") - timedelta(days=df)).strftime("%Y-%m-%d %H:%M:%S")
+    def fix_new_deadline(deadline, df):
+        """:returns deadline minus df days"""
+        # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
+        return (datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S") - timedelta(days=df)).strftime("%Y-%m-%d %H:%M:%S")
