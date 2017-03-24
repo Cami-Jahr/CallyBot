@@ -29,8 +29,6 @@ def add_default_reminders(user_id, assignments, db):
 def search_reminders(db):
     """Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
     listing = db.get_all_reminders()
-    print(listing)
-    # print(listing)
     min_ago = datetime.now() - timedelta(minutes=3)
     min_til = datetime.now() + timedelta(minutes=3)
     current = []
@@ -39,27 +37,32 @@ def search_reminders(db):
         if min_ago < line[0] < min_til:
             app(line)
             db.delete_reminder(line[4])
-    # print(current)
-
     return current
 
 
 def get_course_exam_date(course_code):
-    """Returns the exam date of the given course"""
-    # Other information may be fetched later, by reading from the info data
+    """Returns the exam date of the given course. Sorted and split with ', '"""
     try:
         info = requests.get('http://www.ime.ntnu.no/api/course/' + course_code).json()
     except json.decoder.JSONDecodeError:  # course does not exist in ime api
         return "Was unable to retrive exam date for " + course_code
-    exam_date = None
+    now = datetime.now()
+    if 1 < now.month < 7:
+        start = datetime(now.year, 1, 1)
+        end = datetime(now.year, 6, 30)
+    else:
+        start = datetime(now.year, 7, 1)
+        end = datetime(now.year, 12, 31)
+    exam_dates = set()
     try:
         for i in range(len(info["course"]["assessment"])):
             if "date" in info["course"]["assessment"][i]:
-                exam_date = info["course"]["assessment"][i]["date"]
-                break
+                exam_date = datetime.strptime(info["course"]["assessment"][i]["date"], "%Y-%m-%d")
+                if start < exam_date < end:
+                    exam_dates.add(exam_date.strftime("%Y-%m-%d"))
     except (KeyError, TypeError):  # Catch if date does not exist, or assessment does not exist
         pass
-    return exam_date
+    return ", ".join(sorted(exam_dates))
 
 
 def get_user_info(access_token, user_id):
@@ -92,12 +95,11 @@ def IL_scrape(user_id, course, until, db):
                 due_month = int(line[3].split(".")[1])
                 due_year = int(line[3].split(".")[2])
                 if max_month > due_month or (
-                        max_month == due_month and max_day >= due_day):  # Before max deadlines, may need fix in limit zones
+                                max_month == due_month and max_day >= due_day):  # Before max deadlines, may need fix in limit zones
                     day, month, year = line[3].split(".")
                     if current < datetime(due_year, due_month, due_day) - timedelta(days=defaulttime):
                         reminders_to_set.append(
-                            (line[1], line[0] + " in " + line[1],
-                             "{}-{}-{}".format(year, month, day) + " " + line[4] + ":00"))
+                            (line[1], line[0] + " in " + line[1], "{}-{}-{}".format(year, month, day) + " 12:00:00"))
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
                         4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
             db.delete_all_coursemade_reminders(user_id)  # Clears database of old reminders from classes
@@ -125,7 +127,7 @@ def BB_scrape(user_id, course, until, db):
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])
         current = datetime.now()
-        defaulttime = db.get_defaulttime(user_id)
+        default_time = db.get_defaulttime(user_id)
         # Max time it should get deadlines to
         reminders_to_set = []
         if course == "ALL":
@@ -133,11 +135,11 @@ def BB_scrape(user_id, course, until, db):
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 due_year = int("20" + line[3].split(".")[2])
-                if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before  max deadlines
+                if max_month > due_month or (max_month == due_month and max_day >= due_day):  # Before max deadlines
                     day, month, year = line[3].split(".")
-                    if current < datetime(due_year, due_month, due_day) - timedelta(days=defaulttime):
+                    if current < datetime(due_year, due_month, due_day) - timedelta(days=default_time):
                         reminders_to_set.append(
-                            (line[1], line[0] + " in " + line[1], "20{}-{}-{}".format(year, month, day) + " 23:59:00"))
+                            (line[1], line[0] + " in " + line[1], "20{}-{}-{}".format(year, month, day) + " 12:00:00"))
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
                         3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
             add_default_reminders(user_id, reminders_to_set, db)
@@ -146,7 +148,7 @@ def BB_scrape(user_id, course, until, db):
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 if line[1] == course and (max_month > due_month or (
-                                max_month == due_month and max_day >= due_day)):  # Before  max deadlines and correct course
+                                max_month == due_month and max_day >= due_day)):  # Before max deadlines and correct course
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
                         3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
     except IndexError:

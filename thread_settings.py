@@ -1,8 +1,7 @@
 import requests
-import help_methods
 
 
-class Thread_Settings:
+class ThreadSettings:
     def __init__(self, access_token):
         self.access_token = access_token
 
