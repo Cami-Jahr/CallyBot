@@ -17,7 +17,6 @@ def decrypt(encoded):
     data = obj.decrypt(base64.b64decode(encoded))
     return unpad(str(data.decode()))
 
-decrypt('a11uwAMqrdR06TOVkmWALT+fzBJw2nmEUhd5txM2ouS3WrbBNJOVOKlsObflmPEW')
 
 def add_default_reminders(user_id, assignments, db):
     """Adds all deadlines to db, if the do not already exist there"""
