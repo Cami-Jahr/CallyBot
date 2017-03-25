@@ -26,6 +26,11 @@ Now it is time to look at the code. First you have to pull all the files from th
 * pycrypto - To decrypt passwords from database<sup>2</sup>.
 * apscheduler - To handle interrupts to check database for reminders.
 
+To install all packages, locate requrements.txt on your computed, open your terminal there, and run
+```
+pip install -r requirements.txt
+```
+
 Go into the **server_main.py** file and locate the variable **ACCESS_TOKEN**. Switch the value with the token you generated earlier.<br />
 Now when you run the **server_main.py** file the server will run locally. We want to put it online. To do so we use [ngrok](https://ngrok.com/download)<br />
 To use it simply, run the exe file with arguments **http** and **used_port**. We have not specified any port in the code, so Flask will use the default which is 5000. For instance:
