@@ -10,6 +10,7 @@ class CallybotDB:
         self.host, self.username, self.password, self.DB_name = host, username, password, DB_name
         self.db = None
         self.cursor = None
+        self.init_time = datetime.now()
         self.open()
 
     def open(self):
@@ -19,7 +20,8 @@ class CallybotDB:
             self.db = MySQLdb.connect(self.host, self.username, self.password, self.DB_name)
         except MySQLdb.OperationalError:
             print("\n\n\n\n\n\n\n\n\n\n####################################################\nServer could not "
-                  "connect to database. Fatal error\n####################################################")
+                  "connect to database. Fatal error\nTime alive: ", datetime.now() - self.init_time, "\n\nFrom: ",
+                  self.init_time, "\nTo: ", datetime.now(), "\n####################################################")
             raise SystemExit  # Terminates entire bot
         self.cursor = self.db.cursor()
         print("successful connect to database " + self.DB_name)
@@ -38,6 +40,7 @@ class CallybotDB:
         """Get all saved information about a user,
         :returns a list"""
         self.test_connection()
+        self.db.commit()
         sql = "SELECT * FROM user WHERE fbid=" + str(user_id)
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
