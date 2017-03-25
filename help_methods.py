@@ -6,17 +6,22 @@ from datetime import datetime, timedelta
 from Crypto.Cipher import AES  # pip pycrypto
 import base64
 import credentials
-import re
+
+
+AES_key = credentials.Credentials().key
+
+
+def remove_padding(text):
+    """Removers padding from AES encryption"""
+    return text[0:-ord(text[-1])]
 
 
 def decrypt(encoded):
     """Decrypts with AES-256-CBV"""
-    credential = credentials.Credentials()
-    IV = 16 * '\x00'
-    obj = AES.new(credential.key, AES.MODE_CBC, IV)
+    padding = 16 * '\x00'
+    obj = AES.new(AES_key, AES.MODE_CBC, padding)
     data = obj.decrypt(base64.b64decode(encoded))
-    data = re.sub(rb'[\x00-\x1F]', rb'', data)  # Removes unicode characters introduced by encryption
-    return str(data, encoding="UTF-8")
+    return remove_padding(str(data.decode()))
 
 
 def add_default_reminders(user_id, assignments, db):
