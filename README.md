@@ -1,7 +1,7 @@
 
 # CallyBot
-NTNU Software Development Project - Team 57 </br></br>
-CallyBot is a software project under development. Cally helps you with reminders, assignment deadlines and exam dates. More functions may be added in the future. Assignment deadlines are currently only supported for students using itslearning and Blackboard through Feide. The only courses currently availible are NTNU courses, which means that the only exam dates you can get are from these courses. </br></br>
+NTNU Software Development Project - Team 57 Pentum </br></br>
+CallyBot is a software project under development. Cally helps you with reminders, assignment deadlines and exam dates. More functions may be added in the future. Assignment deadlines are currently only supported for students using itslearning and Blackboard through Feide at NTNU. The only courses currently availible are NTNU courses, which means that the only exam dates you can get are from these courses. </br></br>
 ## Join and talk to CallyBot today
 To talk with Cally click [here](http://m.me/CallyBot). The bot CallyBot will not answer until it is released public, or you are added as a test user. To be added as a test user, send her a message [here](http://m.me/CallyBot) and you will be added as soon as possible.
 
@@ -18,12 +18,12 @@ Write in a name for your app and choose category as **Apps for Messenger**.<br /
 Next, go to the section **App Review for Messenger**, add **pages_messaging** and **pages_messaging_subscriptions** to submission.<br />
 Before we check out the code find the section **Token Generator**, select your page and save the **Page Access Token** you get. We will use that later when we connect the bot and app together.
 ### 3. Setup the server
-Now it is time to look at the code. First you have to pull all the files from the branch **cally_server**. Be sure to install all the required libraries if you do not already have installed them. Currently we are using these libraries:
+Now it is time to look at the code. First you have to pull all the files from the **master** branch. Be sure to install all the required libraries if you do not already have installed them. Currently we are using these libraries:
 * mysqliclient - MySQLdb for python3, for connecting to mysql database.
 * Flask - To handle post/get requests from Facebook.
 * requests - To handle incoming data from Flask, and to send data.
 * selenium - To webscrape and general interaction with websites<sup>1</sup>.
-* pycrypto - To decrypt passwords from database.
+* pycrypto - To decrypt passwords from database<sup>2</sup>.
 * apscheduler - To handle interrupts to check database for reminders.
 
 Go into the **server_main.py** file and locate the variable **ACCESS_TOKEN**. Switch the value with the token you generated earlier.<br />
@@ -50,7 +50,7 @@ Now cross your fingers and then press **Verify and save**. Now you should see a 
 To complete the setup, go back to **Messenger** under **Products** and go to the **Webhooks** section. Select your page and make it subscribe to the webook. <br /><br />
 Now you should be good to go! Have fun chatting! <br/><br />
 <sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*.<br />
-<sup>2</sup> This is not currently supported by python 3.6, but is supported by python versions up to 3.5.3
+<sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compilator](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.
 #### Notes
 Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this, you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
 
