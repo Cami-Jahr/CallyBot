@@ -26,7 +26,7 @@ Now it is time to look at the code. First you have to pull all the files from th
 * pycrypto - To decrypt passwords from database<sup>2</sup>.
 * apscheduler - To handle interrupts to check database for reminders.
 
-To install all packages, locate requrements.txt and open your terminal and run
+To install all packages, locate requrements.txt on your computed, open your terminal there, and run
 ```
 pip install -r requirements.txt
 ```
