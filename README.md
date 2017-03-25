@@ -50,7 +50,7 @@ Now cross your fingers and then press **Verify and save**. Now you should see a 
 To complete the setup, go back to **Messenger** under **Products** and go to the **Webhooks** section. Select your page and make it subscribe to the webook. <br /><br />
 Now you should be good to go! Have fun chatting! <br/><br />
 <sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*.<br />
-<sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compilator](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.
+<sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compilator](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.*
 #### Notes
 Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this, you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
 
