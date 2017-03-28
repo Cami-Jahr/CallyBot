@@ -17,7 +17,7 @@ def remove_padding(text):
 
 
 def decrypt(encoded):
-    """Decrypts with AES-256-CBV"""
+    """Decrypts with AES-256-CBC"""
     iv = 16 * '\x00' #init vector
     obj = AES.new(AES_key, AES.MODE_CBC, iv)
     data = obj.decrypt(base64.b64decode(encoded))
