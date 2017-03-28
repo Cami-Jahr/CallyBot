@@ -10,7 +10,7 @@ class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
 
-    def __init__(self, access_token, db):
+    def __init__(self, access_token=None, db=None):
         self.access_token = access_token
         # These regex allow a increasing amount of courses, They however also use longer time to check,
         # and allow more non existing courses to be processed
@@ -723,9 +723,6 @@ class Reply:
         if "error" in feedback:
             with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
-            return False
-        else:
-            return True
 
     def login(self, user_id):
         """Sends the user to the login page"""

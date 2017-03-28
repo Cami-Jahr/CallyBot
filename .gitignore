@@ -4,3 +4,4 @@ credentials.py
 user_requests.txt
 reply.fail.txt
 user_bug_reports.txt
+.cache
