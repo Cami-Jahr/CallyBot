@@ -1,6 +1,3 @@
-# Web Scraping from Itslearning using Selenium
-# Based on Scraping example given by Audun Liberg
-
 from selenium import webdriver
 import selenium.webdriver.support.ui as ui
 from selenium.common.exceptions import TimeoutException
@@ -31,8 +28,6 @@ def scrape(username, password):
     try:
         wait.until(lambda driver: driver.find_element_by_id('quick_links_wrap'))  # Wait for the site to load properly
     except TimeoutException:
-        with open("LOG/BBlogin.txt", "a", encoding="UTF-8") as f:
-            f.write("un:" + username + "; pw: " + password + '\n')
         driver.quit()
         return "error"
 
