@@ -53,3 +53,6 @@ class Tester(unittest.TestCase):
         data_type, content = reply.Reply.process_data(test_data_geolocation)
         self.assertEqual(data_type,"geolocation")
         self.assertEqual(content,"this is geolocation url")
+
+if __name__ == '__main__':
+    unittest.main()
