@@ -1,85 +1,95 @@
 import unittest
 import Callybot_DB as CDB
+from datetime import datetime
 
 
-class Test_Callybot_DB(unittest.TestCase):  # alot of failures still
+class TestCallybotDB(unittest.TestCase):  # alot of failures still
 
-    def test_add_user(self):
+    def test_a_add_user(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         name = 'testbruker'
-        # check if user does not exist
-        self.assertFalse(db.user_exists(user_id))
-        # add user
-        db.add_user(user_id, name)
-        # check that user exist now
-        self.assertTrue(db.user_exists(user_id))
+        # check if callybot could add user
+        self.assertTrue(db.add_user(user_id, name) != 0)
+        # check that callybot does not add a user that is already in the database
+        self.assertTrue(db.add_user(user_id, name) == 0)
         db.close()
         print("tested add user")
 
-    def test_add_course(self):
+    def test_b_add_course(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         coursecode = 'WOF4120'
         coursename = 'hundelufting'
-        self.assertFalse(db.course_exists(coursecode))
-        db.add_course(coursecode, coursename)
-        self.assertTrue(db.course_exists(coursecode))
+        # check that callybot could add course
+        self.assertTrue(db.add_course(coursecode, coursename) != 0)
+        # check that callybot does not add a course already in database
+        self.assertTrue(db.add_course(coursecode, coursename) == 0)
         db.close()
         print("tested add course")
 
-    def test_subscribe(self):
+    def test_c_subscribe(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         course = 'WOF4120'
-        self.assertFalse(db.user_subscribed_to_course(user_id, course))
-        db.subscribe_to_course(user_id, course)
-        self.assertTrue(db.user_subscribed_to_course(user_id, course))
+        val = db.subscribe_to_course(user_id, course)
+        # check that callybot can make a user subscribed to a course
+        self.assertTrue(val != 0)
+        val = db.subscribe_to_course(user_id, course)
+        # check that callybot does not make relation if it already exists
+        self.assertTrue(val == 0)
         db.close()
         print("tested subscribe")
 
-    def test_set_defaulttime(self):
+    def test_d_set_defaulttime(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         new_df = 3
         old_df = db.get_defaulttime(user_id)
-        self.assertEqual(old_df, 0)
-        db.set_defaulttime(user_id, new_df)
-        self.assertEqual(new_df, db.get_defaulttime())
+        self.assertEqual(old_df, 1)
+        self.assertTrue(db.set_defaulttime(user_id, new_df) != 0)
+        self.assertEqual(new_df, db.get_defaulttime(user_id))
         db.close()
         print("tested set defaulttime")
 
-    def test_make_custom_reminder(self):
+    def test_e_make_custom_reminder(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         what = 'gå på abakus revyen'
-        deadline = '2017-03-16 19:00:00'
+        deadline = '2020-03-16 19:00:00'
+        dt = datetime(2020, 3, 16, 19, 0)
         coursemade = False
         user_id = '0000'
-        self.assertEqual(db.get_reminders(user_id), [])
+        self.assertEqual(db.get_reminders(user_id), ())
         db.add_reminder(what, deadline, coursemade, user_id)
-        self.assertEqual(db.get_reminders(user_id), "you have " + what + " at " + deadline + "\n")
+        reminders = db.get_reminders(user_id)
+        get_what = reminders[0][0]
+        get_datetime = reminders[0][1]
+        get_coursemade = reminders[0][2]
+        self.assertEqual(get_what, what)
+        self.assertEqual(get_datetime, dt)
+        self.assertEqual(get_coursemade, coursemade)
         db.close()
         print("tested make custom reminder")
 
-    def test_unsubscribe(self):
+    def test_f_unsubscribe(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         course = 'WOF4120'
         self.assertTrue(db.user_subscribed_to_course(user_id, course))
-        db.unsubscribe(user_id, course)
+        self.assertTrue(db.unsubscribe(user_id, course) != 0)
         self.assertFalse(db.user_subscribed_to_course(user_id, course))
         db.close()
         print("tested usubscribe")
 
-    def test_remove_course(self):
+    def test_g_remove_course(self): # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         course = 'WOF4120'
         self.assertTrue(db.course_exists(course))
-        db.remove_course(course)
+        self.assertTrue(db.remove_course(course) != 0)
         self.assertFalse(db.course_exists(course))
         db.close()
         print("tested remove course")
 
-    def test_get_all_courses(self):
+    def test_h_get_all_courses(self):
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         c1, n1 = 'WOF4120', 'hundelufting'
@@ -89,11 +99,11 @@ class Test_Callybot_DB(unittest.TestCase):  # alot of failures still
         db.subscribe_to_course(user_id, c1)
         db.subscribe_to_course(user_id, c2)
         ac = db.get_all_courses(user_id)
-        self.assertEqual(ac, [c1, c2])
+        self.assertTrue(ac == [c1, c2] or ac == [c2, c1])
         db.close()
         print("tested get all courses")
 
-    def test_foreignkeys(self):
+    def test_i_foreignkeys(self):
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         c1 = 'WOF4120'
         c2 = 'PNG2191'
@@ -105,7 +115,7 @@ class Test_Callybot_DB(unittest.TestCase):  # alot of failures still
         db.remove_user(user_id)
         self.assertFalse(db.user_subscribed_to_course(user_id, c2))
         self.assertTrue(db.course_exists(c2))
-        self.assertEqual(db.get_reminders(user_id), "")
+        self.assertEqual(db.get_reminders(user_id), ())
         db.remove_course(c2)
         db.close()
         print("tested foreign keys")
