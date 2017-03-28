@@ -12,7 +12,7 @@ AES_key = credentials.Credentials().key
 
 
 def remove_padding(text):
-    """Removers padding from AES encryption"""
+    """Removers padding from AES encryption. Used in decrypt()"""
     return text[0:-ord(text[-1])]
 
 

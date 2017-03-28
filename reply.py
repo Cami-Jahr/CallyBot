@@ -447,20 +447,20 @@ class Reply:
                     time = time + timedelta(days=1)
                 if time < current + timedelta(minutes=10):
                     self.reply(user_id,
-                               "I am sorry, I could not set the reminder '" + msg + "' as it tried to set itself to a "
-                                                                                    "time in the past, or within the "
-                                                                                    "next 10 minutes: " +
+                               "I am sorry, I could not set the reminder '" +
+                               msg.capitalize() + "' as it tried to set itself to a time in the past, or within the "
+                                                  "next 10 minutes: " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                                 "If you belive this was a bug, report it with the "
+                                                                 "If you believe this was a bug, report it with the "
                                                                  "'bug' function.",
                                "text")
                 elif time > current + timedelta(weeks=60):
                     self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
                                time.strftime("%Y-%m-%d %H:%M"), "text")
                 else:
-                    self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                    self.db.add_reminder(msg.capitalize(), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                    self.reply(user_id, "The reminder " + msg + " was sat at " +
+                    self.reply(user_id, "The reminder " + msg.capitalize() + " was sat at " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
@@ -474,11 +474,12 @@ class Reply:
             except ValueError:
                 self.reply(user_id, 'Please type in an integer as default-time.', 'text')
                 return
-            if (self.db.set_defaulttime(user_id, df)):
+            if self.db.set_defaulttime(user_id, df):
                 self.reply(user_id, 'Your default-time was set to: ' + content_list[1], 'text')
             else:
                 self.reply(user_id,
-                           'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help',
+                           'Could not set default-time. Please check if you are using the correct format '
+                           'and that you are logged in. Type "help set default-time" for more help',
                            'text')
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember.", "text")
@@ -490,7 +491,7 @@ class Reply:
             self.reply(user_id, 'subscribe to what?\nType help subscribe if you need help.', 'text')
             return
 
-        self.reply(user_id, 'Subscribing to ' + ','.join(content_list) + "...", 'text')
+        self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
         for course in content_list:
             course = course.upper()

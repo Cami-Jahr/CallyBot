@@ -177,11 +177,15 @@ class CallybotDB:
         return result[0][0] if result else 0  # 0 if user does not exist
 
     def set_defaulttime(self, user_id, df):
-        """Sets a user's defaulttime to be df <Integer>, void"""
+        """Sets a user's defaulttime to be df <Integer>, returns True if query completed"""
         self.test_connection()
-        sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
-        self.cursor.execute(sql)
-        self.db.commit()
+        try:
+            sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
+            self.cursor.execute(sql)
+            self.db.commit()
+            return True
+        except MySQLdb.OperationalError:
+            return False
 
     def clean_course(self, user_id):
         """Deletes all relations a user has to its courses, void"""
