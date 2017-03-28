@@ -3,16 +3,73 @@ import Callybot_DB as CDB
 from datetime import datetime
 
 
-class TestCallybotDB(unittest.TestCase):  # alot of failures still
+class TestCallybotDB(unittest.TestCase):
 
     def test_a_add_user(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         name = 'testbruker'
+        username = 'rubbish'
+        password = 'trash'
+        user2 = '1111'
+        name2 = 'annentest'
+        user3 = '2222'
+        user4 = '3333'
+        # check user does not exist
+        self.assertFalse(db.user_exists(user_id))
+        creds = db.get_credential(user_id)
+        self.assertTrue(len(creds) == 0)
         # check if callybot could add user
         self.assertTrue(db.add_user(user_id, name) != 0)
+        # check user now exist
+        self.assertTrue(db.user_exists(user_id))
         # check that callybot does not add a user that is already in the database
         self.assertTrue(db.add_user(user_id, name) == 0)
+        creds = db.get_credential(user_id)
+        self.assertEqual(creds[0], user_id)
+        self.assertEqual(creds[1], name)
+        self.assertEqual(creds[2], None)
+        self.assertEqual(creds[3], None)
+        self.assertEqual(creds[4], 1)
+        # test update username and password, testing if it is done or not
+        self.assertTrue(db.set_username_password(user_id, username, password) != 0)
+        # test get credentials
+        creds = db.get_credential(user_id)
+        self.assertEqual(creds[0], user_id)
+        self.assertEqual(creds[1], name)
+        self.assertEqual(creds[2], username)
+        self.assertEqual(creds[3], password)
+        self.assertEqual(creds[4], 1)
+        # test user2, user3 and user4
+        self.assertFalse(db.user_exists(user2))
+        self.assertTrue(db.add_user(user2, name2, username) != 0)
+        self.assertTrue(db.user_exists(user2))
+        creds = db.get_credential(user2)
+        self.assertEqual(creds[0], user2)
+        self.assertEqual(creds[1], name2)
+        self.assertEqual(creds[2], None)
+        self.assertEqual(creds[3], None)
+        self.assertEqual(creds[4], 1)
+        # user3
+        self.assertFalse(db.user_exists(user3))
+        self.assertTrue(db.add_user(user3, name2, username, password) != 0)
+        self.assertTrue(db.user_exists(user3))
+        creds = db.get_credential(user3)
+        self.assertEqual(creds[0], user3)
+        self.assertEqual(creds[1], name2)
+        self.assertEqual(creds[2], username)
+        self.assertEqual(creds[3], password)
+        self.assertEqual(creds[4], 1)
+        # user4
+        self.assertFalse(db.user_exists(user4))
+        self.assertTrue(db.add_user(user4, name2, username, password, 2) != 0)
+        self.assertTrue(db.user_exists(user4))
+        creds = db.get_credential(user4)
+        self.assertEqual(creds[0], user4)
+        self.assertEqual(creds[1], name2)
+        self.assertEqual(creds[2], username)
+        self.assertEqual(creds[3], password)
+        self.assertEqual(creds[4], 2)
         db.close()
         print("tested add user")
 
@@ -20,8 +77,12 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         coursecode = 'WOF4120'
         coursename = 'hundelufting'
+        # check course does not exist
+        self.assertFalse(db.course_exists(coursecode))
         # check that callybot could add course
         self.assertTrue(db.add_course(coursecode, coursename) != 0)
+        # check course now exist
+        self.assertTrue(db.course_exists(coursecode))
         # check that callybot does not add a course already in database
         self.assertTrue(db.add_course(coursecode, coursename) == 0)
         db.close()
@@ -31,12 +92,20 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         course = 'WOF4120'
-        val = db.subscribe(user_id, course)
+        badcourse = 'TUL4321'
+        baduser = '321'
+        self.assertFalse(db.user_exists(baduser))
+        self.assertFalse(db.course_exists(badcourse))
+        # check user cannot subscribe to bad course
+        self.assertTrue(db.subscribe(user_id, badcourse) == 0)
+        # check bad user cannot subscribe to course
+        self.assertTrue(db.subscribe(baduser, course) == 0)
+        # check bad user cannot subscribe to bad course
+        self.assertTrue(db.subscribe(baduser, badcourse) == 0)
         # check that callybot can make a user subscribed to a course
-        self.assertTrue(val != 0)
-        val = db.subscribe(user_id, course)
+        self.assertTrue(db.subscribe(user_id, course) != 0)
         # check that callybot does not make relation if it already exists
-        self.assertTrue(val == 0)
+        self.assertTrue(db.subscribe(user_id, course) == 0)
         db.close()
         print("tested subscribe")
 
@@ -58,7 +127,9 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         dt = datetime(2020, 3, 16, 19, 0)
         coursemade = False
         user_id = '0000'
+        baduser = '321'
         self.assertEqual(db.get_reminders(user_id), ())
+        self.assertEqual(db.get_reminders(baduser), ())
         db.add_reminder(what, deadline, coursemade, user_id)
         reminders = db.get_reminders(user_id)
         get_what = reminders[0][0]
@@ -67,6 +138,9 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         self.assertEqual(get_what, what)
         self.assertEqual(get_datetime, dt)
         self.assertEqual(get_coursemade, coursemade)
+        # test for bad user
+        db.add_reminder(what, deadline, coursemade, baduser)
+        self.assertEqual(db.get_reminders(baduser), ())
         db.close()
         print("tested make custom reminder")
 
@@ -74,9 +148,19 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         course = 'WOF4120'
+        baduser = '321'
+        badcourse = 'TUL4321'
         self.assertTrue(db.user_subscribed_to_course(user_id, course))
         self.assertTrue(db.unsubscribe(user_id, course) != 0)
         self.assertFalse(db.user_subscribed_to_course(user_id, course))
+        self.assertTrue(db.unsubscribe(user_id, course) == 0)
+        # test for bad user and bad course
+        self.assertFalse(db.user_subscribed_to_course(baduser, course))
+        self.assertFalse(db.user_subscribed_to_course(user_id, badcourse))
+        self.assertFalse(db.user_subscribed_to_course(baduser, badcourse))
+        self.assertTrue(db.unsubscribe(baduser, course) == 0)
+        self.assertTrue(db.unsubscribe(user_id, badcourse) == 0)
+        self.assertTrue(db.unsubscribe(baduser, badcourse) == 0)
         db.close()
         print("tested usubscribe")
 
@@ -112,13 +196,26 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         # check if user-course relation is gone after c1 is removed
         self.assertFalse(db.user_subscribed_to_course(user_id, c1))
         self.assertFalse(db.course_exists(c1))
-        db.remove_user(user_id)
+        self.assertTrue(db.remove_user(user_id) != 0)
         self.assertFalse(db.user_subscribed_to_course(user_id, c2))
         self.assertTrue(db.course_exists(c2))
         self.assertEqual(db.get_reminders(user_id), ())
         db.remove_course(c2)
         db.close()
         print("tested foreign keys")
+
+    def test_j_extra(self):
+        db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
+        ids = db.get_user_ids()
+        self.assertTrue(isinstance(ids, type([])))
+        self.assertTrue(db.remove_user('1111') != 0)
+        self.assertFalse(db.user_exists('1111'))
+        self.assertTrue(db.remove_user('2222') != 0)
+        self.assertFalse(db.user_exists('2222'))
+        self.assertTrue(db.remove_user('3333') != 0)
+        self.assertFalse(db.user_exists('3333'))
+        db.close()
+        print("tested extra")
 
 
 if __name__ == '__main__':

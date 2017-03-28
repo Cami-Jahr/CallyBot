@@ -36,7 +36,7 @@ class CallybotDB:
             self.close()
             self.open()
 
-    def get_credential(self, user_id):
+    def get_credential(self, user_id):  # unit tested
         """Get all saved information about a user,
         :returns a list"""
         self.test_connection()
@@ -76,10 +76,11 @@ class CallybotDB:
         :returns Boolean value"""
         self.test_connection()
         sql = """SELECT * FROM user WHERE fbid=""" + str(user_id)
-        result = self.cursor.execute(sql)
-        return result != 0
+        self.cursor.execute(sql)
+        result = self.cursor.fetchall()
+        return len(result) != 0
 
-    def get_user_ids(self):
+    def get_user_ids(self):  # unit tested
         """Returns all existing users"""
         self.test_connection()
         sql = """SELECT fbid FROM user"""
@@ -87,7 +88,7 @@ class CallybotDB:
         result = self.cursor.fetchall()
         return [row[0] for row in result]
 
-    def set_username_password(self, user_id, username, password):
+    def set_username_password(self, user_id, username, password):  # unit tested
         """Sets username and password for a user that already exists, void"""
         self.test_connection()
         result = 0
@@ -132,7 +133,7 @@ class CallybotDB:
         self.test_connection()
         result = 0
         sql = """INSERT INTO subscribed (userID, course) VALUES ('%s', '%s')""" % (user_id, course)
-        if not self.user_subscribed_to_course(user_id, course) and self.user_exists(user_id) and self.course_exists(
+        if not(self.user_subscribed_to_course(user_id, course)) and self.user_exists(user_id) and self.course_exists(
                 course):
             result = self.cursor.execute(sql)
             self.db.commit()
@@ -173,7 +174,7 @@ class CallybotDB:
             new_deadline = deadline
             if coursemade:
                 df = self.get_defaulttime(user_id)
-                new_deadline = CallybotDB.fix_new_deadline(deadline, df)
+                new_deadline = fix_new_deadline(deadline, df)
             sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
                   "VALUES ('%s', '%s', '%s', '%d')" % (what, new_deadline, user_id, coursemade)
             result = self.cursor.execute(sql)
@@ -214,12 +215,8 @@ class CallybotDB:
         sql = """SELECT course FROM subscribed WHERE userID='%s'""" % user_id
         self.cursor.execute(sql)
         results = self.cursor.fetchall()
-        # results is now a list of lists only containing the coursecode [[coursecode]]
-        #  want the result to be [coursecode]
-        out = []
-        for row in results:
-            out.append(row[0])
-        return out  # [row[0] for row in results] should work?
+        # results is now a list of lists only containing the coursecode [[coursecode],]
+        return [row[0] for row in results]
 
     def get_reminders(self, user_id):  # unit tested
         """:returns all reminders a user has format: [[what, deadline, coursemade, RID],...]"""
