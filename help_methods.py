@@ -11,7 +11,6 @@ AES_key = credentials.Credentials().key
 
 def add_padding(text):
     """Adds padding from AES encryption. Used in decrypt()"""
-    print(text+(16-len(text)%16)*chr(16-len(text)%16))
     return text+(16-len(text)%16)*chr(16-len(text)%16)
 
 
