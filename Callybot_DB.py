@@ -126,7 +126,7 @@ class CallybotDB:
         result = self.cursor.execute(sql)
         return result != 0
 
-    def subscribe_to_course(self, user_id, course):
+    def subscribe(self, user_id, course):  # unit tested
         """Creates a relation between course and user in table subscribed if the relation does not already exist,
          assumes both course and user is already in the database, void"""
         self.test_connection()
@@ -138,7 +138,7 @@ class CallybotDB:
             self.db.commit()
         return result
 
-    def user_subscribed_to_course(self, user_id, course):
+    def user_subscribed_to_course(self, user_id, course):  # unit tested
         """Checks if a user is subscribed to a course,
         :returns Boolean value"""
         self.test_connection()
@@ -147,7 +147,7 @@ class CallybotDB:
         result = self.cursor.execute(sql)
         return result != 0
 
-    def unsubscribe(self, user_id, course):
+    def unsubscribe(self, user_id, course):  # unit tested
         """Deletes the relation between user and course if the relation exists, void"""
         self.test_connection()
         result = 0
@@ -158,7 +158,7 @@ class CallybotDB:
             self.db.commit()
         return result
 
-    def add_reminder(self, what, deadline, coursemade, user_id):
+    def add_reminder(self, what, deadline, coursemade, user_id):  # unit tested not done
         """Add reminder to the database,
         what: <String> whatever user wants to be reminded of,
         deadline: <'YYYY-MM-DD HH:MM> whenever user wants to be reminded of it,
@@ -180,7 +180,7 @@ class CallybotDB:
             self.db.commit()
         return result
 
-    def get_defaulttime(self, user_id):
+    def get_defaulttime(self, user_id):  # unit tested
         """:returns a users defaulttime <Integer>. 0 if user does not exist"""
         # gets the defaulttime set by the user of how long before a deadline the user wish to reminded of it
         self.test_connection()
@@ -189,7 +189,7 @@ class CallybotDB:
         result = self.cursor.fetchall()
         return result[0][0] if result else 0  # 0 if user does not exist
 
-    def set_defaulttime(self, user_id, df):
+    def set_defaulttime(self, user_id, df):  # unit tested
         """Sets a user's defaulttime to be df <Integer>, void"""
         self.test_connection()
         sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
@@ -221,7 +221,7 @@ class CallybotDB:
             out.append(row[0])
         return out  # [row[0] for row in results] should work?
 
-    def get_reminders(self, user_id):
+    def get_reminders(self, user_id):  # unit tested
         """:returns all reminders a user has format: [[what, deadline, coursemade, RID],...]"""
         self.test_connection()
         sql = """SELECT what, deadline, coursemade, RID FROM reminder

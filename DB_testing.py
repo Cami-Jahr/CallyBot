@@ -31,10 +31,10 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
         course = 'WOF4120'
-        val = db.subscribe_to_course(user_id, course)
+        val = db.subscribe(user_id, course)
         # check that callybot can make a user subscribed to a course
         self.assertTrue(val != 0)
-        val = db.subscribe_to_course(user_id, course)
+        val = db.subscribe(user_id, course)
         # check that callybot does not make relation if it already exists
         self.assertTrue(val == 0)
         db.close()
@@ -51,7 +51,7 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         db.close()
         print("tested set defaulttime")
 
-    def test_e_make_custom_reminder(self):  # 200 OK
+    def test_e_make_custom_reminder(self):  # must also test for not ok values
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         what = 'gå på abakus revyen'
         deadline = '2020-03-16 19:00:00'
@@ -96,8 +96,8 @@ class TestCallybotDB(unittest.TestCase):  # alot of failures still
         c2, n2 = 'PNG2191', 'kanoner'
         db.add_course(c1, n1)
         db.add_course(c2, n2)
-        db.subscribe_to_course(user_id, c1)
-        db.subscribe_to_course(user_id, c2)
+        db.subscribe(user_id, c1)
+        db.subscribe(user_id, c2)
         ac = db.get_all_courses(user_id)
         self.assertTrue(ac == [c1, c2] or ac == [c2, c1])
         db.close()
