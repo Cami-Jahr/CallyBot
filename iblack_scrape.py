@@ -27,7 +27,7 @@ def scrape(username, password):
     password_field.send_keys(password)
     password_field.submit()
     # Login complete
-    wait = ui.WebDriverWait(driver, 10)  # Wait duration before throw exception, needed to load entire HTML
+    wait = ui.WebDriverWait(driver, 3)  # Wait duration before throw exception, needed to load entire HTML
     try:
         wait.until(lambda driver: driver.find_element_by_id('quick_links_wrap'))  # Wait for the site to load properly
     except TimeoutException:

@@ -12,18 +12,6 @@ class Reply:
 
     def __init__(self, access_token, db):
         self.access_token = access_token
-        # These regex allow a increasing amount of courses, They however also use longer time to check,
-        # and allow more non existing courses to be processed
-        course_code_format1 = '[a-z]{2,3}[0-9]{4}'
-        # course_code_format2 = "[æøåa-z]{1,6}[0-9]{1,6}"
-        # course_code_format3 = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
-        self.course_code_format = course_code_format1  # Checks if string is in format aaa1111 or aa1111,
-        # ie course_code format on ntnu
-        date_format_separator = "[\/]"  # Date separators allowed. Regex format
-        self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
-                           date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
-                           "(0?[469]|11))))"
-        # checks if is legit date.
         self.db = db
         self.scraper = scraper.Scraper(self, self.db)
         self.scraper.start()
@@ -353,7 +341,7 @@ class Reply:
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
-                    if (self.delete_conf[user_id]['reminder']):
+                    if self.delete_conf[user_id]['reminder']:
                         self.reply(user_id, 'Deleting all reminders.', 'text')
                         self.db.delete_all_reminders(user_id)
                         self.reply(user_id, 'All reminders deleted.', 'text')

@@ -15,7 +15,7 @@ def scrape(username, password):
     password_field.submit()
     # Login complete
 
-    wait = ui.WebDriverWait(driver, 10)
+    wait = ui.WebDriverWait(driver, 1)
     try:
         driver.find_element_by_id("yesbutton").click()  # First time the user logs onto itslearning from a new device
         # he must allow the device to access feide
