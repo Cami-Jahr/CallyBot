@@ -558,7 +558,7 @@ class Reply:
             self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
-                                "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
+                                "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
                                 "\n\nThere is also a persistent menu to the left of the input field, it has "
                                 "shortcuts to some of the commands!"
                                 "\n\nBut that's not all, there are also some more hidden commands!\nIt "
