@@ -46,7 +46,7 @@ class Reply:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  User: " + content + "\n")
         if data_type == "unknown":  # Cant handle unknown
             print("\x1b[0;34;0mUnknown data type\x1b[0m")
-            return
+            return True
         content_lower = content.lower()
         content_list = content_lower.split()
 
@@ -715,14 +715,17 @@ class Reply:
             }
         else:
             print("Error: Type not supported")
-            return
+            return True
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
         if "error" in feedback:
             with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
+            return False
+        else:
+            return True
 
     def login(self, user_id):
         """Sends the user to the login page"""
