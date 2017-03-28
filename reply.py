@@ -10,7 +10,7 @@ class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
 
-    def __init__(self, access_token, db):
+    def __init__(self, access_token=None, db=None):
         self.access_token = access_token
         self.db = db
         self.scraper = scraper.Scraper(self, self.db)
@@ -34,7 +34,7 @@ class Reply:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  User: " + content + "\n")
         if data_type == "unknown":  # Cant handle unknown
             print("\x1b[0;34;0mUnknown data type\x1b[0m")
-            return
+            return True
         content_lower = content.lower()
         content_list = content_lower.split()
 
@@ -261,49 +261,13 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    self.reply(user_id,
-                               "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                               "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                               "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                               "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                               "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                               "253Ditslearning.", "text")
+                    self.reply(user_id,"ilearn.sexy", "text")
                 elif content_list[1] == "blackboard":
-                    self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
-                                        "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
-                                        "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
-                                        "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                        "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
-                               "text")
-
+                    self.reply(user_id, "iblack.sexy","text")
                 else:
-                    self.reply(user_id,
-                               "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                               "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                               "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                               "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                               "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                               "253Ditslearning.", "text")
-                self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
-                                    "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
-                                    "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
-                                    "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                    "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
-                           "text")
+                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
             except IndexError:
-                self.reply(user_id,
-                           "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                           "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                           "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                           "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                           "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                           "253Ditslearning.", "text")
-                self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
-                                    "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
-                                    "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
-                                    "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                    "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
-                           "text")
+                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
             courses = self.db.get_all_courses(user_id)
@@ -739,14 +703,14 @@ class Reply:
             }
         else:
             print("Error: Type not supported")
-            return
+            return True
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
         if "error" in feedback:
             with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
 
     def login(self, user_id):
         """Sends the user to the login page"""

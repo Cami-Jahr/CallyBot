@@ -1,7 +1,5 @@
 import unittest
 import help_methods as HM
-AES_key = "This_is_the_test_key.very_secret"
-print(len(AES_key))
 
 
 class TestHelpMethods(unittest.TestCase):
