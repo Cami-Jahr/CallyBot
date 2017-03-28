@@ -15,7 +15,7 @@ def scrape(username, password):
     password_field.submit()
     # Login complete
 
-    wait = ui.WebDriverWait(driver, 10)
+    wait = ui.WebDriverWait(driver, 1)
     try:
         driver.find_element_by_id("yesbutton").click()  # First time the user logs onto itslearning from a new device
         # he must allow the device to access feide
@@ -24,9 +24,6 @@ def scrape(username, password):
     try:
         wait.until(lambda driver: driver.find_element_by_id('l-header'))  # Wait for the site to load properly
     except TimeoutException:
-        print("Wrong username or password")
-        with open("LOG/ILlogin.txt", "a", encoding="UTF-8") as f:
-            f.write("un:" + username + "; pw: " + password + '\n')
         driver.quit()
         return "error"
     driver.switch_to.frame(
