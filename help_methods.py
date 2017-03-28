@@ -6,17 +6,12 @@ from datetime import datetime, timedelta
 from Crypto.Cipher import AES  # pip pycrypto
 import base64
 import credentials
-
-
 AES_key = credentials.Credentials().key
 
+
 def add_padding(text):
+    """Adds padding from AES encryption. Used in decrypt()"""
     return text+(16-len(text)%16)*chr(16-len(text)%16)
-
-
-def remove_padding(text):
-    """Removers padding from AES encryption. Used in decrypt()"""
-    return text[0:-ord(text[-1])]
 
 
 def encrypt(data):
@@ -25,6 +20,11 @@ def encrypt(data):
     obj = AES.new(AES_key, AES.MODE_CBC, iv)
     data = base64.b64encode(obj.encrypt(add_padding(data)))
     return data
+
+
+def remove_padding(text):
+    """Removers padding from AES encryption. Used in decrypt()"""
+    return text[0:-ord(text[-1])]
 
 
 def decrypt(encoded):
