@@ -10,10 +10,21 @@ import credentials
 
 AES_key = credentials.Credentials().key
 
+def add_padding(text):
+    return text+(16-len(text)%16)*chr(16-len(text)%16)
+
 
 def remove_padding(text):
     """Removers padding from AES encryption. Used in decrypt()"""
     return text[0:-ord(text[-1])]
+
+
+def encrypt(data):
+    """Encrypts with AES-256-CBC"""
+    iv = 16 * '\x00' #init vector
+    obj = AES.new(AES_key, AES.MODE_CBC, iv)
+    data = base64.b64encode(obj.encrypt(add_padding(data)))
+    return data
 
 
 def decrypt(encoded):
