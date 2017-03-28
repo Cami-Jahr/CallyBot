@@ -135,7 +135,7 @@ class Reply:
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
-            msg = "Welcome" + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
+            msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
                                       "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
                                       "or use the menu to get started. \nIf you need help, or want to know more about" \
                                       " what I can do for you, just type 'help'.\n\n Please do enjoy!"
