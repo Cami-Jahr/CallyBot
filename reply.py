@@ -136,9 +136,9 @@ class Reply:
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             msg = "Welcome" + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
-                                      "date on your upcomming deadlines on It'slearning and Blackboard. Type 'login' " \
+                                      "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
                                       "or use the menu to get started. \nIf you need help, or want to know more about" \
-                                      " what i can do for you, just type 'help'.\n\n Please do enjoy!"
+                                      " what I can do for you, just type 'help'.\n\n Please do enjoy!"
             self.reply(user_id, msg, 'text')
             self.reply(user_id, "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, "
                                 "please report it as detailed as possible. If you wish a feature added please inform"
