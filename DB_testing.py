@@ -207,7 +207,9 @@ class TestCallybotDB(unittest.TestCase):
     def test_j_extra(self):
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         ids = db.get_user_ids()
+        allreminders = db.get_all_reminders()
         self.assertTrue(isinstance(ids, type([])))
+        self.assertTrue(isinstance(allreminders, type(())))
         self.assertTrue(db.remove_user('1111') != 0)
         self.assertFalse(db.user_exists('1111'))
         self.assertTrue(db.remove_user('2222') != 0)

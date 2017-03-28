@@ -255,9 +255,9 @@ class CallybotDB:
         self.db.commit()
         return result
 
-    def get_all_reminders(self):
+    def get_all_reminders(self):  # unit tested
         """Returns all reminders in the database,
-        :returns [[deadline, userID, what, coursemade, RID],...]"""
+        :returns ((deadline, userID, what, coursemade, RID),...)"""
         self.test_connection()
         sql = """SELECT deadline, userID, what, coursemade, RID FROM reminder"""
         self.cursor.execute(sql)
