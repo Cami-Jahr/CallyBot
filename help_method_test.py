@@ -9,10 +9,7 @@ class TestHelpMethods(unittest.TestCase):
         passwords = ["A", "Hei", "Vary", "Looong password, with_some|chars", "I guess this is enough?",
                      "Ill throw in a few extra weird chars", "@£$€{[]}@£$§!'\"#¤%&/()=?", "1234567890\¨'*^`=´~\\"]
         for password in passwords:
-            encrypted = encrypt(password)
-            # TODO: @Halvor. encrypt varying length and format passwords, and decrypt them with decrypt
-            decrypted = HM.decrypt(encrypted)
-            self.assertEqual(password, decrypted)
+            self.assertEqual(password, HM.decrypt(HM.encrypt(password)))
 
 
 if __name__ == '__main__':
