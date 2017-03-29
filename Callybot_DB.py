@@ -1,6 +1,5 @@
 import MySQLdb
 from datetime import datetime, timedelta
-import help_methods
 
 
 class CallybotDB:
@@ -184,8 +183,6 @@ class CallybotDB:
             sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
             self.cursor.execute(sql)
             self.db.commit()
-            help_methods.IL_scrape(user_id, 'ALL', '31/12', self)
-            help_methods.BB_scrape(user_id, 'ALL', '31/12', self)
             return True
         except MySQLdb.OperationalError:
             return False
