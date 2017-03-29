@@ -465,8 +465,7 @@ class Reply:
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to.
         Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id, 'subscribe to what?\nType help subscribe if you need help.', 'text')
-            return
+            return  'subscribe to what?\nType help subscribe if you need help.'
 
         self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
@@ -491,8 +490,7 @@ class Reply:
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
          Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id, 'Unsubsribe from what?\nType help unsubscribe if you need help.', 'text')
-            return
+            return 'Unsubsribe from what?\nType help unsubscribe if you need help.'
 
         self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list) + "...", 'text')
         non_existing, not_subscribed, success_unsubscribed = [], [], []
@@ -520,7 +518,7 @@ class Reply:
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         return "The bug was taken to my developers. One of them might contact you if they need further " \
-                "help with the bug."
+               "help with the bug."
 
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
