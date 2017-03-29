@@ -159,7 +159,7 @@ class CallybotDB:
         if self.user_exists(user_id):
             self.test_connection()
             # change the deadline specified by the defaulttime
-            # only alter deadline if coursemade == 1
+            new_deadline = deadline
             if coursemade:
                 df = self.get_defaulttime(user_id)
                 new_deadline = CallybotDB.fix_new_deadline(deadline, df)
