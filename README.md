@@ -19,14 +19,14 @@ Next, go to the section **App Review for Messenger**, add **pages_messaging** an
 Before we check out the code find the section **Token Generator**, select your page and save the **Page Access Token** you get. We will use that later when we connect the bot and app together.
 ### 3. Setup the server
 Now it is time to look at the code. First you have to pull all the files from the **master** branch. Be sure to install all the required libraries if you do not already have installed them. Currently we are using these libraries:
-* mysqliclient - MySQLdb for python3, for connecting to mysql database.
+* mysqlclient - MySQLdb for python3, for connecting to mysql database.
 * Flask - To handle post/get requests from Facebook.
 * requests - To handle incoming data from Flask, and to send data.
 * selenium - To webscrape and general interaction with websites<sup>1</sup>.
 * pycrypto - To decrypt passwords from database<sup>2</sup>.
 * apscheduler - To handle interrupts to check database for reminders.
 
-To install all packages, locate requrements.txt on your computed, open your terminal there, and run
+To install all packages, locate requirements.txt on your computed, open your terminal there, and run
 ```
 pip install -r requirements.txt
 ```
