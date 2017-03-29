@@ -449,7 +449,7 @@ class Reply:
             course = course.upper()
             if self.db.course_exists(course):
                 if not self.db.user_subscribed_to_course(user_id, course):
-                    self.db.subscribe_to_course(user_id, course)
+                    self.db.subscribe(user_id, course)
                     success_subscribed.append(course)
                 else:
                     already_subscribed.append(course)
