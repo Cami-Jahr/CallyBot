@@ -193,16 +193,18 @@ class CallybotDB:
         sql = """SELECT defaulttime FROM user WHERE fbid='%s'""" % user_id
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
-        return result[0][0] if result else 0
+        return result[0][0] if res
 
-    def set_defaulttime(self, user_id, df):  # unit tested
-        """Sets a user's defaulttime to be df <Integer>
-        :returns whether sql was successful or not"""
+    def set_defaulttime(self, user_id, df):
+        """Sets a user's defaulttime to be df <Integer>, returns True if query completed"""
         self.test_connection()
-        sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
-        result = self.cursor.execute(sql)
-        self.db.commit()
-        return result
+        try:
+            sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
+            self.cursor.execute(sql)
+            self.db.commit()
+            return True
+        except MySQLdb.OperationalError:
+            return False
 
     def clean_course(self, user_id):
         """Deletes all relations a user has to its courses

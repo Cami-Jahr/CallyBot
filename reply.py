@@ -10,7 +10,7 @@ class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
 
-    def __init__(self, access_token, db):
+    def __init__(self, access_token=None, db=None):
         self.access_token = access_token
         # These regex allow a increasing amount of courses, They however also use longer time to check,
         # and allow more non existing courses to be processed
@@ -46,7 +46,7 @@ class Reply:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  User: " + content + "\n")
         if data_type == "unknown":  # Cant handle unknown
             print("\x1b[0;34;0mUnknown data type\x1b[0m")
-            return
+            return True
         content_lower = content.lower()
         content_list = content_lower.split()
 
@@ -135,10 +135,10 @@ class Reply:
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
-            msg = "Welcome" + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
-                                      "date on your upcomming deadlines on It'slearning and Blackboard. Type 'login' " \
+            msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
+                                      "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
                                       "or use the menu to get started. \nIf you need help, or want to know more about" \
-                                      " what i can do for you, just type 'help'.\n\n Please do enjoy!"
+                                      " what I can do for you, just type 'help'.\n\n Please do enjoy!"
             self.reply(user_id, msg, 'text')
             self.reply(user_id, "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, "
                                 "please report it as detailed as possible. If you wish a feature added please inform"
@@ -273,49 +273,13 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    self.reply(user_id,
-                               "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                               "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                               "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                               "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                               "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                               "253Ditslearning.", "text")
+                    self.reply(user_id,"ilearn.sexy", "text")
                 elif content_list[1] == "blackboard":
-                    self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
-                                        "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
-                                        "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
-                                        "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                        "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
-                               "text")
-
+                    self.reply(user_id, "iblack.sexy","text")
                 else:
-                    self.reply(user_id,
-                               "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                               "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                               "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                               "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                               "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                               "253Ditslearning.", "text")
-                self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
-                                    "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
-                                    "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
-                                    "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                    "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
-                           "text")
+                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
             except IndexError:
-                self.reply(user_id,
-                           "Link to itslearning:\nhttps://idp.feide.no/simplesaml/module.php/feide/login.php?asLen=252&Auth"
-                           "State=_95a62d76d2130777c0ff6c860f81edcf9e7054c94c%3Ahttps%3A%2F%2Fidp."
-                           "feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3Fspentityid%3Durn%"
-                           "253Amace%253Afeide.no%253Aservices%253Ano.ntnu.ssowrapper%26cookieTime%3D"
-                           "1489851781%26RelayState%3D%252Fsso-wrapper%252Fweb%252Fwrapper%253Ftarget%"
-                           "253Ditslearning.", "text")
-                self.reply(user_id, "Link to blackboard:\nhttps://idp.feide.no/simplesaml/module.php/feide/"
-                                    "login.php?asLen=233&AuthState=_75f2b28123d67c422f8b104e5a6f72339b09ba7583"
-                                    "%3Ahttps%3A%2F%2Fidp.feide.no%2Fsimplesaml%2Fsaml2%2Fidp%2FSSOService.php%3"
-                                    "Fspentityid%3Dhttp%253A%252F%252Fadfs.ntnu.no%252Fadfs%252Fservices%252Ftru"
-                                    "st%26cookieTime%3D1489851857%26RelayState%3Dac5888bf-816a-4fd9-954b-3d623f726c3e",
-                           "text")
+                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
             courses = self.db.get_all_courses(user_id)
@@ -447,20 +411,20 @@ class Reply:
                     time = time + timedelta(days=1)
                 if time < current + timedelta(minutes=10):
                     self.reply(user_id,
-                               "I am sorry, I could not set the reminder '" + msg + "' as it tried to set itself to a "
-                                                                                    "time in the past, or within the "
-                                                                                    "next 10 minutes: " +
+                               "I am sorry, I could not set the reminder '" +
+                               msg.capitalize() + "' as it tried to set itself to a time in the past, or within the "
+                                                  "next 10 minutes: " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                                 "If you belive this was a bug, report it with the "
+                                                                 "If you believe this was a bug, report it with the "
                                                                  "'bug' function.",
                                "text")
                 elif time > current + timedelta(weeks=60):
                     self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
                                time.strftime("%Y-%m-%d %H:%M"), "text")
                 else:
-                    self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                    self.db.add_reminder(msg.capitalize(), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                    self.reply(user_id, "The reminder " + msg + " was sat at " +
+                    self.reply(user_id, "The reminder " + msg.capitalize() + " was sat at " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
@@ -474,11 +438,12 @@ class Reply:
             except ValueError:
                 self.reply(user_id, 'Please type in an integer as default-time.', 'text')
                 return
-            if (self.db.set_defaulttime(user_id, df)):
+            if self.db.set_defaulttime(user_id, df):
                 self.reply(user_id, 'Your default-time was set to: ' + content_list[1], 'text')
             else:
                 self.reply(user_id,
-                           'Could not set default-time. Please check if you are using the correct format and that you are logged in. Type "help set default-time" for more help',
+                           'Could not set default-time. Please check if you are using the correct format '
+                           'and that you are logged in. Type "help set default-time" for more help',
                            'text')
         else:
             self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember.", "text")
@@ -490,7 +455,7 @@ class Reply:
             self.reply(user_id, 'subscribe to what?\nType help subscribe if you need help.', 'text')
             return
 
-        self.reply(user_id, 'Subscribing to ' + ','.join(content_list) + "...", 'text')
+        self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
         for course in content_list:
             course = course.upper()
@@ -558,7 +523,7 @@ class Reply:
             self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
                                 "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
                                 "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
-                                "\n- Delete me\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
+                                "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
                                 "\n\nThere is also a persistent menu to the left of the input field, it has "
                                 "shortcuts to some of the commands!"
                                 "\n\nBut that's not all, there are also some more hidden commands!\nIt "
@@ -750,14 +715,14 @@ class Reply:
             }
         else:
             print("Error: Type not supported")
-            return
+            return True
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
         if "error" in feedback:
             with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
 
     def login(self, user_id):
         """Sends the user to the login page"""
