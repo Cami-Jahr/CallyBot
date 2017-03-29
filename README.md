@@ -6,7 +6,7 @@ CallyBot is a software project under development. Cally helps you with reminders
 To talk with Cally click [here](http://m.me/CallyBot). The bot CallyBot will not answer until it is released public, or you are added as a test user. To be added as a test user, send her a message [here](http://m.me/CallyBot) and you will be added as soon as possible.
 
 ### Features
-Upcoming information
+The supported commands for the CallyBot are listed under [the wiki.](https://github.com/Folstad/TDT4140/wiki/Commands)
 
 ## Instructions - How to set up CallyBot from scratch 
 ### 1. Create a Facebook page
