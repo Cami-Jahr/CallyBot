@@ -1,11 +1,11 @@
 import unittest
 import help_methods as HM
 import credentials
-import Callybot_DB
+import callybot_database
 cred = credentials.Credentials()
 token = cred.access_token
 joachim_jahr_id = "1550995208259075"
-db = Callybot_DB.CallybotDB(*cred.db_info)
+db = callybot_database.CallybotDB(*cred.db_info)
 
 class TestHelpMethods(unittest.TestCase):
     """Tests functions in help_method files"""

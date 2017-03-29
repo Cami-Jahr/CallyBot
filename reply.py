@@ -16,7 +16,7 @@ class Reply:
         self.scraper = scraper.Scraper(self, self.db)
         self.scraper.start()
 
-        self.rep = {" ": "-", "/": "-", "\\": "-", ":": "-", ";": "-", ",": "-", ".": "-"}
+        self.rep = {"/": "-", "\\": "-", ":": "-", ";": "-", ",": "-", ".": "-"}
         # define desired replacements here.
         # Used in set reminder to get a standard format to work with
         self.rep = dict((re.escape(k), v) for k, v in self.rep.items())

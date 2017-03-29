@@ -1,5 +1,5 @@
 import unittest
-import Callybot_DB as CDB
+import callybot_database as CDB
 from datetime import datetime
 
 
