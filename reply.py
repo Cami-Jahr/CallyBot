@@ -144,9 +144,9 @@ class Reply:
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             self.db.add_user(user_id, fname + lname)
             msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
-                                       "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
+                                       "date on your upcoming deadlines on itslearning and Blackboard. Type 'login' " \
                                        "or use the menu to get started. \nIf you need help, or want to know more " \
-                                       "about what I can do for you, just type 'help'.\n\n Please do enjoy!"
+                                       "about what I can do for you, just type 'help'.\n\nPlease do enjoy!"
             reply_type = "text"
 
         # ------------- DEVELOPER - --------------
@@ -260,7 +260,6 @@ class Reply:
                         msg += "I cant find the exam date for " + exam + "\n\n"
                 if not msg:
                     msg = "I could not find any exam date, are you sure you are subscribed to courses?"
-            print(msg)
             return msg
 
         elif content_list[0] == "default-time":
