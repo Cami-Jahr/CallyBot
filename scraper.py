@@ -61,7 +61,7 @@ class Scraper(Thread):
                 pass
         elif len(content_list) == 5:  # Strict format
             if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
+                    3] == "until" and re.fullmatch(self.date_format, content_list[4]):
                 # Format: get deadline in aaa1111 until DD/MM
                 course = content_list[2]
                 until = content_list[4]

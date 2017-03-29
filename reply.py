@@ -40,108 +40,120 @@ class Reply:
 
         # ------------ COMMANDS --------------
         if content_list[0] == "get":
-            self.get_statements(user_id, content_list[1:])
+            msg = self.get_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == "set":
-            self.set_statements(user_id, content_list[1:])
+            msg = self.set_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == "delete":
-            self.delete_statements(user_id, content_list[1:])
+            msg = self.delete_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_lower == "hello":
             msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
-            self.reply(user_id, msg, 'image')
+            reply_type = "image"
 
         elif content_lower == "login":
-            self.login(user_id)
+            msg = self.login(user_id)
+            reply_type = "text"
 
         elif content_list[0] == "bug":
-            self.bug(user_id, content_list[1:])
+            msg = self.bug(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == "request":
-            self.request(user_id, content_list[1:])
+            msg = self.request(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == 'subscribe':
-            self.subscribe(user_id, content_list[1:])
+            msg = self.subscribe(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == 'unsubscribe':
-            self.unsubscribe(user_id, content_list[1:])
+            msg = self.unsubscribe(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
-            self.reply(user_id, "I have now deleted all your information. If you have any feedback to give me, please "
-                                "do so with the 'request' function.\nI hope to see you again!.", "text")
+            msg = "I have now deleted all your information. If you have any feedback to give me, please " \
+                  "do so with the 'request' function.\nI hope to see you again!."
+            reply_type = "text"
 
         elif content_list[0] == "help":
-            self.help(user_id, content_list[1:])
+            msg = self.help(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello\n- Good bye"
-            self.reply(user_id, msg, 'text')
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- " \
+                  "Chicken\n- Hello\n- Good bye"
+            reply_type = "text"
 
         # ------------ EASTER EGGS --------------
         elif content_lower == "chicken":
             msg = "Did I scare ya?"
-            self.reply(user_id, msg, 'text')
+            reply_type = "text"
 
         elif content_lower == "juice gif":
             msg = "https://i.makeagif.com/media/10-01-2015/JzrY-u.gif"
-            self.reply(user_id, msg, 'image')
+            reply_type = "image"
 
         elif content_lower == "juicy gif":
             msg = "http://68.media.tumblr.com/tumblr_m9pbdkoIDA1ra12qlo1_400.gif"
-            self.reply(user_id, msg, 'image')
+            reply_type = "image"
 
         elif content_lower == "who are you?":
             msg = "I am Cally, your lord and savior"
             self.reply(user_id, msg, 'text')
-            url = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
-            self.reply(user_id, url, 'image')
+            msg = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
+            reply_type = "image"
 
         elif content_lower == "who am i?":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             msg = "You are " + fname + " " + lname + " and you look like this:"
             self.reply(user_id, msg, 'text')
-            self.reply(user_id, pic, 'image')
+            msg = pic
+            reply_type = "image"
 
         elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
             msg = "Bye now!"
             self.reply(user_id, msg, 'text')
-            url = "http://i.imgur.com/NBUNSSG.gif"
-            self.reply(user_id, url, 'image')
+            msg = "http://i.imgur.com/NBUNSSG.gif"
+            reply_type = "image"
 
         elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
             msg = "Uh huh"
             self.reply(user_id, msg, 'text')
-            url = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
-            self.reply(user_id, url, 'image')
+            msg = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
+            reply_type = "image"
 
         elif content_lower == "thanks" or content_lower == "thank you" or content_lower == "ty":
             msg = "You're welcome!"
-            self.reply(user_id, msg, 'text')
+            reply_type = "text"
 
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
+            msg = "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, " \
+                  "please report it as detailed as possible. If you wish a feature added please inform" \
+                  " us about it. Please do report anything you can, from typos, to " \
+                  "poor sentences, to hard to access information, to any 'shortcuts' you would like to " \
+                  "see. Thank you for helping with testing of " \
+                  "the bot!\n\n- The developers of CallyBot."
+            self.reply(user_id, msg, 'text')
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
+            self.db.add_user(user_id, fname + lname)
             msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
                                       "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
                                       "or use the menu to get started. \nIf you need help, or want to know more about" \
                                       " what I can do for you, just type 'help'.\n\n Please do enjoy!"
-            self.reply(user_id, msg, 'text')
-            self.reply(user_id, "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, "
-                                "please report it as detailed as possible. If you wish a feature added please inform"
-                                " us about it. Please do report anything you can, from typos, to "
-                                "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
-                                "see. Thank you for helping with testing of "
-                                "the bot!\n\n- The developers of CallyBot.", "text")
-            self.db.add_user(user_id, fname + lname)
-
+            reply_type = "text"
 
         # ------------- DEVELOPER - --------------
-
         # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
         elif content_list[0] == "developer":
-            self.developer_statements(user_id, content_list[1:])
+            msg = self.developer_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         # -------------- DEFAULT ----------------
         else:
@@ -149,24 +161,24 @@ class Reply:
             # are made, per user
             #    f.write(content+"\n")
             if data_type == "text":
-                self.reply(user_id,
-                           content + "\nDid you mean to ask me to do something? Type 'help' to see my supported "
-                                     "commands", data_type)
+                msg = content + "\nDid you mean to ask me to do something? Type 'help' to see my supported commands"
+                reply_type = "text"
             else:
-                self.reply(user_id, content, data_type)
-
-                # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
+                msg = content
+                reply_type = data_type
+        if msg:
+            self.reply(user_id, msg, reply_type)
+            return msg, reply_type
 
     def developer_statements(self, user_id, content_list):
 
         if user_id not in ('1214261795354796', '1212139502226885', '1439762959401510', '1550995208259075'):
-            self.reply(user_id, "Error: You are not a developer", "text")
-            return
+            return "Error: You are not a developer"
         if not content_list:
-            self.reply(user_id, "Specify developer command", 'text')
+            return "Specify developer command"
 
         elif content_list[0] == "id":
-            self.reply(user_id, user_id, 'text')
+            return str(user_id)
 
         elif content_list[0] == "requests":
             with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
@@ -178,7 +190,7 @@ class Reply:
                         msg = request
                     else:
                         msg += request
-                self.reply(user_id, msg, "text")
+            return msg
 
         elif content_list[0] == "bugs":
             with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
@@ -190,28 +202,28 @@ class Reply:
                         msg = report
                     else:
                         msg += report
-                self.reply(user_id, msg, "text")
+            return msg
 
         elif content_list[0] == "users":
             msg = '\n'.join(self.db.get_user_ids())
-            self.reply(user_id, msg, 'text')
+            return msg
 
         elif content_list[0] == 'announcement':
             users = self.db.get_user_ids()
             for user in users:
                 self.reply(user, 'Announcement: ' + ' '.join(content_list[1:]), 'text')
+            return ""
 
         else:
-            self.reply(user_id, "Unknown command", 'text')
+            return "Unknown command"
 
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify what to get\nType help get if you need help.', 'text')
-            return
+            return 'Please specify what to get\nType help get if you need help.'
 
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
-            self.deadlines(user_id, content_list)
+            return self.deadlines(user_id, content_list)
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
@@ -225,7 +237,7 @@ class Reply:
                     i += 1
             else:
                 msg = "You don't appear to have any reminders scheduled with me"
-            self.reply(user_id, msg, "text")
+            return msg
 
         elif content_list[0] == "exam" or content_list[0] == "exams":
             msg = ""
@@ -248,26 +260,26 @@ class Reply:
                         msg += "I cant find the exam date for " + exam + "\n\n"
                 if not msg:
                     msg = "I could not find any exam date, are you sure you are subscribed to courses?"
-            self.reply(user_id, msg, "text")
             print(msg)
+            return msg
 
         elif content_list[0] == "default-time":
             df = self.db.get_defaulttime(user_id)
             if df == -1:
-                self.reply(user_id, "To check default-time, please login.", 'text')
+                return "To check default-time, please login."
             else:
-                self.reply(user_id, "Your default-time is: " + str(df), 'text')
+                return "Your default-time is: " + str(df) + " day(s)"
 
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    self.reply(user_id,"ilearn.sexy", "text")
+                    return "ilearn.sexy"
                 elif content_list[1] == "blackboard":
-                    self.reply(user_id, "iblack.sexy","text")
+                    return "iblack.sexy"
                 else:
-                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
+                    return "iblack.sexy\nilearn.sexy"
             except IndexError:
-                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
+                    return "iblack.sexy\nilearn.sexy"
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
             courses = self.db.get_all_courses(user_id)
@@ -277,50 +289,47 @@ class Reply:
                     msg += course + "\n"
             else:
                 msg = "You are not subscribed to any courses currently"
-            self.reply(user_id, msg, "text")
+            return msg
 
         else:
-            self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that. Type 'help get' to see supported "
-                                "commands.", "text")
+            return "I'm sorry, I'm not sure how to retrieve that. Type 'help get' to see supported commands."
 
     def deadlines(self, user_id, content_list):
         """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
         if self.db.user_exists(user_id):
             self.scraper.scrape(user_id, content_list)
-            self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
-                                "this might take me some time.", "text")
+            return "I'll go get your deadlines right now. If there are many people asking for deadlines this might" \
+                " take me some time."
         else:
-            self.reply(user_id, "You don't appear to be logged in. To use the 'get deadlines' function you need to log"
-                                "in with your feide username and password with the 'login' command.", "text")
+            return "You don't appear to be logged in. To use the 'get deadlines' function you need to log" \
+                                "in with your feide username and password with the 'login' command."
 
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify what to delete\nType help delete if you need help.', 'text')
-            return
+            return 'Please specify what to delete\nType help delete if you need help.'
         if content_list[0] == 'me':
-            self.reply(user_id, "Are you sure? By deleting your information i will also delete all reminders you have "
-                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all "
-                                "my information'.", "text")
+            return "Are you sure? By deleting your information i will also delete all reminders you have " \
+                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all " \
+                                "my information'."
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
                     if self.delete_conf[user_id]['reminder']:
                         self.reply(user_id, 'Deleting all reminders.', 'text')
                         self.db.delete_all_reminders(user_id)
-                        self.reply(user_id, 'All reminders deleted.', 'text')
                         self.delete_conf[user_id]['reminder'] = 0
+                        return 'All reminders deleted.'
                     else:
-                        self.reply(user_id,
-                                   'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
-                                   'text')
                         self.delete_conf[user_id]['reminder'] = 1
+                        return 'Are you sure you want to delete all your reminders?\nType <delete reminders> ' \
+                               'again to confirm'
+
                 except KeyError:
-                    self.reply(user_id,
-                               'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
-                               'text')
                     self.delete_conf[user_id] = {
                         'reminder': 1}  # Needs to be changed to an init process to allow other delete confs
+                    return 'Are you sure you want to delete all your reminders?\nType ' \
+                           '<delete reminders> again to confirm'
             else:
                 self.reply(user_id, 'Deleting reminders...', 'text')
                 not_valid, complete = [], []
@@ -331,8 +340,7 @@ class Reply:
                             self.db.delete_reminder(self.user_reminders[user_id][int_reminder])
                             complete.append(reminder)
                         except KeyError:
-                            self.reply(user_id, "Please type <get reminders> before you try to delete.", 'text')
-                            return
+                            return "Please type <get reminders> before you try to delete."
                     except ValueError:
                         not_valid.append(reminder)
                         continue
@@ -343,20 +351,17 @@ class Reply:
                 if complete:
                     self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
         else:
-            self.reply(user_id, "Im not sure how to delete that, are you sure you wrote it correctly?\nType "
-                                "'help delete' for more information.", "text")
+            return "Im not sure how to delete that, are you sure you wrote it correctly?\nType " \
+                                "'help delete' for more information."
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify what to set\nType help set if you need help.', 'text')
-            return
+            return 'Please specify what to set\nType help set if you need help.'
 
         if content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
-                self.reply(user_id, 'Please specify what to be reminded of\nType help set reminder if you need help',
-                           'text')
-                return
+                return 'Please specify what to be reminded of\nType help set reminder if you need help'
             try:
                 date = content_list[-2]
                 current = datetime.now()
@@ -391,9 +396,7 @@ class Reply:
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
-                    self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'",
-                               "text")
-                    return
+                    return "Don't write seconds, check out the valid formats with 'help set reminder'"
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
                     time = time + timedelta(days=1)
@@ -419,29 +422,24 @@ class Reply:
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
         elif content_list[0] == 'default-time':
             if not content_list[1:]:
-                self.reply(user_id, 'Please specify default-time to set.', 'text')
-                return
+                return 'Please specify default-time to set.'
             try:
                 df = int(content_list[1])
             except ValueError:
-                self.reply(user_id, 'Please type in an integer as default-time.', 'text')
-                return
+                return 'Please type in an integer as default-time.'
             if self.db.set_defaulttime(user_id, df):
-                self.reply(user_id, 'Your default-time was set to: ' + content_list[1], 'text')
+                return 'Your default-time was set to: ' + content_list[1] + " day(s)"
             else:
-                self.reply(user_id,
-                           'Could not set default-time. Please check if you are using the correct format '
-                           'and that you are logged in. Type "help set default-time" for more help',
-                           'text')
+                return 'Could not set default-time. Please check if you are using the correct format ' \
+                           'and that you are logged in. Type "help set default-time" for more help'
         else:
-            self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember.", "text")
+            return "I'm sorry, I'm not sure what you want me to remember."
 
     def subscribe(self, user_id, content_list):
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to.
         Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id, 'subscribe to what?\nType help subscribe if you need help.', 'text')
-            return
+            return  'subscribe to what?\nType help subscribe if you need help.'
 
         self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
@@ -466,8 +464,7 @@ class Reply:
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
          Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id, 'Unsubsribe from what?\nType help unsubscribe if you need help.', 'text')
-            return
+            return 'Unsubsribe from what?\nType help unsubscribe if you need help.'
 
         self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list) + "...", 'text')
         non_existing, not_subscribed, success_unsubscribed = [], [], []
@@ -491,169 +488,152 @@ class Reply:
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify at least one bug\nType help bug if you need help.', 'text')
-            return
+            return 'Please specify at least one bug\nType help bug if you need help.'
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
-        self.reply(user_id, "The bug was taken to my developers. One of them might contact you if they need further "
-                            "help with the bug.", "text")
+        return "The bug was taken to my developers. One of them might contact you if they need further " \
+               "help with the bug."
 
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
+        if not content_list:
+            return 'Please specify at least one request\nType help bug if you need help.'
         with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
-        self.reply(user_id, "The request was taken to my developers. I will try to make your wish come true, but keep"
-                            " in mind that not all request are feasible.", "text")
+        return "The request was taken to my developers. I will try to make your wish come true, but keep" \
+               " in mind that not all request are feasible."
 
     def help(self, user_id, content_list):
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
-            self.reply(user_id, "Oh you need help?\nNo problem!\nFollowing commands are supported:\n"
-                                "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders"
-                                "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time"
-                                "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- Help"
-                                "\n\nThere is also a persistent menu to the left of the input field, it has "
-                                "shortcuts to some of the commands!"
-                                "\n\nBut that's not all, there are also some more hidden commands!\nIt "
-                                "is up to you to find them ;)\n\n"
-                                "If you want a more detailed overview over a feature, you can write 'help <feature>'. "
-                                "You can try this with 'help help' now!.", 'text')
+            return "Oh you need help?\nNo problem!\nFollowing commands are supported:\n" \
+                    "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
+                    "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
+                    "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
+                   "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
+                   "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
+                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
+                    "write 'help <feature>'. You can try this with 'help help' now!."
 
         elif content_list[0] == "get":
             try:
                 if content_list[1] == "deadlines" or content_list[1] == "deadline":
-                    self.reply(user_id,
-                               "Deadlines are fetched from It'slearning and Blackboard with the feide username and"
-                               " password you entered with the 'login' command. To get the deadlines you can write"
-                               " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n"
-                               "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n"
-                               "Without the <> and the course code, date and month you wish.", "text")
+                    return "Deadlines are fetched from It'slearning and Blackboard with the feide username and" \
+                            " password you entered with the 'login' command. To get the deadlines you can write" \
+                            " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n" \
+                            "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n" \
+                            "Without the <> and the course code, date and month you wish."
 
                 elif content_list[1] == "exam" or content_list[1] == "exams":
-                    self.reply(user_id, "I can get the exam date for any of your courses. Just write"
-                                        "\n- Get exams <course_code> (<course_code2>...).", "text")
+                    return "I can get the exam date for any of your courses. Just write" \
+                           "\n- Get exams <course_code> (<course_code2>...)."
 
                 elif content_list[1] == "link" or content_list[1] == "links":
-                    self.reply(user_id, "I can give you fast links to It'slearning or Blackboard with these commands:"
-                                        "\n- Get links\n- Get link Itslearning\n- Get link Blackboard.", "text")
+                    return "I can give you fast links to It'slearning or Blackboard with these commands:" \
+                            "\n- Get links\n- Get link Itslearning\n- Get link Blackboard."
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
-                    self.reply(user_id, "This gives you an overview of all upcoming reminders I have in store for you."
-                               , "text")
+                    return "This gives you an overview of all upcoming reminders I have in store for you."
+
                 elif content_list[1] == "default-time":
-                    self.reply(user_id,
-                               'Default-time decides how many days before an assigment you will be reminded by default. Get default-time shows your current default-time',
-                               'text')
+                    return 'Default-time decides how many days before an assigment you will be reminded by default. ' \
+                           'Get default-time shows your current default-time',
                 else:
-                    self.reply(user_id,
-                               "I'm not sure that's a supported command, if you think this is a bug, please do report "
-                               "it with the 'bug' function! If it something you simply wish to be added, use the "
-                               "'request' function.", "text")
+                    return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
+                            "it with the 'bug' function! If it something you simply wish to be added, use the " \
+                            "'request' function."
             except IndexError:
-                self.reply(user_id,
-                           "To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a list of what you can get",
-                           "text")
+                return "To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a " \
+                       "list of what you can get"
 
         elif content_list[0] == "set":
             try:
                 if content_list[1] == "reminder" or content_list[1] == "reminders":
-                    self.reply(user_id, "I can give reminders to anyone who is logged in with the 'login' command. "
-                                        "If you login with your feide username and password I can retrieve all your "
-                                        "deadlines on It'slearning and Blackboard as well, and give you reminders to "
-                                        "those when they are soon due. I will naturally never share your information with "
-                                        "anyone!\n\nThe following commands are supported:\n\n"
-                                        "- set reminder <Reminder text> at <Due_date>\n"
-                                        "where <Due_date> can have the following formats:"
-                                        "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n"
-                                        "and <Reminder text> is what "
-                                        "I should tell you when the reminder is due. I will check "
-                                        "reminders every 5 minutes.", "text")
+                    return "I can give reminders to anyone who is logged in with the 'login' command. " \
+                           "If you login with your feide username and password I can retrieve all your " \
+                           "deadlines on It'slearning and Blackboard as well, and give you reminders to " \
+                           "those when they are soon due. I will naturally never share your information with " \
+                           "anyone!\n\nThe following commands are supported:\n\n" \
+                           "- set reminder <Reminder text> at <Due_date>\n" \
+                           "where <Due_date> can have the following formats:" \
+                           "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n" \
+                           "and <Reminder text> is what " \
+                           "I should tell you when the reminder is due. I will check " \
+                           "reminders every 5 minutes."
                 elif content_list[1] == 'default-time':
-                    self.reply(user_id,
-                               "I can set your default-time which decides how long before an assignment you will be reminded by default.\n\n"
-                               "To set your default-time please use the following format:\n\n"
-                               "- set default-time <integer>\n\n"
-                               "Where <integer> can be any number of days.", 'text')
+                    return "I can set your default-time which decides how long before an" \
+                           " assignment you will be reminded by default.\n\n" \
+                           "To set your default-time please use the following format:\n\n" \
+                           "- set default-time <integer>\n\nWhere <integer> can be any number of days."
                 else:
-                    self.reply(user_id,
-                               "I'm not sure that's a supported command, if you think this is a bug, please do report "
-                               "it with the 'bug' function. If it something you simply wish to be added, use the "
-                               "'request' function.", "text")
+                    return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
+                            "it with the 'bug' function. If it something you simply wish to be added, use the " \
+                            "'request' function."
             except IndexError:
-                self.reply(user_id,
-                           "To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType <help> for a list of what you can set",
-                           "text")
+                return "To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType" \
+                       " <help> for a list of what you can set"
 
         elif content_list[0] == "delete":
             try:
                 if content_list[1] == "reminder" or content_list[1] == "reminders":
-                    self.reply(user_id,
-                               "Do delete a specific reminder you first have to type <get reminders> to find reminder id, which will"
-                               "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n"
-                               "\nTo delete all reminders type:\n- delete reminders.", 'text')
+                    return "Do delete a specific reminder you first have to type <get reminders> to find reminder " \
+                           "id, which will" \
+                            "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n" \
+                            "\nTo delete all reminders type:\n- delete reminders."
                 elif content_list[1] == 'me':
-                    self.reply(user_id,
-                               "If you want me to delete all information I have on you, type in 'delete me', and "
-                               "follow the instructions i give you.", "text")
+                    return "If you want me to delete all information I have on you, type in 'delete me', and " \
+                            "follow the instructions i give you."
                 else:
-                    self.reply(user_id,
-                               "I'm not sure that's a supported command, if you think this is a bug, please do report "
-                               "it with the 'bug' function. If it something you simply wish to be added, use the "
-                               "'request' function.", "text")
+                    return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
+                           "it with the 'bug' function. If it something you simply wish to be added, use the " \
+                           "'request' function."
             except IndexError:
-                self.reply(user_id,
-                           "To delete something type:\n- delete <what_to_delete> (opt:<value1> <value2>...)\nType <help> for a list of what you can delete",
-                           "text")
-
+                return "To delete something type:\n- delete <what_to_delete> (opt:<value1> <value2>...)\nType " \
+                       "<help> for a list of what you can delete"
 
         elif content_list[0] == "help":
-            self.reply(user_id, "The help method gives more detailed information about my features, and their commands"
-                                ". You may type help in front of any method to get a more detailed overview of what it"
-                                " does.", "text")
+            return "The help method gives more detailed information about my features, and their commands" \
+                   ". You may type help in front of any method to get a more detailed overview of what it does."
 
         elif content_list[0] == "login":
-            self.reply(user_id, "You must log in for me to be able to give you reminders. If you log in with your "
-                                "feide username and password I can also fetch your deadlines from blackboard and "
-                                "It'slearning! \nIf you submitted wrong username or password, don't worry! I will still"
-                                " remember any reminders or courses you have saved with me if you login with a new "
-                                "username and password.", "text")
+            return "You must log in for me to be able to give you reminders. If you log in with your " \
+                   "feide username and password I can also fetch your deadlines from blackboard and " \
+                   "It'slearning! \nIf you submitted wrong username or password, don't worry! I will still" \
+                   " remember any reminders or courses you have saved with me if you login with a new " \
+                   "username and password."
 
         elif content_list[0] == "bug":
-            self.reply(user_id, "If you encounter a bug please let me know! You submit a bug report with a"
-                                "\n- bug <message> \n"
-                                "command. If it is a feature you wish added, please use the request command instead. "
-                                "\nA bug is anything from an unexpected output to no output at all. Please include as"
-                                "much information as possible about how you encountered the bug, so I can recreate it",
-                       "text")
+            return "If you encounter a bug please let me know! You submit a bug report with a" \
+                   "\n- bug <message> \n" \
+                   "command. If it is a feature you wish added, please use the request command instead. " \
+                   "\nA bug is anything from an unexpected output to no output at all. Please include as" \
+                   "much information as possible about how you encountered the bug, so I can recreate it"
 
         elif content_list[0] == "request":
-            self.reply(user_id, "If you have a request for a new feature please let me know! You submit a feature"
-                                " request with a\n- request <message> \ncommand. If you think this is already a feature"
-                                ", and you encountered a bug, please use the bug command instead.", "text")
+            return "If you have a request for a new feature please let me know! You submit a feature" \
+                                " request with a\n- request <message> \ncommand. If you think this is already a feature" \
+                                ", and you encountered a bug, please use the bug command instead."
 
         elif content_list[0] == "subscribe":
-            self.reply(user_id, "You can subscribe to courses you want to get reminders from. To subscribe to a course "
-                                "just write\n- subscribe <course_code> (<course_code2>...).", "text")
+            return "You can subscribe to courses you want to get reminders from. To subscribe to a course " \
+                   "just write\n- subscribe <course_code> (<course_code2>...)."
 
         elif content_list[0] == "unsubscribe":
-            self.reply(user_id,
-                       "You can unsubscribe to courses you don't want to get reminders from. To unsubscribe to a course "
-                       "just write\n- unsubscribe <course_code> (<course_code2>...).", "text")
+            return "You can unsubscribe to courses you don't want to get reminders from. To unsubscribe to a course " \
+                   "just write\n- unsubscribe <course_code> (<course_code2>...)."
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
-            self.reply(user_id,
-                       "There is no 'reminder' command, but type 'Set reminder' to add a new reminder, or 'Get"
-                       " reminders' to see all currently active reminders. If you want more info on the format"
-                       " of 'Set reminder', type 'help Set reminder'.", "text")
+            return "There is no 'reminder' command, but type 'Set reminder' to add a new reminder, or 'Get" \
+                   " reminders' to see all currently active reminders. If you want more info on the format" \
+                   " of 'Set reminder', type 'help Set reminder'."
 
         elif content_list[0] == "deadlines" or content_list[0] == "deadline":
-            self.reply(user_id,
-                       "Type 'Get deadlines' to get a full overview of all of your deadlines on it's learning and"
-                       " blackboard! You need to log in to use this command.", "text")
+            return "Type 'Get deadlines' to get a full overview of all of your deadlines on it's learning and" \
+                   " blackboard! You need to log in to use this command."
 
         else:
-            self.reply(user_id, "I'm not sure that's a supported command, if you think this is a bug, please do report "
-                                "it with the 'bug' function. If it something you simply wish to be added, use the "
-                                "'request' function.", "text")
+            return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
+                    "it with the 'bug' function. If it something you simply wish to be added, use the " \
+                    "'request' function."
 
     def process_data(data):
         """Classifies data type and extracts the data. Returns [data_type, content]"""
@@ -723,7 +703,8 @@ class Reply:
                     "type": "template",
                     "payload": {
                         "template_type": "button",
-                        "text": "Please login here:",
+                        "text": "By logging in you acknowledge that your user information will be stored in an "
+                                "encrypted database.",
                         "buttons": [{
                             "type": "web_url",
                             "url": url,
