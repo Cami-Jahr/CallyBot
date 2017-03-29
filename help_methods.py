@@ -16,7 +16,7 @@ def add_padding(text):
 
 def encrypt(data):
     """Encrypts with AES-256-CBC"""
-    iv = 16 * '\x00' #init vector
+    iv = 16 * '\x00'  # init vector
     obj = AES.new(AES_key, AES.MODE_CBC, iv)
     data = base64.b64encode(obj.encrypt(add_padding(data)))
     return data
