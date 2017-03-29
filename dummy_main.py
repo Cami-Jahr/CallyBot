@@ -1,4 +1,4 @@
-"""This is a dummy version of server_main. Only ran localy, and does not support reminders"""
+"""This is a dummy version of server_main. Only ran locally, and does not support reminders"""
 import reply
 import credentials
 import Callybot_DB

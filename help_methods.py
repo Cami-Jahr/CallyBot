@@ -92,6 +92,14 @@ def get_user_info(access_token, user_id):
     return firstname, lastname, picture
 
 
+def most_similar_command(user_input):
+    """Not finished"""
+    supported_cmds = ["login","get deadlines", "get exams", "get links", "get reminders", "get default-time",
+                      "get subscribed", "set reminder", "set default-time", "delete me", "bug", "request", "subscribe",
+                      "unsubscribe", "help"]
+
+
+
 def IL_scrape(user_id, course, until, db):
     """Scrapes It'slearing, and updates database. Returns a formatted reply message with deadlines"""
     try:
