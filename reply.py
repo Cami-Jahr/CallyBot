@@ -52,108 +52,120 @@ class Reply:
 
         # ------------ COMMANDS --------------
         if content_list[0] == "get":
-            self.get_statements(user_id, content_list[1:])
+            msg = self.get_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == "set":
-            self.set_statements(user_id, content_list[1:])
+            msg = self.set_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == "delete":
-            self.delete_statements(user_id, content_list[1:])
+            msg = self.delete_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_lower == "hello":
             msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
-            self.reply(user_id, msg, 'image')
+            reply_type = "image"
 
         elif content_lower == "login":
-            self.login(user_id)
+            msg = self.login(user_id)
+            reply_type = "text"
 
         elif content_list[0] == "bug":
-            self.bug(user_id, content_list[1:])
+            msg = self.bug(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == "request":
-            self.request(user_id, content_list[1:])
+            msg = self.request(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == 'subscribe':
-            self.subscribe(user_id, content_list[1:])
+            msg = self.subscribe(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_list[0] == 'unsubscribe':
-            self.unsubscribe(user_id, content_list[1:])
+            msg = self.unsubscribe(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
-            self.reply(user_id, "I have now deleted all your information. If you have any feedback to give me, please "
-                                "do so with the 'request' function.\nI hope to see you again!.", "text")
+            msg = "I have now deleted all your information. If you have any feedback to give me, please " \
+                  "do so with the 'request' function.\nI hope to see you again!."
+            reply_type = "text"
 
         elif content_list[0] == "help":
-            self.help(user_id, content_list[1:])
+            msg = self.help(user_id, content_list[1:])
+            reply_type = "text"
 
         elif content_lower == "hint":
-            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- Chicken\n- Hello\n- Good bye"
-            self.reply(user_id, msg, 'text')
+            msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- " \
+                  "Chicken\n- Hello\n- Good bye"
+            reply_type = "text"
 
         # ------------ EASTER EGGS --------------
         elif content_lower == "chicken":
             msg = "Did I scare ya?"
-            self.reply(user_id, msg, 'text')
+            reply_type = "text"
 
         elif content_lower == "juice gif":
             msg = "https://i.makeagif.com/media/10-01-2015/JzrY-u.gif"
-            self.reply(user_id, msg, 'image')
+            reply_type = "image"
 
         elif content_lower == "juicy gif":
             msg = "http://68.media.tumblr.com/tumblr_m9pbdkoIDA1ra12qlo1_400.gif"
-            self.reply(user_id, msg, 'image')
+            reply_type = "image"
 
         elif content_lower == "who are you?":
             msg = "I am Cally, your lord and savior"
             self.reply(user_id, msg, 'text')
-            url = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
-            self.reply(user_id, url, 'image')
+            msg = "https://folk.ntnu.no/halvorkm/callysavior.jpg"
+            reply_type = "image"
 
         elif content_lower == "who am i?":
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             msg = "You are " + fname + " " + lname + " and you look like this:"
             self.reply(user_id, msg, 'text')
-            self.reply(user_id, pic, 'image')
+            msg = pic
+            reply_type = "image"
 
         elif content_lower == "good bye" or content_lower == "bye" or content_lower == "farewell":
             msg = "Bye now!"
             self.reply(user_id, msg, 'text')
-            url = "http://i.imgur.com/NBUNSSG.gif"
-            self.reply(user_id, url, 'image')
+            msg = "http://i.imgur.com/NBUNSSG.gif"
+            reply_type = "image"
 
         elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
             msg = "Uh huh"
             self.reply(user_id, msg, 'text')
-            url = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
-            self.reply(user_id, url, 'image')
+            msg = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
+            reply_type = "image"
 
         elif content_lower == "thanks" or content_lower == "thank you" or content_lower == "ty":
             msg = "You're welcome!"
-            self.reply(user_id, msg, 'text')
+            reply_type = "text"
 
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
+            msg = "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, " \
+                  "please report it as detailed as possible. If you wish a feature added please inform" \
+                  " us about it. Please do report anything you can, from typos, to " \
+                  "poor sentences, to hard to access information, to any 'shortcuts' you would like to " \
+                  "see. Thank you for helping with testing of " \
+                  "the bot!\n\n- The developers of CallyBot."
+            self.reply(user_id, msg, 'text')
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
+            self.db.add_user(user_id, fname + lname)
             msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
                                       "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
                                       "or use the menu to get started. \nIf you need help, or want to know more about" \
                                       " what I can do for you, just type 'help'.\n\n Please do enjoy!"
-            self.reply(user_id, msg, 'text')
-            self.reply(user_id, "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, "
-                                "please report it as detailed as possible. If you wish a feature added please inform"
-                                " us about it. Please do report anything you can, from typos, to "
-                                "poor sentences, to hard to access information, to any 'shortcuts' you would like to "
-                                "see. Thank you for helping with testing of "
-                                "the bot!\n\n- The developers of CallyBot.", "text")
-            self.db.add_user(user_id, fname + lname)
-
+            reply_type = "text"
 
         # ------------- DEVELOPER - --------------
-
         # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
         elif content_list[0] == "developer":
-            self.developer_statements(user_id, content_list[1:])
+            msg = self.developer_statements(user_id, content_list[1:])
+            reply_type = "text"
 
         # -------------- DEFAULT ----------------
         else:
@@ -161,13 +173,13 @@ class Reply:
             # are made, per user
             #    f.write(content+"\n")
             if data_type == "text":
-                self.reply(user_id,
-                           content + "\nDid you mean to ask me to do something? Type 'help' to see my supported "
-                                     "commands", data_type)
+                msg = content + "\nDid you mean to ask me to do something? Type 'help' to see my supported commands"
+                reply_type = "text"
             else:
-                self.reply(user_id, content, data_type)
-
-                # NOT TO BE SHOWN TO USERS, FOR DEVELOPER USE ONLY, do not add to hint/help etc
+                msg = content
+                reply_type = data_type
+        self.reply(user_id, msg, reply_type)
+        return msg
 
     def developer_statements(self, user_id, content_list):
 
@@ -735,7 +747,8 @@ class Reply:
                     "type": "template",
                     "payload": {
                         "template_type": "button",
-                        "text": "Please login here:",
+                        "text": "By logging in you acknowledge that your user information will be stored in an "
+                                "encrypted database.",
                         "buttons": [{
                             "type": "web_url",
                             "url": url,
