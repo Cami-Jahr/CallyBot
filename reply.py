@@ -122,7 +122,8 @@ class Reply:
             msg = "http://i.imgur.com/NBUNSSG.gif"
             reply_type = "image"
 
-        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
+        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll" \
+                or content_lower == "never gonna give you up" or content_lower == "never gonna let you down":
             msg = "Uh huh"
             self.reply(user_id, msg, 'text')
             msg = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
@@ -144,7 +145,7 @@ class Reply:
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             self.db.add_user(user_id, fname + lname)
             msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
-                                      "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
+                                      "date on your upcoming deadlines on itslearning and Blackboard. Type 'login' " \
                                       "or use the menu to get started. \nIf you need help, or want to know more about" \
                                       " what I can do for you, just type 'help'.\n\n Please do enjoy!"
             reply_type = "text"
@@ -510,13 +511,20 @@ class Reply:
                     "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
                     "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
                     "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
-                   "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
+                   "Help\n\nThere is also a persistent menu to the left of the input field (to the right if you're on "\
+                   "mobile), it has shortcuts to some " \
                    "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
                     "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
                     "write 'help <feature>'. You can try this with 'help help' now!."
 
         elif content_list[0] == "get":
             try:
+                if content_list[1] == "subscribe" or content_list[1] == "subscribed":
+                    return "The 'Get subscribed' command will give you a list of all your subscribed courses." \
+                           " When you are subscribed to a course, it's deadlines will automatically be added to your" \
+                           " reminders, and you will get the registered exam dates for it with the 'Get exams'" \
+                           " command. For more info on subscriptions, type 'Help subscribe'."
+
                 if content_list[1] == "deadlines" or content_list[1] == "deadline":
                     return "Deadlines are fetched from It'slearning and Blackboard with the feide username and" \
                             " password you entered with the 'login' command. To get the deadlines you can write" \
@@ -526,7 +534,8 @@ class Reply:
 
                 elif content_list[1] == "exam" or content_list[1] == "exams":
                     return "I can get the exam date for any of your courses. Just write" \
-                           "\n- Get exams <course_code> (<course_code2>...)."
+                           "\n- Get exams <course_code> (<course_code2>...) \nYou can also write" \
+                           "\n- Get exams \nTo get the exam dates of all the courses you are subscribed to."
 
                 elif content_list[1] == "link" or content_list[1] == "links":
                     return "I can give you fast links to It'slearning or Blackboard with these commands:" \
@@ -535,7 +544,7 @@ class Reply:
                     return "This gives you an overview of all upcoming reminders I have in store for you."
 
                 elif content_list[1] == "default-time":
-                    return 'Default-time decides how many days before an assigment you will be reminded by default. ' \
+                    return 'Default-time decides how many days before an assignment you will be reminded by default. ' \
                            'Get default-time shows your current default-time',
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
@@ -548,10 +557,10 @@ class Reply:
         elif content_list[0] == "set":
             try:
                 if content_list[1] == "reminder" or content_list[1] == "reminders":
-                    return "I can give reminders to anyone who is logged in with the 'login' command. " \
-                           "If you login with your feide username and password I can retrieve all your " \
+                    return "If you login with your feide username and password I can retrieve all your " \
                            "deadlines on It'slearning and Blackboard as well, and give you reminders to " \
-                           "those when they are soon due. I will naturally never share your information with " \
+                           "those when they are soon due. You can set how soon with 'Set default-time " \
+                           "<number of days>'. I will naturally never share your information with " \
                            "anyone!\n\nThe following commands are supported:\n\n" \
                            "- set reminder <Reminder text> at <Due_date>\n" \
                            "where <Due_date> can have the following formats:" \
@@ -581,7 +590,7 @@ class Reply:
                             "\nTo delete all reminders type:\n- delete reminders."
                 elif content_list[1] == 'me':
                     return "If you want me to delete all information I have on you, type in 'delete me', and " \
-                            "follow the instructions i give you."
+                            "follow the instructions I give you."
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
                            "it with the 'bug' function. If it something you simply wish to be added, use the " \
