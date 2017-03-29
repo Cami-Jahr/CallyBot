@@ -32,16 +32,24 @@ class ThreadSettings:
             "thread_state": "existing_thread",
             "call_to_actions": [{
                 "type": "postback",
-                "title": "help",
+                "title": "Help",
                 "payload": "help"},
                 {
                     "type": "postback",
-                    "title": "login",
-                    "payload": "login"},
+                    "title": "Get deadlines",
+                    "payload": "get deadlines"},
                 {
                     "type": "postback",
-                    "title": "get deadline(s)",
-                    "payload": "get deadlines"},
+                    "title": "Get reminders",
+                    "payload": "get reminders"},
+                {
+                    "type": "postback",
+                    "title": "Get courses",
+                    "payload": "get courses"},
+                {
+                    "type": "postback",
+                    "title": "Get exams",
+                    "payload": "get exams"},
             ]}
         response = requests.post(self.get_thread_url(), json=data)
         print(response.content)

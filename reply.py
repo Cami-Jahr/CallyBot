@@ -281,7 +281,8 @@ class Reply:
             except IndexError:
                     return "iblack.sexy\nilearn.sexy"
 
-        elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
+        elif content_list[0] == "subscribe" or content_list[0] == "subscribed" or content_list[0] == 'classes' \
+                or content_list[0] == 'class' or content_list[0] == 'courses' or content_list[0] == 'course':
             courses = self.db.get_all_courses(user_id)
             if courses:
                 msg = "You are subscribed to:\n"
@@ -420,6 +421,9 @@ class Reply:
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
+        elif content_list[0] == 'class' or content_list[0] == 'classes' or content_list[0] == 'course' or \
+                content_list[0] == 'courses':
+            return self.deadlines(user_id, content_list[1:])
         elif content_list[0] == 'default-time':
             if not content_list[1:]:
                 return 'Please specify default-time to set.'
