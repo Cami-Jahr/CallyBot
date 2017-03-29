@@ -94,10 +94,14 @@ def get_user_info(access_token, user_id):
 
 
 def get_most_similar_command(user_input):
-    """Uses edit distance to calculate which command user most likely was trying to type in case of typo"""
+    """Uses edit distance to calculate which command user most likely was trying to type in case of typo. 
+    Needs a test."""
     supported_cmds = ["login","get deadlines", "get exams", "get links", "get reminders", "get default-time",
                       "get subscribed", "set reminder", "set default-time", "delete me", "bug", "request", "subscribe",
-                      "unsubscribe", "help"]
+                      "unsubscribe", "help", "help help", "help login", "help get deadlines", "help get exams",
+                      "help get links", "help get reminders", "help get default-time", "help get subscribed",
+                      "help set reminder", "help set default-time", "help delete me", "help bug", "help request",
+                      "help subscribe", "help unsubscribe",]
     if user_input in supported_cmds:
         return user_input
     min_change = math.inf

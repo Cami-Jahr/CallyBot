@@ -161,15 +161,60 @@ class Reply:
             # with open("LOG/"+user_id+".txt", "a", encoding='utf-8') as f:  #W rite to log file, to see what errors
             # are made, per user
             #    f.write(content+"\n")
-            if data_type == "text":
-                msg = content + "\nDid you mean to ask me to do something? Type 'help' to see my supported commands"
-                reply_type = "text"
+
+            #Typo correction prompt
+            most_likely_cmd = help_methods.get_most_similar_command(content_lower)
+            msg = "Did you mean '" + most_likely_cmd +"'?"
+            self.reply(user_id, msg, 'text')
+
+            answer = self.make_typo_correction_buttons(user_id)
+
+            if answer == True:
+                self.arbitrate(user_id, most_likely_cmd)
             else:
-                msg = content
-                reply_type = data_type
+                if data_type == "text":
+                    msg = content + "\nDid you mean to ask me to do something? Type 'help' to see my supported commands"
+                    reply_type = "text"
+                else:
+                    msg = content
+                    reply_type = data_type
         if msg:
             self.reply(user_id, msg, reply_type)
             return msg, reply_type
+
+    def make_typo_correction_buttons(self, user_id):
+        """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. DOES NOT WORK YET"""
+        fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Retrieve user info
+        url = "https://folk.ntnu.no/halvorkm/TDT4140?userid=" + str(user_id) + "?name=" + fname + "%" + lname
+        data = {
+            #VERY MUCH NOT WORKING SORRY
+            "recipient": {"id": user_id},
+            "message": {
+                "text": "Was the suggested command correct?",
+                "quick_replies":
+                "attachment": [
+            {   "content_type":"text",
+                "title":"Green",
+                "payload":"Yes"
+            },
+            {   "content_type": "text",
+                "title": "Red",
+                "payload": "No"
+             }
+            ]
+                    }
+            }
+        response = requests.post(self.get_reply_url(), json=data)
+        feedback = json.loads(response.content.decode())
+        if feedback == "Yes":
+            return True
+        if feedback == "No":
+            return False
+        if "error" in feedback:
+            with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
+            return False
+
 
     def developer_statements(self, user_id, content_list):
 
