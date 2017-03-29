@@ -144,9 +144,9 @@ class Reply:
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             self.db.add_user(user_id, fname + lname)
             msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
-                                      "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
-                                      "or use the menu to get started. \nIf you need help, or want to know more about" \
-                                      " what I can do for you, just type 'help'.\n\n Please do enjoy!"
+                                       "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
+                                       "or use the menu to get started. \nIf you need help, or want to know more " \
+                                       "about what I can do for you, just type 'help'.\n\n Please do enjoy!"
             reply_type = "text"
 
         # ------------- DEVELOPER - --------------
@@ -279,7 +279,7 @@ class Reply:
                 else:
                     return "iblack.sexy\nilearn.sexy"
             except IndexError:
-                    return "iblack.sexy\nilearn.sexy"
+                return "iblack.sexy\nilearn.sexy"
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
             courses = self.db.get_all_courses(user_id)
@@ -299,10 +299,10 @@ class Reply:
         if self.db.user_exists(user_id):
             self.scraper.scrape(user_id, content_list)
             return "I'll go get your deadlines right now. If there are many people asking for deadlines this might" \
-                " take me some time."
+                   " take me some time."
         else:
             return "You don't appear to be logged in. To use the 'get deadlines' function you need to log" \
-                                "in with your feide username and password with the 'login' command."
+                   "in with your feide username and password with the 'login' command."
 
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
@@ -310,8 +310,8 @@ class Reply:
             return 'Please specify what to delete\nType help delete if you need help.'
         if content_list[0] == 'me':
             return "Are you sure? By deleting your information i will also delete all reminders you have " \
-                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all " \
-                                "my information'."
+                   "scheduled with me. To delete all your information, type 'yes, i agree to delete all " \
+                   "my information'."
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
@@ -352,7 +352,7 @@ class Reply:
                     self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
         else:
             return "Im not sure how to delete that, are you sure you wrote it correctly?\nType " \
-                                "'help delete' for more information."
+                   "'help delete' for more information."
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
@@ -431,7 +431,7 @@ class Reply:
                 return 'Your default-time was set to: ' + content_list[1] + " day(s)"
             else:
                 return 'Could not set default-time. Please check if you are using the correct format ' \
-                           'and that you are logged in. Type "help set default-time" for more help'
+                       'and that you are logged in. Type "help set default-time" for more help'
         else:
             return "I'm sorry, I'm not sure what you want me to remember."
 
@@ -439,7 +439,7 @@ class Reply:
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to.
         Replies with confirmation and ends"""
         if not content_list:
-            return  'subscribe to what?\nType help subscribe if you need help.'
+            return 'Subscribe to what?\nType help subscribe if you need help.'
 
         self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
@@ -507,22 +507,22 @@ class Reply:
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
             return "Oh you need help?\nNo problem!\nFollowing commands are supported:\n" \
-                    "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
-                    "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
-                    "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
+                   "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
+                   "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
+                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
                    "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
                    "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
-                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
-                    "write 'help <feature>'. You can try this with 'help help' now!."
+                   "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
+                   "write 'help <feature>'. You can try this with 'help help' now!."
 
         elif content_list[0] == "get":
             try:
                 if content_list[1] == "deadlines" or content_list[1] == "deadline":
                     return "Deadlines are fetched from It'slearning and Blackboard with the feide username and" \
-                            " password you entered with the 'login' command. To get the deadlines you can write" \
-                            " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n" \
-                            "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n" \
-                            "Without the <> and the course code, date and month you wish."
+                           " password you entered with the 'login' command. To get the deadlines you can write" \
+                           " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n" \
+                           "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n" \
+                           "Without the <> and the course code, date and month you wish."
 
                 elif content_list[1] == "exam" or content_list[1] == "exams":
                     return "I can get the exam date for any of your courses. Just write" \
@@ -530,7 +530,7 @@ class Reply:
 
                 elif content_list[1] == "link" or content_list[1] == "links":
                     return "I can give you fast links to It'slearning or Blackboard with these commands:" \
-                            "\n- Get links\n- Get link Itslearning\n- Get link Blackboard."
+                           "\n- Get links\n- Get link Itslearning\n- Get link Blackboard."
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
                     return "This gives you an overview of all upcoming reminders I have in store for you."
 
@@ -539,8 +539,8 @@ class Reply:
                            'Get default-time shows your current default-time',
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-                            "it with the 'bug' function! If it something you simply wish to be added, use the " \
-                            "'request' function."
+                           "it with the 'bug' function! If it something you simply wish to be added, use the " \
+                           "'request' function."
             except IndexError:
                 return "To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a " \
                        "list of what you can get"
@@ -566,8 +566,8 @@ class Reply:
                            "- set default-time <integer>\n\nWhere <integer> can be any number of days."
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-                            "it with the 'bug' function. If it something you simply wish to be added, use the " \
-                            "'request' function."
+                           "it with the 'bug' function. If it something you simply wish to be added, use the " \
+                           "'request' function."
             except IndexError:
                 return "To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType" \
                        " <help> for a list of what you can set"
@@ -577,11 +577,11 @@ class Reply:
                 if content_list[1] == "reminder" or content_list[1] == "reminders":
                     return "Do delete a specific reminder you first have to type <get reminders> to find reminder " \
                            "id, which will" \
-                            "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n" \
-                            "\nTo delete all reminders type:\n- delete reminders."
+                           "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n" \
+                           "\nTo delete all reminders type:\n- delete reminders."
                 elif content_list[1] == 'me':
                     return "If you want me to delete all information I have on you, type in 'delete me', and " \
-                            "follow the instructions i give you."
+                           "follow the instructions i give you."
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
                            "it with the 'bug' function. If it something you simply wish to be added, use the " \
@@ -610,8 +610,8 @@ class Reply:
 
         elif content_list[0] == "request":
             return "If you have a request for a new feature please let me know! You submit a feature" \
-                                " request with a\n- request <message> \ncommand. If you think this is already a feature" \
-                                ", and you encountered a bug, please use the bug command instead."
+                   " request with a\n- request <message> \ncommand. If you think this is already a " \
+                   "feature, and you encountered a bug, please use the bug command instead."
 
         elif content_list[0] == "subscribe":
             return "You can subscribe to courses you want to get reminders from. To subscribe to a course " \
@@ -632,8 +632,8 @@ class Reply:
 
         else:
             return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-                    "it with the 'bug' function. If it something you simply wish to be added, use the " \
-                    "'request' function."
+                   "it with the 'bug' function. If it something you simply wish to be added, use the " \
+                   "'request' function."
 
     def process_data(data):
         """Classifies data type and extracts the data. Returns [data_type, content]"""
@@ -645,7 +645,7 @@ class Reply:
             elif 'attachments' in content:  # Check if attachment
                 content = content['attachments'][0]
                 data_type = content['type']  # Extract attachment type
-                if (data_type in ('image', 'audio', 'video', 'file')):  # Extract payload based on type
+                if data_type in ('image', 'audio', 'video', 'file'):  # Extract payload based on type
                     content = content['payload']['url']  # Get attachement url
                 else:  # Must be either location or multimedia which only have payload
                     content = content['payload']

@@ -61,7 +61,7 @@ class Scraper(Thread):
                 pass
         elif len(content_list) == 5:  # Strict format
             if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-                    3] == "until" and re.fullmatch(self.date_format, content_list[4]):
+                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
                 # Format: get deadline in aaa1111 until DD/MM
                 course = content_list[2]
                 until = content_list[4]
@@ -85,13 +85,15 @@ class Scraper(Thread):
             msg = "ItsLearning:\n" + ILdeads
             msg2 = "BlackBoard:\n" + BBdeads
             if len(msg) > 640:  # 640 is max limit for facebook API message size
-                msg, msg3 = msg[:len(msg) // 2], msg[len(msg) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
+                msg, msg3 = msg[:len(msg) // 2], msg[len(
+                    msg) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
                 self.replier.reply(user_id, msg, 'text')
                 self.replier.reply(user_id, msg3, 'text')
             else:
                 self.replier.reply(user_id, msg, 'text')
             if len(msg2) > 640:  # 640 is max limit for facebook API message size
-                msg2, msg4 = msg2[:len(msg2) // 2], msg2[len(msg2) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
+                msg2, msg4 = msg2[:len(msg2) // 2], msg2[len(
+                    msg2) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
                 self.replier.reply(user_id, msg2, 'text')
                 self.replier.reply(user_id, msg4, 'text')
             else:

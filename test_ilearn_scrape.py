@@ -3,11 +3,11 @@ import iblack_scrape as BB
 import ilearn_scrape as IL
 from credentials import Credentials
 from help_methods import decrypt
+
 login_info = Credentials().feide
 
 
 class TestScraping(unittest.TestCase):
-
     def test_IL(self):
         successful = IL.scrape(login_info[0], decrypt(login_info[1]))
         self.assertEqual(successful.__class__, list)

@@ -2,10 +2,12 @@ import unittest
 import help_methods as HM
 import credentials
 import callybot_database
+
 cred = credentials.Credentials()
 token = cred.access_token
 joachim_jahr_id = "1550995208259075"
 db = callybot_database.CallybotDB(*cred.db_info)
+
 
 class TestHelpMethods(unittest.TestCase):
     """Tests functions in help_method files"""
@@ -45,6 +47,7 @@ class TestHelpMethods(unittest.TestCase):
         for course, date in queries:
             data = HM.BB_scrape(joachim_jahr_id, course, date, db)
             self.assertNotEqual(data, "SQLerror")
+
 
 if __name__ == '__main__':
     unittest.main()

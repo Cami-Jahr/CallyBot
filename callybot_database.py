@@ -2,6 +2,7 @@ import MySQLdb
 from datetime import datetime, timedelta
 import help_methods
 
+
 class CallybotDB:
     """Class object for access to Callybot's MySQL database"""
 
@@ -137,7 +138,7 @@ class CallybotDB:
         self.test_connection()
         result = 0
         sql = """INSERT INTO subscribed (userID, course) VALUES ('%s', '%s')""" % (user_id, course)
-        if not(self.user_subscribed_to_course(user_id, course)) and self.user_exists(user_id) and self.course_exists(
+        if not (self.user_subscribed_to_course(user_id, course)) and self.user_exists(user_id) and self.course_exists(
                 course):
             result = self.cursor.execute(sql)
             self.db.commit()
@@ -290,5 +291,5 @@ def test():
     # print(db.delete_all_reminders('000'))
     db.close()
 
-test()
 
+test()

@@ -4,7 +4,6 @@ from datetime import datetime
 
 
 class TestCallybotDB(unittest.TestCase):
-
     def test_a_add_user(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
@@ -199,7 +198,7 @@ class TestCallybotDB(unittest.TestCase):
         db.close()
         print("tested usubscribe")
 
-    def test_h_remove_course(self): # 200 OK
+    def test_h_remove_course(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         course = 'WOF4120'
         self.assertTrue(db.course_exists(course))
@@ -266,6 +265,7 @@ class TestCallybotDB(unittest.TestCase):
         self.assertFalse(db.user_exists('3333'))
         db.close()
         print("tested extra")
+
 
 if __name__ == '__main__':
     unittest.main()
