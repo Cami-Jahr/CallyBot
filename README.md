@@ -1,7 +1,7 @@
 
 # CallyBot
 NTNU Software Development Project - Team 57 Pentum </br></br>
-CallyBot is a software project under development. Cally helps you with reminders, assignment deadlines and exam dates. More functions may be added in the future. Assignment deadlines are currently only supported for students using itslearning and Blackboard through Feide at NTNU. The only courses currently availible are NTNU courses, which means that the only exam dates you can get are from these courses. </br></br>
+CallyBot is a software project under development. Cally helps you with reminders, assignment deadlines and exam dates. More functions may be added in the future. Assignment deadlines are currently only supported for students using itslearning and Blackboard through Feide at NTNU. The only courses currently available are NTNU courses, which means that the only exam dates you can get are from these courses. </br></br>
 ## Join and talk to CallyBot today
 To talk with Cally click [here](http://m.me/CallyBot). The bot CallyBot will not answer until it is released public, or you are added as a test user. To be added as a test user, send her a message [here](http://m.me/CallyBot) and you will be added as soon as possible.
 
@@ -55,9 +55,9 @@ Now cross your fingers and then press **Verify and save**. Now you should see a 
 To complete the setup, go back to **Messenger** under **Products** and go to the **Webhooks** section. Select your page and make it subscribe to the webook. <br /><br />
 Now you should be good to go! Have fun chatting! <br/><br />
 <sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*.<br />
-<sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compilator](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.*
+<sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compiler](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.*
 #### Notes
-Everytime you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this, you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
+Every time you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this, you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
 
 ## Coding Convention
 In this project, the chosen coding convention is PEP 8 for the Python Code. Further detailed information can be found [here](https://www.python.org/dev/peps/pep-0008/#introduction).
@@ -65,4 +65,4 @@ In this project, the chosen coding convention is PEP 8 for the Python Code. Furt
 ## Support
 Our team is here to help if you have any questions. There are several ways to get in touch with our team member:
 * Get support by joining our communication channel on Facebook Messenger [here](http://m.me/CallyBot).
-* Report issuses [here](https://github.com/Folstad/TDT4140/issues) by opening a Github Issue on our repository.
+* Report issues [here](https://github.com/Folstad/TDT4140/issues) by opening a Github Issue on our repository.
