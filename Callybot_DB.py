@@ -193,7 +193,7 @@ class CallybotDB:
         sql = """SELECT defaulttime FROM user WHERE fbid='%s'""" % user_id
         self.cursor.execute(sql)
         result = self.cursor.fetchall()
-        return result[0][0] if res
+        return result[0][0] if result else 0
 
     def set_defaulttime(self, user_id, df):
         """Sets a user's defaulttime to be df <Integer>, returns True if query completed"""
