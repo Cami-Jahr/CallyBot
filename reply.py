@@ -4,6 +4,8 @@ import re  # Regular expressions https://docs.python.org/3/library/re.html
 from datetime import datetime, timedelta
 import json
 import scraper
+import credentials
+import callybot_database
 
 
 class Reply:
@@ -207,11 +209,13 @@ class Reply:
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify what to get\nType help get if you need help.', 'text')
-            return
+            return 'Please specify what to get\nType help get if you need help.'
 
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
             self.deadlines(user_id, content_list)
+
+        elif content_list[0] == "profile":
+            return self.profile(user_id)
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
@@ -740,6 +744,27 @@ class Reply:
         if "error" in feedback:
             with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
+
+    def profile(self, user_id):
+        creds = credentials.Credentials()
+        firstname, lastname, pic = help_methods.get_user_info(user_id, creds.access_token)
+        msg = "Hello " + firstname + " " + lastname + "." + "\n"
+        db_creds = creds.db_info
+        db = callybot_database.CallybotDB(db_creds[0], db_creds[1], db_creds[2], db_creds[3])
+        subscribed = db.get_all_courses(user_id)
+        msg += "You are subscribed to the following classes: "
+        for i, course in enumerate(subscribed):
+            if i < len(subscribed) - 1:
+                msg += course + ", "
+            else:
+                msg += course
+        msg += "\nThese are your active reminders:\n"
+        reminders = db.get_reminders(user_id)
+        for row in reminders:
+            what = row[0]
+            deadline = row[2]
+            msg += what + " at " + deadline + "\n"
+        return msg
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
