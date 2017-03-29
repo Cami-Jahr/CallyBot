@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from Crypto.Cipher import AES  # pip pycrypto
 import base64
 import credentials
+import math
 AES_key = credentials.Credentials().key
 
 
@@ -92,12 +93,36 @@ def get_user_info(access_token, user_id):
     return firstname, lastname, picture
 
 
-def most_similar_command(user_input):
-    """Not finished"""
+def get_most_similar_command(user_input):
+    """Uses edit distance to calculate which command user most likely was trying to type in case of typo"""
     supported_cmds = ["login","get deadlines", "get exams", "get links", "get reminders", "get default-time",
                       "get subscribed", "set reminder", "set default-time", "delete me", "bug", "request", "subscribe",
                       "unsubscribe", "help"]
+    if user_input in supported_cmds:
+        return user_input
+    min_change = math.inf
+    most_similar_cmd = ""
+    for cmd in supported_cmds:
+        distance = edit_distance(cmd, user_input)
+        if distance < min_change:
+            min_change = distance
+            most_similar_cmd = cmd
+    return most_similar_cmd
 
+
+def edit_distance(s1, s2):
+    """Calculates minimum amount of change necessary to change one string into another, using the 
+    Levenshtein algorithm. Made by Stackoverflow user Santosh."""
+    m=len(s1)+1
+    n=len(s2)+1
+    tbl = {}
+    for i in range(m): tbl[i,0]=i
+    for j in range(n): tbl[0,j]=j
+    for i in range(1, m):
+        for j in range(1, n):
+            cost = 0 if s1[i-1] == s2[j-1] else 1
+            tbl[i,j] = min(tbl[i, j-1]+1, tbl[i-1, j]+1, tbl[i-1, j-1]+cost)
+    return tbl[i,j]
 
 
 def IL_scrape(user_id, course, until, db):
