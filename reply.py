@@ -185,13 +185,12 @@ class Reply:
     def developer_statements(self, user_id, content_list):
 
         if user_id not in ('1214261795354796', '1212139502226885', '1439762959401510', '1550995208259075'):
-            self.reply(user_id, "Error: You are not a developer", "text")
-            return
+            return "Error: You are not a developer"
         if not content_list:
-            self.reply(user_id, "Specify developer command", 'text')
+            return "Specify developer command"
 
         elif content_list[0] == "id":
-            self.reply(user_id, user_id, 'text')
+            return str(user_id)
 
         elif content_list[0] == "requests":
             with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
@@ -203,7 +202,7 @@ class Reply:
                         msg = request
                     else:
                         msg += request
-                self.reply(user_id, msg, "text")
+            return msg
 
         elif content_list[0] == "bugs":
             with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
@@ -215,28 +214,28 @@ class Reply:
                         msg = report
                     else:
                         msg += report
-                self.reply(user_id, msg, "text")
+            return msg
 
         elif content_list[0] == "users":
             msg = '\n'.join(self.db.get_user_ids())
-            self.reply(user_id, msg, 'text')
+            return msg
 
         elif content_list[0] == 'announcement':
             users = self.db.get_user_ids()
             for user in users:
                 self.reply(user, 'Announcement: ' + ' '.join(content_list[1:]), 'text')
+            return ""
 
         else:
-            self.reply(user_id, "Unknown command", 'text')
+            return "Unknown command"
 
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify what to get\nType help get if you need help.', 'text')
-            return
+            return 'Please specify what to get\nType help get if you need help.'
 
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
-            self.deadlines(user_id, content_list)
+            return self.deadlines(user_id, content_list)
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
@@ -250,7 +249,7 @@ class Reply:
                     i += 1
             else:
                 msg = "You don't appear to have any reminders scheduled with me"
-            self.reply(user_id, msg, "text")
+            return msg
 
         elif content_list[0] == "exam" or content_list[0] == "exams":
             msg = ""
@@ -273,26 +272,26 @@ class Reply:
                         msg += "I cant find the exam date for " + exam + "\n\n"
                 if not msg:
                     msg = "I could not find any exam date, are you sure you are subscribed to courses?"
-            self.reply(user_id, msg, "text")
             print(msg)
+            return msg
 
         elif content_list[0] == "default-time":
             df = self.db.get_defaulttime(user_id)
             if df == -1:
-                self.reply(user_id, "To check default-time, please login.", 'text')
+                return "To check default-time, please login."
             else:
-                self.reply(user_id, "Your default-time is: " + str(df), 'text')
+                return "Your default-time is: " + str(df) + " day(s)"
 
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    self.reply(user_id,"ilearn.sexy", "text")
+                    return "ilearn.sexy"
                 elif content_list[1] == "blackboard":
-                    self.reply(user_id, "iblack.sexy","text")
+                    return "iblack.sexy"
                 else:
-                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
+                    return "iblack.sexy\nilearn.sexy"
             except IndexError:
-                    self.reply(user_id, "iblack.sexy\nilearn.sexy","text")
+                    return "iblack.sexy\nilearn.sexy"
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
             courses = self.db.get_all_courses(user_id)
@@ -302,50 +301,47 @@ class Reply:
                     msg += course + "\n"
             else:
                 msg = "You are not subscribed to any courses currently"
-            self.reply(user_id, msg, "text")
+            return msg
 
         else:
-            self.reply(user_id, "I'm sorry, I'm not sure how to retrieve that. Type 'help get' to see supported "
-                                "commands.", "text")
+            return "I'm sorry, I'm not sure how to retrieve that. Type 'help get' to see supported commands."
 
     def deadlines(self, user_id, content_list):
         """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
         if self.db.user_exists(user_id):
             self.scraper.scrape(user_id, content_list)
-            self.reply(user_id, "I'll go get your deadlines right now. If there are many people asking for deadlines "
-                                "this might take me some time.", "text")
+            return "I'll go get your deadlines right now. If there are many people asking for deadlines this might" \
+                " take me some time."
         else:
-            self.reply(user_id, "You don't appear to be logged in. To use the 'get deadlines' function you need to log"
-                                "in with your feide username and password with the 'login' command.", "text")
+            return "You don't appear to be logged in. To use the 'get deadlines' function you need to log" \
+                                "in with your feide username and password with the 'login' command."
 
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify what to delete\nType help delete if you need help.', 'text')
-            return
+            return 'Please specify what to delete\nType help delete if you need help.'
         if content_list[0] == 'me':
-            self.reply(user_id, "Are you sure? By deleting your information i will also delete all reminders you have "
-                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all "
-                                "my information'.", "text")
+            return "Are you sure? By deleting your information i will also delete all reminders you have " \
+                                "scheduled with me. To delete all your information, type 'yes, i agree to delete all " \
+                                "my information'."
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
                     if self.delete_conf[user_id]['reminder']:
                         self.reply(user_id, 'Deleting all reminders.', 'text')
                         self.db.delete_all_reminders(user_id)
-                        self.reply(user_id, 'All reminders deleted.', 'text')
                         self.delete_conf[user_id]['reminder'] = 0
+                        return 'All reminders deleted.'
                     else:
-                        self.reply(user_id,
-                                   'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
-                                   'text')
                         self.delete_conf[user_id]['reminder'] = 1
+                        return 'Are you sure you want to delete all your reminders?\nType <delete reminders> ' \
+                               'again to confirm'
+
                 except KeyError:
-                    self.reply(user_id,
-                               'Are you sure you want to delete all your reminders?\nType <delete reminders> again to confirm',
-                               'text')
                     self.delete_conf[user_id] = {
                         'reminder': 1}  # Needs to be changed to an init process to allow other delete confs
+                    return 'Are you sure you want to delete all your reminders?\nType ' \
+                           '<delete reminders> again to confirm'
             else:
                 self.reply(user_id, 'Deleting reminders...', 'text')
                 not_valid, complete = [], []
@@ -356,8 +352,7 @@ class Reply:
                             self.db.delete_reminder(self.user_reminders[user_id][int_reminder])
                             complete.append(reminder)
                         except KeyError:
-                            self.reply(user_id, "Please type <get reminders> before you try to delete.", 'text')
-                            return
+                            return "Please type <get reminders> before you try to delete."
                     except ValueError:
                         not_valid.append(reminder)
                         continue
@@ -368,20 +363,17 @@ class Reply:
                 if complete:
                     self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
         else:
-            self.reply(user_id, "Im not sure how to delete that, are you sure you wrote it correctly?\nType "
-                                "'help delete' for more information.", "text")
+            return "Im not sure how to delete that, are you sure you wrote it correctly?\nType " \
+                                "'help delete' for more information."
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
         if not content_list:
-            self.reply(user_id, 'Please specify what to set\nType help set if you need help.', 'text')
-            return
+            return 'Please specify what to set\nType help set if you need help.'
 
         if content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
-                self.reply(user_id, 'Please specify what to be reminded of\nType help set reminder if you need help',
-                           'text')
-                return
+                return 'Please specify what to be reminded of\nType help set reminder if you need help'
             try:
                 date = content_list[-2]
                 current = datetime.now()
@@ -416,9 +408,7 @@ class Reply:
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
-                    self.reply(user_id, "Don't write seconds, check out the valid formats with 'help set reminder'",
-                               "text")
-                    return
+                    return "Don't write seconds, check out the valid formats with 'help set reminder'"
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
                     time = time + timedelta(days=1)
@@ -444,22 +434,18 @@ class Reply:
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
         elif content_list[0] == 'default-time':
             if not content_list[1:]:
-                self.reply(user_id, 'Please specify default-time to set.', 'text')
-                return
+                return 'Please specify default-time to set.'
             try:
                 df = int(content_list[1])
             except ValueError:
-                self.reply(user_id, 'Please type in an integer as default-time.', 'text')
-                return
+                return 'Please type in an integer as default-time.'
             if self.db.set_defaulttime(user_id, df):
-                self.reply(user_id, 'Your default-time was set to: ' + content_list[1], 'text')
+                return 'Your default-time was set to: ' + content_list[1] + " day(s)"
             else:
-                self.reply(user_id,
-                           'Could not set default-time. Please check if you are using the correct format '
-                           'and that you are logged in. Type "help set default-time" for more help',
-                           'text')
+                return 'Could not set default-time. Please check if you are using the correct format ' \
+                           'and that you are logged in. Type "help set default-time" for more help'
         else:
-            self.reply(user_id, "I'm sorry, I'm not sure what you want me to remember.", "text")
+            return "I'm sorry, I'm not sure what you want me to remember."
 
     def subscribe(self, user_id, content_list):
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to.
