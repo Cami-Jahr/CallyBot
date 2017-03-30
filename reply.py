@@ -1,6 +1,6 @@
 import requests
 import help_methods
-import re  # Regular expressions https://docs.python.org/3/library/re.html
+import re
 from datetime import datetime, timedelta
 import json
 import scraper
@@ -224,6 +224,9 @@ class Reply:
 
         if content_list[0] == "deadline" or content_list[0] == "deadlines":
             return self.deadlines(user_id, content_list)
+
+        elif content_list[0] == "profile":
+            return self.profile(user_id)
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
@@ -470,7 +473,7 @@ class Reply:
         if not content_list:
             return 'Unsubsribe from what?\nType help unsubscribe if you need help.'
 
-        self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list) + "...", 'text')
+        self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, not_subscribed, success_unsubscribed = [], [], []
         for course in content_list:
             course = course.upper()
@@ -725,6 +728,30 @@ class Reply:
         if "error" in feedback:
             with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
+
+    def profile(self, user_id):
+        first_name, last_name, pic = help_methods.get_user_info(user_id, self.access_token)
+        msg = "Hello " + first_name + " " + last_name + ".\n"
+        subscribed = self.db.get_all_courses(user_id)
+        if subscribed:
+            msg += "You are subscribed to the following classes: "
+            for i, course in enumerate(subscribed):
+                if i < len(subscribed) - 1:
+                    msg += course + ", "
+                else:
+                    msg += course + "\n"
+        else:
+            msg += "You are not subscribed to any courses\n"
+        reminders = self.db.get_reminders(user_id)
+        if reminders:
+            msg += "These are your active reminders:\n"
+            for row in reminders:
+                what = row[0]
+                deadline = row[2]
+                msg += what + " at " + deadline + "\n"
+        else:
+            msg += "You do not have any active reminders"
+        return msg
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
