@@ -273,13 +273,13 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    return "ilearn.sexy"
+                    return "https://ilearn.sexy"
                 elif content_list[1] == "blackboard":
-                    return "iblack.sexy"
+                    return "https://iblack.sexy"
                 else:
-                    return "iblack.sexy\nilearn.sexy"
+                    return "https://iblack.sexy\nhttps://ilearn.sexy"
             except IndexError:
-                return "iblack.sexy\nilearn.sexy"
+                return "https://iblack.sexy\nhttps://ilearn.sexy"
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
             courses = self.db.get_all_courses(user_id)
