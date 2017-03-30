@@ -473,7 +473,7 @@ class Reply:
             self.reply(user_id, 'Unsubsribe from what?\nType help unsubscribe if you need help.', 'text')
             return
 
-        self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list) + "...", 'text')
+        self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, not_subscribed, success_unsubscribed = [], [], []
         for course in content_list:
             course = course.upper()
@@ -746,24 +746,27 @@ class Reply:
                 f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
 
     def profile(self, user_id):
-        creds = credentials.Credentials()
-        firstname, lastname, pic = help_methods.get_user_info(user_id, creds.access_token)
-        msg = "Hello " + firstname + " " + lastname + "." + "\n"
-        db_creds = creds.db_info
-        db = callybot_database.CallybotDB(db_creds[0], db_creds[1], db_creds[2], db_creds[3])
-        subscribed = db.get_all_courses(user_id)
-        msg += "You are subscribed to the following classes: "
-        for i, course in enumerate(subscribed):
-            if i < len(subscribed) - 1:
-                msg += course + ", "
-            else:
-                msg += course
-        msg += "\nThese are your active reminders:\n"
-        reminders = db.get_reminders(user_id)
-        for row in reminders:
-            what = row[0]
-            deadline = row[2]
-            msg += what + " at " + deadline + "\n"
+        first_name, last_name, pic = help_methods.get_user_info(user_id, self.access_token)
+        msg = "Hello " + first_name + " " + last_name + ".\n"
+        subscribed = self.db.get_all_courses(user_id)
+        if subscribed:
+            msg += "You are subscribed to the following classes: "
+            for i, course in enumerate(subscribed):
+                if i < len(subscribed) - 1:
+                    msg += course + ", "
+                else:
+                    msg += course + "\n"
+        else:
+            msg += "You are not subscribed to any courses\n"
+        reminders = self.db.get_reminders(user_id)
+        if reminders:
+            msg += "These are your active reminders:\n"
+            for row in reminders:
+                what = row[0]
+                deadline = row[2]
+                msg += what + " at " + deadline + "\n"
+        else:
+            msg += "You do not have any active reminders"
         return msg
 
     def get_reply_url(self):
