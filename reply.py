@@ -192,18 +192,16 @@ class Reply:
             "message": {
                 "text": "Was the suggested command correct?",
                 "quick_replies":
-                "attachment": [
-            {   "content_type":"text",
-                "title":"Green",
-                "payload":"Yes"
-            },
-            {   "content_type": "text",
+                "attachment": [{
+                    "content_type":"text",
+                    "title":"Green",
+                    "payload":"Yes"
+                                },
+                {"content_type": "text",
                 "title": "Red",
-                "payload": "No"
-             }
-            ]
-                    }
-            }
+                "payload": "No" }]
+                        }
+                }
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
         if feedback == "Yes":
