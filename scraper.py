@@ -22,11 +22,17 @@ class Scraper(Thread):
 
         self.course_code_format = "[0-9]?[æøåa-z]{1,6}[0-9]{1,6}[æøåa-z]{0,4}[0-9]{0,2}\-?[A-Z]{0,3}[0-9]{0,3}|mts/mo1"
         # Checks if string is in course_code format on ntnu
-        date_format_separator = "[\/]"  # Date separators allowed. Regex format
+        date_format_separator = "[.,;:\\/-]"  # Date separators allowed. Regex format
         self.date_format = "(^(((0?[1-9]|1[0-9]|2[0-8])" + date_format_separator + "(0?[1-9]|1[012]))|((29|30|31)" + \
                            date_format_separator + "(0?[13578]|1[02]))|((29|30)" + date_format_separator + \
                            "(0?[469]|11))))"
         self.db = db
+
+        self.rep = {"-": "/", "\\": "/", ":": "/", ";": "/", ",": "/", ".": "/"}
+        # define desired replacements here.
+        # Used in set reminder to get a standard format to work with
+        self.rep = dict((re.escape(k), v) for k, v in self.rep.items())
+        self.pattern = re.compile("|".join(self.rep.keys()))
 
     def run(self):
         while True:
@@ -65,6 +71,9 @@ class Scraper(Thread):
                 until = content_list[2]
                 course = content_list[4]
 
+        until = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))], until)
+        # Makes any date string split with "/"
+
         ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
         BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
         if ILdeads == "SQLerror" or BBdeads == "SQLerror":
@@ -76,13 +85,15 @@ class Scraper(Thread):
             msg = "ItsLearning:\n" + ILdeads
             msg2 = "BlackBoard:\n" + BBdeads
             if len(msg) > 640:  # 640 is max limit for facebook API message size
-                msg, msg3 = msg[:len(msg) // 2], msg[len(msg) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
+                msg, msg3 = msg[:len(msg) // 2], msg[len(
+                    msg) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
                 self.replier.reply(user_id, msg, 'text')
                 self.replier.reply(user_id, msg3, 'text')
             else:
                 self.replier.reply(user_id, msg, 'text')
             if len(msg2) > 640:  # 640 is max limit for facebook API message size
-                msg2, msg4 = msg2[:len(msg2) // 2], msg2[len(msg2) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
+                msg2, msg4 = msg2[:len(msg2) // 2], msg2[len(
+                    msg2) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
                 self.replier.reply(user_id, msg2, 'text')
                 self.replier.reply(user_id, msg4, 'text')
             else:

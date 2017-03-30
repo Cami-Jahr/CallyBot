@@ -7,8 +7,20 @@ from Crypto.Cipher import AES  # pip pycrypto
 import base64
 import credentials
 
-
 AES_key = credentials.Credentials().key
+
+
+def add_padding(text):
+    """Adds padding from AES encryption. Used in decrypt()"""
+    return text + (16 - len(text) % 16) * chr(16 - len(text) % 16)
+
+
+def encrypt(data):
+    """Encrypts with AES-256-CBC"""
+    iv = 16 * '\x00'  # init vector
+    obj = AES.new(AES_key, AES.MODE_CBC, iv)
+    data = base64.b64encode(obj.encrypt(add_padding(data)))
+    return data
 
 
 def remove_padding(text):
@@ -18,7 +30,7 @@ def remove_padding(text):
 
 def decrypt(encoded):
     """Decrypts with AES-256-CBC"""
-    iv = 16 * '\x00' #init vector
+    iv = 16 * '\x00'  # init vector
     obj = AES.new(AES_key, AES.MODE_CBC, iv)
     data = obj.decrypt(base64.b64decode(encoded))
     return remove_padding(str(data.decode()))
@@ -75,6 +87,7 @@ def get_user_info(access_token, user_id):
     user_details_url = "https://graph.facebook.com/v2.8/" + str(user_id)
     user_details_params = {'fields': 'first_name,last_name,profile_pic', 'access_token': access_token}
     user_details = requests.get(user_details_url, user_details_params).json()
+    print(user_details)
     lastname = user_details['last_name']
     firstname = user_details['first_name']
     picture = user_details['profile_pic']
