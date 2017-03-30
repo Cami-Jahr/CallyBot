@@ -731,24 +731,31 @@ class Reply:
 
     def profile(self, user_id):
         first_name, last_name, pic = help_methods.get_user_info(self.access_token, user_id)
-        msg = "Hello " + first_name + " " + last_name + ".\n"
+        msg = "Hello {} {}!\n". format(first_name, last_name)
         subscribed = self.db.get_all_courses(user_id)
         if subscribed:
             msg += "You are subscribed to the following classes: "
             for i, course in enumerate(subscribed):
                 if i < len(subscribed) - 1:
-                    msg += course + ", "
+                    msg += "{}, ".format(course)
                 else:
-                    msg += course + "\n"
+                    msg += "{}\n".format(course)
         else:
             msg += "You are not subscribed to any courses\n"
         reminders = self.db.get_reminders(user_id)
+        print(reminders)
         if reminders:
-            msg += "These are your active reminders:\n"
+            msg += "These are your active reminders:\n\n"
             for row in reminders:
+                print(row)
                 what = row[0]
-                deadline = row[2]
-                msg += what + " at " + deadline + "\n"
+                deadline = row[1].strftime("%Y-%m-%d %H:%M")
+                new = "{} at {}\n\n".format(what, deadline)
+                if len(msg) + len(new) > 600:
+                    self.reply(user_id, msg, "text")
+                    msg = new
+                else:
+                    msg += new
         else:
             msg += "You do not have any active reminders"
         return msg
