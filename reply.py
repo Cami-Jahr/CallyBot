@@ -1,11 +1,9 @@
 import requests
 import help_methods
-import re  # Regular expressions https://docs.python.org/3/library/re.html
+import re
 from datetime import datetime, timedelta
 import json
 import scraper
-import credentials
-import callybot_database
 
 
 class Reply:
