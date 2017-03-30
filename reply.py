@@ -423,7 +423,7 @@ class Reply:
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
         elif content_list[0] == 'class' or content_list[0] == 'classes' or content_list[0] == 'course' or \
                 content_list[0] == 'courses':
-            return self.deadlines(user_id, content_list[1:])
+            return self.subscribe(user_id, content_list[1:])
         elif content_list[0] == 'default-time':
             if not content_list[1:]:
                 return 'Please specify default-time to set.'
