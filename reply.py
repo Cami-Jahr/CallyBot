@@ -730,7 +730,7 @@ class Reply:
                 f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
 
     def profile(self, user_id):
-        first_name, last_name, pic = help_methods.get_user_info(user_id, self.access_token)
+        first_name, last_name, pic = help_methods.get_user_info(self.access_token, user_id)
         msg = "Hello " + first_name + " " + last_name + ".\n"
         subscribed = self.db.get_all_courses(user_id)
         if subscribed:
