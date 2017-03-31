@@ -286,13 +286,3 @@ def fix_new_deadline(deadline, df):
     """:returns deadline minus df days"""
     # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
     return (datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S") - timedelta(days=df)).strftime("%Y-%m-%d %H:%M:%S")
-
-
-def test():
-    db = CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
-    db.remove_user('000')
-    # print(db.delete_all_reminders('000'))
-    db.close()
-
-
-test()
