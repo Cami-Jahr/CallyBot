@@ -180,8 +180,10 @@ class Reply:
 
         # -------------- DEFAULT ----------------
         elif content_lower == "most_likely_command_was_not_true":
-            msg = "Im sorry I was not able to help you. Please type 'help' to see my supported commands, or visit my " \
-                  "wiki https://github.com/Folstad/TDT4140/wiki/Commands"
+            msg = "Im sorry I was not able to help you. Please type 'help' to see my supported commands, or 'help " \
+                  "<feature>' to get information about a specific feature, or visit my " \
+                  "wiki https://github.com/Folstad/TDT4140/wiki/Commands.\nIf you believe you found a bug, or have a " \
+                  "request for a new feature or command, please use the 'bug' and 'request' commands"
             reply_type = "text"
         else:
             if data_type == "text":
@@ -197,10 +199,11 @@ class Reply:
 
     def developer_statements(self, user_id, content_list):
         if user_id not in ('1214261795354796', '1212139502226885', '1439762959401510', '1550995208259075'):
-            return "Error: You are not a developer"
+            return "Sorry, but these commands are only for developers. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
         elif not content_list:
-            return "Specify developer command"
+            return "Specify developer command: id, requests, bugs, users or announcement"
 
         elif content_list[0] == "id":
             return str(user_id)
@@ -251,7 +254,8 @@ class Reply:
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
         if not content_list:
-            return 'Please specify what to get\nType help get if you need help.'
+            return "Please specify what to get. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
         elif content_list[0] == "deadline" or content_list[0] == "deadlines":
             return self.deadlines(user_id, content_list)
@@ -326,7 +330,7 @@ class Reply:
             return msg
 
         else:
-            return "I'm sorry, I'm not sure how to retrieve that. Type 'help get' to see supported commands."
+            self.make_typo_correction_buttons(user_id, " ".join(["get"] + content_list))
 
     def deadlines(self, user_id, content_list):
         """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
@@ -341,7 +345,8 @@ class Reply:
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
         if not content_list:
-            return 'Please specify what to delete\nType help delete if you need help.'
+            return "Please specify what to delete. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
         elif content_list[0] == 'me':
             return "Are you sure? By deleting your information i will also delete all reminders you have " \
@@ -387,13 +392,13 @@ class Reply:
                 if complete:
                     self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
         else:
-            return "Im not sure how to delete that, are you sure you wrote it correctly?\nType " \
-                   "'help delete' for more information."
+            self.make_typo_correction_buttons(user_id, " ".join(["delete"] + content_list))
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
         if not content_list:
-            return 'Please specify what to set\nType help set if you need help.'
+            return "Please specify what to set. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
@@ -474,13 +479,14 @@ class Reply:
                 return 'Could not set default-time. Please check if you are using the correct format ' \
                        'and that you are logged in. Type "help set default-time" for more help'
         else:
-            return "I'm sorry, I'm not sure what you want me to remember."
+            self.make_typo_correction_buttons(user_id, " ".join(["set"] + content_list))
 
     def subscribe(self, user_id, content_list):
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to.
         Replies with confirmation and ends"""
         if not content_list:
-            return 'Subscribe to what?\nType help subscribe if you need help.'
+            return "Please specify what to subscribe to. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
         self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
@@ -505,7 +511,8 @@ class Reply:
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
          Replies with confirmation and ends"""
         if not content_list:
-            return 'Unsubsribe from what?\nType help unsubscribe if you need help.'
+            return "Please specify what to unsubscribe to. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
         self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, not_subscribed, success_unsubscribed = [], [], []
@@ -529,7 +536,8 @@ class Reply:
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         if not content_list:
-            return 'Please specify at least one bug\nType help bug if you need help.'
+            return "Please specify the bug you found. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         return "The bug was taken to my developers. One of them might contact you if they need further " \
@@ -538,7 +546,8 @@ class Reply:
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
         if not content_list:
-            return 'Please specify at least one request\nType help bug if you need help.'
+            return "Please specify your request. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         return "The request was taken to my developers. I will try to make your wish come true, but keep" \
@@ -681,9 +690,7 @@ class Reply:
                    " blackboard! You need to log in to use this command."
 
         else:
-            return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-                   "it with the 'bug' function. If it something you simply wish to be added, use the " \
-                   "'request' function."
+            self.make_typo_correction_buttons(user_id, " ".join(["help"] + content_list))
 
     def process_data(data):
         """Classifies data type and extracts the data. Returns [data_type, content]"""
@@ -712,7 +719,6 @@ class Reply:
             except KeyError:
                 data_type = "unknown"
                 content = ""
-
         return data_type, content
 
     def reply(self, user_id, msg, msg_type):
