@@ -816,7 +816,10 @@ class Reply:
         most_likely_cmd = help_methods.get_most_similar_command(content_lower)
         nr_command = len(most_likely_cmd.split())
         nr_auxiliary_text = len(content_lower.split()) - nr_command
-        total_msg = most_likely_cmd + " " + " ".join(content_lower.split()[-nr_auxiliary_text:])
+        if nr_auxiliary_text:
+            total_msg = most_likely_cmd + " " + " ".join(content_lower.split()[-nr_auxiliary_text:])
+        else:
+            total_msg = most_likely_cmd
         message = "Did you mean to write '{}'?".format(total_msg)
         data = {
             "recipient": {"id": user_id},
