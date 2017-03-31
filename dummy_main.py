@@ -11,5 +11,5 @@ replier = reply.Reply(credential.access_token, db)
 
 while True:
     inn = input("Input message: ")
-    data = {'entry':[{'messaging':[{'message':{'text': inn}}]}]}
-    print(replier.arbitrate("1", data))
+    data = {'entry': [{'messaging': [{'message': {'text': inn}}]}]}
+    print(replier.arbitrate("1550995208259075", data))
