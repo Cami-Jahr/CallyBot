@@ -197,7 +197,8 @@ class CallybotDB:
         return result[0][0] if result else 0
 
     def set_defaulttime(self, user_id, df):
-        """Sets a user's defaulttime to be df <Integer>, returns True if query completed"""
+        """Sets a user's defaulttime to be df <Integer>
+        :returns True if query completed"""
         self.test_connection()
         try:
             sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
@@ -213,6 +214,8 @@ class CallybotDB:
             return False
 
     def unsubscribe_announcement(self, user_id):
+        """Sets announcement field in user table to 0 if user was subscribed to announcements
+        :returns True if query completed"""
         self.test_connection()
         if not self.subscribed_to_announcement(user_id):
             return False
@@ -225,6 +228,8 @@ class CallybotDB:
         return True
 
     def subscribe_announcement(self, user_id):
+        """Sets announcement field in user table to 1 if user was not subscribed to announcements
+        :returns True if query completed"""
         self.test_connection()
         if self.subscribed_to_announcement(user_id):
             return False
@@ -237,10 +242,12 @@ class CallybotDB:
         return True
 
     def subscribed_to_announcement(self, user_id):
+        """:returns <Boolean> whether a user is subscribed to announcements"""
         self.test_connection()
-        sql = """SELECT * from user WHERE fbid='%s' AND announcement='1'""" % user_id
-        result = self.cursor.execute(sql)
-        return result != 0
+        sql = """SELECT announcement from user WHERE fbid='%s'""" % user_id
+        self.cursor.execute(sql)
+        result = self.cursor.fetchall()
+        return int(result[0][0])
 
     def clean_course(self, user_id):
         """Deletes all relations a user has to its courses
@@ -312,6 +319,7 @@ class CallybotDB:
         return results
 
     def get_announcement_subscribers(self):
+        """:returns a list of users subscribed to announcements"""
         self.test_connection()
         sql = """SELECT fbid FROM user WHERE announcement='1'"""
         self.cursor.execute(sql)
@@ -323,13 +331,3 @@ def fix_new_deadline(deadline, df):
     """:returns deadline minus df days"""
     # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
     return (datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S") - timedelta(days=df)).strftime("%Y-%m-%d %H:%M:%S")
-
-
-def test():
-    db = CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
-    db.remove_user('000')
-    # print(db.delete_all_reminders('000'))
-    db.close()
-
-
-test()
