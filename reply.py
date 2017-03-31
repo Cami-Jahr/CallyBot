@@ -37,7 +37,8 @@ class Reply:
             return True
         content_lower = content.lower()
         content_list = content_lower.split()
-
+        msg = ""
+        reply_type = ""     #Might have to be removed
         # ------------ COMMANDS --------------
         if content_list[0] == "get":
             msg = self.get_statements(user_id, content_list[1:])
@@ -87,7 +88,7 @@ class Reply:
 
         elif content_lower == "hint":
             msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- " \
-                  "Chicken\n- Hello\n- Good bye"
+                  "Chicken\n- Hello\n- Good bye\n- Rick"
             reply_type = "text"
 
         # ------------ EASTER EGGS --------------
@@ -164,16 +165,13 @@ class Reply:
 
             #Typo correction prompt
             most_likely_cmd = help_methods.get_most_similar_command(content_lower)
-            msg = "Did you mean '" + most_likely_cmd +"'?"
-            self.reply(user_id, msg, 'text')
-
-            answer = self.make_typo_correction_buttons(user_id)
-
-            if answer == True:
+            answer = self.make_typo_correction_buttons(user_id, most_likely_cmd, "Type 'help' to see my supported"
+                                                                                 " commands")
+            if answer:
                 self.arbitrate(user_id, most_likely_cmd)
             else:
                 if data_type == "text":
-                    msg = content + "\nDid you mean to ask me to do something? Type 'help' to see my supported commands"
+                    msg = content
                     reply_type = "text"
                 else:
                     msg = content
@@ -182,27 +180,29 @@ class Reply:
             self.reply(user_id, msg, reply_type)
             return msg, reply_type
 
-    def make_typo_correction_buttons(self, user_id):
+    def make_typo_correction_buttons(self, user_id, yesmsg, nomsg):
         """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. DOES NOT WORK YET"""
-        fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Retrieve user info
-        url = "https://folk.ntnu.no/halvorkm/TDT4140?userid=" + str(user_id) + "?name=" + fname + "%" + lname
         data = {
-            #VERY MUCH NOT WORKING SORRY
             "recipient": {"id": user_id},
             "message": {
-                "text": "Was the suggested command correct?",
-                "quick_replies":
-                "attachment": [{
-                    "content_type":"text",
-                    "title":"Green",
-                    "payload":"Yes"
-                                },
-                {"content_type": "text",
-                "title": "Red",
-                "payload": "No" }]
-                        }
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "button",
+                        "text": "Is the suggested command correct?",
+                    "buttons": [{
+                        "content_type": "text",
+                        "title": "Yes",
+                        "payload": yesmsg
+                    }, {
+                        "content_type": "text",
+                        "title": "No",
+                        "payload": nomsg}]
+                    }
                 }
-        response = requests.post(self.get_reply_url(), json=data)
+            }
+        }
+        response = requests.post(self.get_reply_url(), json=data)   #Not correct way of retrieving response
         feedback = json.loads(response.content.decode())
         if feedback == "Yes":
             return True
