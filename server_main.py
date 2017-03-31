@@ -7,12 +7,12 @@ import atexit
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import credentials
-import Callybot_DB
+import callybot_database
 
 app = Flask(__name__)
 credential = credentials.Credentials()
 db_credentials = credential.db_info
-db = Callybot_DB.CallybotDB(db_credentials[0], db_credentials[1], db_credentials[2], db_credentials[3])
+db = callybot_database.CallybotDB(db_credentials[0], db_credentials[1], db_credentials[2], db_credentials[3])
 replier = reply.Reply(credential.access_token, db)
 handled_timestamps = []
 
