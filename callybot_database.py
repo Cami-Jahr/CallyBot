@@ -53,7 +53,7 @@ class CallybotDB:
         self.test_connection()
         result = 0
         if username is None or password is None:
-            sql = "INSERT INTO user(fbid, defaulttime)" \
+            sql = "INSERT INTO user(fbid, defaulttime, announcement)" \
                   " VALUES('%s', '%d', '%d')" % (user_id, df, announcement)
         else:
             sql = "INSERT INTO user(fbid, username, password, defaulttime, announcement)" \
@@ -300,7 +300,7 @@ class CallybotDB:
         return result
 
     def delete_reminder(self, rid):
-        """Deletes reminder with this RID
+        """Deletes reminder with this rid
         :returns whether sql was successful or not"""
         self.test_connection()
         sql = """DELETE FROM reminder
