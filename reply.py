@@ -56,7 +56,11 @@ class Reply:
             msg = self.get_statements(user_id, content_list)
             reply_type = "text"
 
-        elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
+        elif content_list[0] == "profile":
+            return self.profile(user_id)
+
+        elif content_list[0] == "subscribed" or content_list[0] == 'classes' \
+                or content_list[0] == 'class' or content_list[0] == 'courses' or content_list[0] == 'course':
             msg = self.get_statements(user_id, content_list)
             reply_type = "text"
 
@@ -190,36 +194,6 @@ class Reply:
         if msg:
             self.reply(user_id, msg, reply_type)
             return msg, reply_type
-
-    def make_typo_correction_buttons(self, user_id, content_lower):
-        """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
-        query. No carries 'most_likely_command_was_not_true'"""
-        most_likely_cmd = help_methods.get_most_similar_command(content_lower)
-        message = "Did you mean to write '{}'?".format(most_likely_cmd)
-        data = {
-            "recipient": {"id": user_id},
-            "message": {
-                "text": message,
-                "quick_replies": [{
-                    "content_type": "text",
-                    "title": "Yes",
-                    "payload": most_likely_cmd,
-                    "image_url": "http://i.imgur.com/JcMP9XD.png"
-                },
-                    {
-                    "content_type": "text",
-                    "title": "No",
-                    "payload": "most_likely_command_was_not_true",
-                    "image_url": "http://i.imgur.com/wrzzfNr.png"
-                    }]
-            }
-        }
-        response = requests.post(self.get_reply_url(), json=data)
-        feedback = json.loads(response.content.decode())
-        if "error" in feedback:
-            with open("LOG/quick_reply_errors.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": msg: " + content_lower + ". Assumed: " + most_likely_cmd + "; ERROR msg: "
-                        + str(feedback["error"]) + "\n")
 
     def developer_statements(self, user_id, content_list):
         if user_id not in ('1214261795354796', '1212139502226885', '1439762959401510', '1550995208259075'):
@@ -368,7 +342,7 @@ class Reply:
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
         if not content_list:
             return 'Please specify what to delete\nType help delete if you need help.'
-        
+
         elif content_list[0] == 'me':
             return "Are you sure? By deleting your information i will also delete all reminders you have " \
                    "scheduled with me. To delete all your information, type 'yes, i agree to delete all " \
@@ -482,11 +456,11 @@ class Reply:
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
-        
+
         elif content_list[0] == 'class' or content_list[0] == 'classes' or content_list[0] == 'course' or \
-                content_list[0] == 'courses':
+                        content_list[0] == 'courses':
             return self.subscribe(user_id, content_list[1:])
-        
+
         elif content_list[0] == 'default-time' or content_list[0] == 'default':
             if not content_list[1:]:
                 return 'Please specify default-time to set.'
@@ -604,10 +578,11 @@ class Reply:
                 elif content_list[1] == "link" or content_list[1] == "links":
                     return "I can give you fast links to It'slearning or Blackboard with these commands:" \
                            "\n- Get links\n- Get link Itslearning\n- Get link Blackboard."
+
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
                     return "This gives you an overview of all upcoming reminders I have in store for you."
 
-                elif content_list[1] == "default-time":
+                elif content_list[1] == "default-time" or content_list[1] == "default":
                     return 'Default-time decides how many days before an assigment you will be reminded by default. ' \
                            'Get default-time shows your current default-time',
                 else:
@@ -632,11 +607,13 @@ class Reply:
                            "and <Reminder text> is what " \
                            "I should tell you when the reminder is due. I will check " \
                            "reminders every 5 minutes."
-                elif content_list[1] == 'default-time':
+
+                elif content_list[1] == 'default-time' or content_list[1] == 'default':
                     return "I can set your default-time which decides how long before an" \
                            " assignment you will be reminded by default.\n\n" \
                            "To set your default-time please use the following format:\n\n" \
                            "- set default-time <integer>\n\nWhere <integer> can be any number of days."
+
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
                            "it with the 'bug' function. If it something you simply wish to be added, use the " \
@@ -800,7 +777,7 @@ class Reply:
 
     def profile(self, user_id):
         first_name, last_name, pic = help_methods.get_user_info(self.access_token, user_id)
-        msg = "Hello {} {}!\n". format(first_name, last_name)
+        msg = "Hello {} {}!\n".format(first_name, last_name)
         subscribed = self.db.get_all_courses(user_id)
         if subscribed:
             msg += "You are subscribed to the following classes: "
@@ -812,11 +789,9 @@ class Reply:
         else:
             msg += "You are not subscribed to any courses\n"
         reminders = self.db.get_reminders(user_id)
-        print(reminders)
         if reminders:
             msg += "These are your active reminders:\n\n"
             for row in reminders:
-                print(row)
                 what = row[0]
                 deadline = row[1].strftime("%Y-%m-%d %H:%M")
                 new = "{} at {}\n\n".format(what, deadline)
@@ -828,6 +803,39 @@ class Reply:
         else:
             msg += "You do not have any active reminders"
         return msg
+
+    def make_typo_correction_buttons(self, user_id, content_lower):
+        """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
+        query. No carries 'most_likely_command_was_not_true'"""
+        most_likely_cmd = help_methods.get_most_similar_command(content_lower)
+        nr_command = len(most_likely_cmd.split())
+        nr_auxiliary_text = len(content_lower.split()) - nr_command
+        total_msg = most_likely_cmd + " " + " ".join(content_lower.split()[-nr_auxiliary_text:])
+        message = "Did you mean to write '{}'?".format(total_msg)
+        data = {
+            "recipient": {"id": user_id},
+            "message": {
+                "text": message,
+                "quick_replies": [{
+                    "content_type": "text",
+                    "title": "Yes",
+                    "payload": most_likely_cmd,
+                    "image_url": "http://i.imgur.com/JcMP9XD.png"
+                },
+                    {
+                        "content_type": "text",
+                        "title": "No",
+                        "payload": "most_likely_command_was_not_true",
+                        "image_url": "http://i.imgur.com/wrzzfNr.png"
+                    }]
+            }
+        }
+        response = requests.post(self.get_reply_url(), json=data)
+        feedback = json.loads(response.content.decode())
+        if "error" in feedback:
+            with open("LOG/quick_reply_errors.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": msg: " + content_lower + ". Assumed: " + most_likely_cmd + "; ERROR msg: "
+                        + str(feedback["error"]) + "\n")
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token

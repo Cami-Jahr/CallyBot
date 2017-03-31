@@ -95,20 +95,30 @@ def get_user_info(access_token, user_id):
     return firstname, lastname, picture
 
 
+supported_commands = ('help get deadline', 'set reminder', 'help unsubscribe', 'help delete reminder', 'set classes',
+                      'set class', 'course', 'help deadline', 'delete me', 'deadline', 'developer requests',
+                      'help get exam', 'get exams', 'get', 'set', 'get deadlines', 'help get exams', 'get reminder',
+                      'get link', 'help get', 'help get default', 'help set reminder', 'links', 'get reminders',
+                      'unsubscribe', 'developer announcement', 'hint', 'get exam', 'profile', 'delete reminders',
+                      'subscribed', 'help delete me', 'developer users', 'help bug', 'get links', 'login',
+                      'get classes', 'help help', 'get class', 'help get reminder', 'delete', 'get default-time',
+                      'help delete reminders', 'delete reminder', 'set reminders', 'set default-time',
+                      'help get reminders', 'help get link', 'deadlines', 'help reminders', 'get subscribe',
+                      'help request', 'bug', 'help', 'help set', 'subscribe', 'exams', 'developer id',
+                      'developer request', 'get subscribed', 'help get default-time', 'help get subscribe',
+                      'help reminder', 'help set default-time', 'developer bug', 'help deadlines', 'developer user',
+                      'developer bugs', 'get courses', 'link', 'help delete', 'set default', 'get profile',
+                      'get default', 'request', 'get deadline', 'help subscribe', 'classes', 'exam', 'help login',
+                      'help set reminders', 'help set default', 'set course', 'help get subscribed', 'courses',
+                      'get course', 'help get deadlines', 'set courses', 'help get links')
+
+
 def get_most_similar_command(user_input):
     """Uses edit distance to calculate which command user most likely was trying to type in case of typo. 
     Needs a test."""
-    supported_cmds = ["login", "get deadlines", "get exams", "get links", "get reminders", "get default-time",
-                      "get subscribed", "set reminder", "set default-time", "delete me", "bug", "request", "subscribe",
-                      "unsubscribe", "help", "help help", "help login", "help get deadlines", "help get exams",
-                      "help get links", "help get reminders", "help get default-time", "help get subscribed",
-                      "help set reminder", "help set default-time", "help delete me", "help bug", "help request",
-                      "help subscribe", "help unsubscribe", ]
-    if user_input in supported_cmds:
-        return user_input
     min_change = math.inf
     most_similar_cmd = ""
-    for cmd in supported_cmds:
+    for cmd in supported_commands:
         distance = edit_distance(cmd, user_input)
         if distance < min_change:
             min_change = distance
