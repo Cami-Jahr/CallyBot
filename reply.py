@@ -37,10 +37,27 @@ class Reply:
             return True
         content_lower = content.lower()
         content_list = content_lower.split()
-
+        msg = ""
+        reply_type = ""
         # ------------ COMMANDS --------------
         if content_list[0] == "get":
             msg = self.get_statements(user_id, content_list[1:])
+            reply_type = "text"
+
+        elif content_list[0] == "exam" or content_list[0] == "exams":
+            msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
+
+        elif content_list[0] == "deadline" or content_list[0] == "deadlines":
+            msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
+
+        elif content_list[0] == "link" or content_list[0] == "links":
+            msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
+
+        elif content_list[0] == "subscribe" or content_list[0] == "subscribed":
+            msg = self.get_statements(user_id, content_list)
             reply_type = "text"
 
         elif content_list[0] == "set":
@@ -50,10 +67,6 @@ class Reply:
         elif content_list[0] == "delete":
             msg = self.delete_statements(user_id, content_list[1:])
             reply_type = "text"
-
-        elif content_lower == "hello":
-            msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
-            reply_type = "image"
 
         elif content_lower == "login":
             msg = self.login(user_id)
@@ -75,6 +88,7 @@ class Reply:
             msg = self.unsubscribe(user_id, content_list[1:])
             reply_type = "text"
 
+        # Delete confirmation
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
             msg = "I have now deleted all your information. If you have any feedback to give me, please " \
@@ -91,6 +105,10 @@ class Reply:
             reply_type = "text"
 
         # ------------ EASTER EGGS --------------
+        elif content_lower == "hello" or content_lower == "hi":
+            msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
+            reply_type = "image"
+
         elif content_lower == "chicken":
             msg = "Did I scare ya?"
             reply_type = "text"
@@ -122,7 +140,8 @@ class Reply:
             msg = "http://i.imgur.com/NBUNSSG.gif"
             reply_type = "image"
 
-        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
+        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll" \
+                or content_lower == "never gonna give you up" or content_lower == "never gonna let you down":
             msg = "Uh huh"
             self.reply(user_id, msg, 'text')
             msg = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
@@ -156,13 +175,15 @@ class Reply:
             reply_type = "text"
 
         # -------------- DEFAULT ----------------
+        elif content_lower == "most_likely_command_was_not_true":
+            msg = "Im sorry I was not able to help you. Please type 'help' to see my supported commands, or visit my " \
+                  "wiki https://github.com/Folstad/TDT4140/wiki/Commands"
+            reply_type = "text"
         else:
-            # with open("LOG/"+user_id+".txt", "a", encoding='utf-8') as f:  #W rite to log file, to see what errors
-            # are made, per user
-            #    f.write(content+"\n")
             if data_type == "text":
-                msg = content + "\nDid you mean to ask me to do something? Type 'help' to see my supported commands"
-                reply_type = "text"
+                # Typo correction prompt
+                self.make_typo_correction_buttons(user_id, content_lower)
+
             else:
                 msg = content
                 reply_type = data_type
@@ -170,17 +191,47 @@ class Reply:
             self.reply(user_id, msg, reply_type)
             return msg, reply_type
 
-    def developer_statements(self, user_id, content_list):
+    def make_typo_correction_buttons(self, user_id, content_lower):
+        """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
+        query. No carries 'most_likely_command_was_not_true'"""
+        most_likely_cmd = help_methods.get_most_similar_command(content_lower)
+        message = "Did you mean to write '{}'?".format(most_likely_cmd)
+        data = {
+            "recipient": {"id": user_id},
+            "message": {
+                "text": message,
+                "quick_replies": [{
+                    "content_type": "text",
+                    "title": "Yes",
+                    "payload": most_likely_cmd,
+                    "image_url": "http://i.imgur.com/JcMP9XD.png"
+                },
+                    {
+                    "content_type": "text",
+                    "title": "No",
+                    "payload": "most_likely_command_was_not_true",
+                    "image_url": "http://i.imgur.com/wrzzfNr.png"
+                    }]
+            }
+        }
+        response = requests.post(self.get_reply_url(), json=data)
+        feedback = json.loads(response.content.decode())
+        if "error" in feedback:
+            with open("LOG/quick_reply_errors.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": msg: " + content_lower + ". Assumed: " + most_likely_cmd + "; ERROR msg: "
+                        + str(feedback["error"]) + "\n")
 
+    def developer_statements(self, user_id, content_list):
         if user_id not in ('1214261795354796', '1212139502226885', '1439762959401510', '1550995208259075'):
             return "Error: You are not a developer"
-        if not content_list:
+
+        elif not content_list:
             return "Specify developer command"
 
         elif content_list[0] == "id":
             return str(user_id)
 
-        elif content_list[0] == "requests":
+        elif content_list[0] == "requests" or content_list[0] == "request":
             with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
                 all_requests = f.readlines()
                 msg = ""
@@ -192,7 +243,7 @@ class Reply:
                         msg += request
             return msg
 
-        elif content_list[0] == "bugs":
+        elif content_list[0] == "bugs" or content_list[0] == "bug":
             with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
                 reports = f.readlines()
                 msg = ""
@@ -204,15 +255,21 @@ class Reply:
                         msg += report
             return msg
 
-        elif content_list[0] == "users":
-            msg = '\n'.join(self.db.get_user_ids())
+        elif content_list[0] == "users" or content_list[0] == "user":
+            msg = ""
+            ids = self.db.get_user_ids()
+            for id in ids:
+                if len(msg) + len(id) < 600:
+                    msg += id + '\n'
+                else:
+                    self.reply(user_id, msg, "text")
+                    msg = id
             return msg
 
         elif content_list[0] == 'announcement':
             users = self.db.get_user_ids()
             for user in users:
-                self.reply(user, 'Announcement: ' + ' '.join(content_list[1:]), 'text')
-            return ""
+                self.reply(user, 'Announcement:\n' + ' '.join(content_list[1:]).capitalize(), 'text')
 
         else:
             return "Unknown command"
@@ -222,7 +279,7 @@ class Reply:
         if not content_list:
             return 'Please specify what to get\nType help get if you need help.'
 
-        if content_list[0] == "deadline" or content_list[0] == "deadlines":
+        elif content_list[0] == "deadline" or content_list[0] == "deadlines":
             return self.deadlines(user_id, content_list)
 
         elif content_list[0] == "profile":
@@ -266,7 +323,7 @@ class Reply:
             print(msg)
             return msg
 
-        elif content_list[0] == "default-time":
+        elif content_list[0] == "default-time" or content_list[0] == "default":
             df = self.db.get_defaulttime(user_id)
             if df == -1:
                 return "To check default-time, please login."
@@ -312,10 +369,12 @@ class Reply:
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
         if not content_list:
             return 'Please specify what to delete\nType help delete if you need help.'
-        if content_list[0] == 'me':
+        
+        elif content_list[0] == 'me':
             return "Are you sure? By deleting your information i will also delete all reminders you have " \
                    "scheduled with me. To delete all your information, type 'yes, i agree to delete all " \
                    "my information'."
+
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
@@ -363,7 +422,7 @@ class Reply:
         if not content_list:
             return 'Please specify what to set\nType help set if you need help.'
 
-        if content_list[0] == "reminder" or content_list[0] == "reminders":
+        elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 return 'Please specify what to be reminded of\nType help set reminder if you need help'
             try:
@@ -424,10 +483,12 @@ class Reply:
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
+        
         elif content_list[0] == 'class' or content_list[0] == 'classes' or content_list[0] == 'course' or \
                 content_list[0] == 'courses':
             return self.subscribe(user_id, content_list[1:])
-        elif content_list[0] == 'default-time':
+        
+        elif content_list[0] == 'default-time' or content_list[0] == 'default':
             if not content_list[1:]:
                 return 'Please specify default-time to set.'
             try:
@@ -524,6 +585,12 @@ class Reply:
 
         elif content_list[0] == "get":
             try:
+                if content_list[1] == "subscribe" or content_list[1] == "subscribed":
+                    return "The 'Get subscribed' command will give you a list of all your subscribed courses." \
+                           " When you are subscribed to a course, it's deadlines will automatically be added to your" \
+                           " reminders, and you will get the registered exam dates for it with the 'Get exams'" \
+                           " command. For more info on subscriptions, type 'Help subscribe'."
+
                 if content_list[1] == "deadlines" or content_list[1] == "deadline":
                     return "Deadlines are fetched from It'slearning and Blackboard with the feide username and" \
                            " password you entered with the 'login' command. To get the deadlines you can write" \
@@ -646,7 +713,10 @@ class Reply:
         """Classifies data type and extracts the data. Returns [data_type, content]"""
         try:
             content = data['entry'][0]['messaging'][0]['message']  # Pinpoint content
-            if 'text' in content:  # Check if text
+            if 'quick_reply' in content:  # Check if Button reply
+                content = content['quick_reply']['payload']  # Extract reply
+                data_type = 'text'
+            elif 'text' in content:  # Check if text
                 content = content['text']  # Extract text
                 data_type = 'text'
             elif 'attachments' in content:  # Check if attachment
