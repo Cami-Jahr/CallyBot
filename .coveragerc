@@ -3,3 +3,4 @@ omit =
     dummy_main.py
     */site-packages/*
     *test_*
+    server_main.py
