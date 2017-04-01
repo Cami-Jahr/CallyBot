@@ -110,7 +110,8 @@ supported_commands = ('help get deadline', 'set reminder', 'help unsubscribe', '
                       'developer bugs', 'get courses', 'link', 'help delete', 'set default', 'get profile',
                       'get default', 'request', 'get deadline', 'help subscribe', 'classes', 'exam', 'help login',
                       'help set reminders', 'help set default', 'set course', 'help get subscribed', 'courses',
-                      'get course', 'help get deadlines', 'set courses', 'help get links')
+                      'get course', 'help get deadlines', 'set courses', 'help get links', "subscribe announcement",
+                      "subscribe announcements","unsubscribe announcement", "unsubscribe announcements")
 
 
 def get_most_similar_command(user_input):

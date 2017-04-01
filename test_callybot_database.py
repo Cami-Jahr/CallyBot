@@ -27,7 +27,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertEqual(creds[1], None)
         self.assertEqual(creds[2], None)
         self.assertEqual(creds[3], 1)
-        self.assertEqual(creds[4], 1)
         # test update username and password, testing if it is done or not
         self.assertTrue(db.set_username_password(user_id, username, password) != 0)
         # test get credentials
@@ -36,7 +35,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertEqual(creds[1], username)
         self.assertEqual(creds[2], password)
         self.assertEqual(creds[3], 1)
-        self.assertEqual(creds[4], 1)
         # test user2, user3 and user4
         self.assertFalse(db.user_exists(user2))
         self.assertTrue(db.add_user(user2, username) != 0)
@@ -46,7 +44,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertEqual(creds[1], None)
         self.assertEqual(creds[2], None)
         self.assertEqual(creds[3], 1)
-        self.assertEqual(creds[4], 1)
         # user3
         self.assertFalse(db.user_exists(user3))
         self.assertTrue(db.add_user(user3, username, password) != 0)
@@ -56,7 +53,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertEqual(creds[1], username)
         self.assertEqual(creds[2], password)
         self.assertEqual(creds[3], 1)
-        self.assertEqual(creds[4], 1)
         # user4
         self.assertFalse(db.user_exists(user4))
         self.assertTrue(db.add_user(user4, username, password, 2) != 0)
@@ -66,7 +62,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertEqual(creds[1], username)
         self.assertEqual(creds[2], password)
         self.assertEqual(creds[3], 2)
-        self.assertEqual(creds[4], 1)
         db.close()
         print("tested add user")
 

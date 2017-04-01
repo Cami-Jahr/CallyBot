@@ -36,16 +36,16 @@ class Scraper(Thread):
 
     def run(self):
         while True:
-            if self.requests:  # pragma: no cover
+            if self.requests:  
                 self.process(self.pop())
             else:
                 sleep(10)  # Delay until looks again if it did not find an active scrape request
 
-    def scrape(self, user_id, content_list):  # pragma: no cover
+    def scrape(self, user_id, content_list):  
         """Queues the scrape request for the server to handle"""
         self.app((user_id, content_list,))
 
-    def process(self, query):  # pragma: no cover
+    def process(self, query):  
         """Scrapes Blackboard and It'slearning for deadlines"""
         user_id, content_list = query
         course = "ALL"

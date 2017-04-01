@@ -39,7 +39,7 @@ class CallybotDB:
 
     def get_credential(self, user_id):
         """Get all saved information about a user,
-        :returns a list"""
+        :returns a list [fbid, username, password, defaulttime, announcement]"""
         self.test_connection()
         self.db.commit()
         sql = "SELECT * FROM user WHERE fbid=" + str(user_id)

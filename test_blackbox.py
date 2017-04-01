@@ -29,6 +29,9 @@ class FacebookTester(unittest.TestCase):
     def tearDown(self):  # End of each test
         self.driver.close()
 
+    def test_typo_correct_buttons(self):
+        pass
+
     def test_login(self):
         """Check if login button works"""
         logins_before_query = len(self.driver.find_elements_by_css_selector("._3cnp._3cnq"))

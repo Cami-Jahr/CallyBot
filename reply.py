@@ -245,7 +245,7 @@ class Reply:
             return msg
 
         elif content_list[0] == 'announcement':
-            users = self.db.get_user_ids()
+            users = self.db.get_announcement_subscribers()
             for user in users:
                 self.reply(user, 'Announcement:\n' + ' '.join(content_list[1:]).capitalize(), 'text')
 
@@ -311,13 +311,13 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    return "http://ilearn.sexy"
+                    return "Itslearning:\nhttp://ilearn.sexy"
                 elif content_list[1] == "blackboard":
-                    return "http://iblack.sexy"
+                    return "Blackboard:\nhttp://iblack.sexy"
                 else:
-                    return "http://iblack.sexy\nhttp://ilearn.sexy"
+                    return "Blackboard:\nhttp://iblack.sexy\nItslearning:\nhttp://ilearn.sexy"
             except IndexError:
-                return "http://iblack.sexy\nhttp://ilearn.sexy"
+                return "Blackboard:\nhttp://iblack.sexy\nItslearning:\nhttp://ilearn.sexy"
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed" or content_list[0] == 'classes' \
                 or content_list[0] == 'class' or content_list[0] == 'courses' or content_list[0] == 'course':
@@ -488,25 +488,28 @@ class Reply:
         if not content_list:
             return "Please specify what to subscribe to. Type 'help' or visit " \
                    "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
-
-        self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
-        non_existing, already_subscribed, success_subscribed = [], [], []
-        for course in content_list:
-            course = course.upper()
-            if self.db.course_exists(course):
-                if not self.db.user_subscribed_to_course(user_id, course):
-                    self.db.subscribe(user_id, course)
-                    success_subscribed.append(course)
+        elif content_list[0] == "announcement" or content_list[0] == "announcements":
+            self.db.subscribe_announcement(user_id)
+            return "You are now subscribed to announcements!"
+        else:
+            self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
+            non_existing, already_subscribed, success_subscribed = [], [], []
+            for course in content_list:
+                course = course.upper()
+                if self.db.course_exists(course):
+                    if not self.db.user_subscribed_to_course(user_id, course):
+                        self.db.subscribe(user_id, course)
+                        success_subscribed.append(course)
+                    else:
+                        already_subscribed.append(course)
                 else:
-                    already_subscribed.append(course)
-            else:
-                non_existing.append(course)
-        if non_existing:
-            self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
-        if already_subscribed:
-            self.reply(user_id, 'You are already subscribed to ' + ','.join(already_subscribed), 'text')
-        if success_subscribed:
-            self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
+                    non_existing.append(course)
+            if non_existing:
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+            if already_subscribed:
+                self.reply(user_id, 'You are already subscribed to ' + ','.join(already_subscribed), 'text')
+            if success_subscribed:
+                self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
 
     def unsubscribe(self, user_id, content_list):
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
@@ -514,25 +517,28 @@ class Reply:
         if not content_list:
             return "Please specify what to unsubscribe to. Type 'help' or visit " \
                    "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
-
-        self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
-        non_existing, not_subscribed, success_unsubscribed = [], [], []
-        for course in content_list:
-            course = course.upper()
-            if self.db.course_exists(course):
-                if self.db.user_subscribed_to_course(user_id, course):
-                    self.db.unsubscribe(user_id, course)
-                    success_unsubscribed.append(course)
+        elif content_list[0] == "announcement" or content_list[0] == "announcements":
+            self.db.unsubscribe_announcement(user_id)
+            return "You are now unsubscribed from announcements!"
+        else:
+            self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
+            non_existing, not_subscribed, success_unsubscribed = [], [], []
+            for course in content_list:
+                course = course.upper()
+                if self.db.course_exists(course):
+                    if self.db.user_subscribed_to_course(user_id, course):
+                        self.db.unsubscribe(user_id, course)
+                        success_unsubscribed.append(course)
+                    else:
+                        not_subscribed.append(course)
                 else:
-                    not_subscribed.append(course)
-            else:
-                non_existing.append(course)
-        if non_existing:
-            self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
-        if not_subscribed:
-            self.reply(user_id, 'You are not subscribed to ' + ','.join(not_subscribed), 'text')
-        if success_unsubscribed:
-            self.reply(user_id, 'You have successfully unsubscribed from ' + ','.join(success_unsubscribed), 'text')
+                    non_existing.append(course)
+            if non_existing:
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+            if not_subscribed:
+                self.reply(user_id, 'You are not subscribed to ' + ','.join(not_subscribed), 'text')
+            if success_unsubscribed:
+                self.reply(user_id, 'You have successfully unsubscribed from ' + ','.join(success_unsubscribed), 'text')
 
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
@@ -693,95 +699,6 @@ class Reply:
         else:
             self.make_typo_correction_buttons(user_id, " ".join(["help"] + content_list))
 
-    def process_data(data):
-        """Classifies data type and extracts the data. Returns [data_type, content]"""
-        try:
-            content = data['entry'][0]['messaging'][0]['message']  # Pinpoint content
-            if 'quick_reply' in content:  # Check if Button reply
-                content = content['quick_reply']['payload']  # Extract reply
-                data_type = 'text'
-            elif 'text' in content:  # Check if text
-                content = content['text']  # Extract text
-                data_type = 'text'
-            elif 'attachments' in content:  # Check if attachment
-                content = content['attachments'][0]
-                data_type = content['type']  # Extract attachment type
-                if data_type in ('image', 'audio', 'video', 'file'):  # Extract payload based on type
-                    content = content['payload']['url']  # Get attachement url
-                else:  # Must be either location or multimedia which only have payload
-                    content = content['payload']
-            else:
-                data_type = "unknown"
-                content = ""
-        except KeyError:
-            try:  # Check if payload from button (ie Get Started, persistent menu)
-                content = data['entry'][0]['messaging'][0]['postback']['payload']
-                data_type = 'text'
-            except KeyError:
-                data_type = "unknown"
-                content = ""
-        return data_type, content
-
-    def reply(self, user_id, msg, msg_type):  # pragma: no cover
-        """Replies to the user with the given message"""
-        if msg_type == 'text':  # Text reply
-            data = {
-                "recipient": {"id": user_id},
-                "message": {"text": msg}
-            }
-        elif msg_type in ('image', 'audio', 'video', 'file'):  # Media attachment reply
-            data = {
-                "recipient": {"id": user_id},
-                "message": {
-                    "attachment": {
-                        "type": msg_type,
-                        "payload": {
-                            "url": msg
-                        }
-                    }
-                }
-            }
-        else:
-            print("Error: Type not supported")
-            return True
-        response = requests.post(self.get_reply_url(), json=data)
-        feedback = json.loads(response.content.decode())
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
-        if "error" in feedback:
-            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
-
-    def login(self, user_id):  # pragma: no cover
-        """Sends the user to the login page"""
-        fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Retrieve user info
-        url = "https://folk.ntnu.no/halvorkm/TDT4140?userid=" + str(user_id) + "?name=" + fname + "%" + lname
-        data = {
-            "recipient": {"id": user_id},
-            "message": {
-                "attachment": {
-                    "type": "template",
-                    "payload": {
-                        "template_type": "button",
-                        "text": "By logging in you acknowledge that your user information will be stored in an "
-                                "encrypted database.",
-                        "buttons": [{
-                            "type": "web_url",
-                            "url": url,
-                            "title": "Login via Feide",
-                            "webview_height_ratio": "compact",
-                            "messenger_extensions": True,
-                            "fallback_url": url}]
-                    }
-                }
-            }
-        }
-        response = requests.post(self.get_reply_url(), json=data)
-        feedback = json.loads(response.content.decode())
-        if "error" in feedback:
-            with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
-
     def profile(self, user_id):
         first_name, last_name, pic = help_methods.get_user_info(self.access_token, user_id)
         msg = "Hello {} {}!\n".format(first_name, last_name)
@@ -811,7 +728,96 @@ class Reply:
             msg += "You do not have any active reminders"
         return msg
 
-    def make_typo_correction_buttons(self, user_id, content_lower):  # pragma: no cover
+    def process_data(data):
+        """Classifies data type and extracts the data. Returns [data_type, content]"""
+        try:
+            content = data['entry'][0]['messaging'][0]['message']  # Pinpoint content
+            if 'quick_reply' in content:  # Check if Button reply
+                content = content['quick_reply']['payload']  # Extract reply
+                data_type = 'text'
+            elif 'text' in content:  # Check if text
+                content = content['text']  # Extract text
+                data_type = 'text'
+            elif 'attachments' in content:  # Check if attachment
+                content = content['attachments'][0]
+                data_type = content['type']  # Extract attachment type
+                if data_type in ('image', 'audio', 'video', 'file'):  # Extract payload based on type
+                    content = content['payload']['url']  # Get attachement url
+                else:  # Must be either location or multimedia which only have payload
+                    content = content['payload']
+            else:
+                data_type = "unknown"
+                content = ""
+        except KeyError:
+            try:  # Check if payload from button (ie Get Started, persistent menu)
+                content = data['entry'][0]['messaging'][0]['postback']['payload']
+                data_type = 'text'
+            except KeyError:
+                data_type = "unknown"
+                content = ""
+        return data_type, content
+
+    def reply(self, user_id, msg, msg_type):  
+        """Replies to the user with the given message"""
+        if msg_type == 'text':  # Text reply
+            data = {
+                "recipient": {"id": user_id},
+                "message": {"text": msg}
+            }
+        elif msg_type in ('image', 'audio', 'video', 'file'):  # Media attachment reply
+            data = {
+                "recipient": {"id": user_id},
+                "message": {
+                    "attachment": {
+                        "type": msg_type,
+                        "payload": {
+                            "url": msg
+                        }
+                    }
+                }
+            }
+        else:
+            print("Error: Type not supported")
+            return True
+        response = requests.post(self.get_reply_url(), json=data)
+        feedback = json.loads(response.content.decode())
+        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
+            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
+        if "error" in feedback:
+            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
+
+    def login(self, user_id):  
+        """Sends the user to the login page"""
+        fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Retrieve user info
+        url = "https://folk.ntnu.no/halvorkm/TDT4140?userid=" + str(user_id) + "?name=" + fname + "%" + lname
+        data = {
+            "recipient": {"id": user_id},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "button",
+                        "text": "By logging in you acknowledge that your user information will be stored in an "
+                                "encrypted database.",
+                        "buttons": [{
+                            "type": "web_url",
+                            "url": url,
+                            "title": "Login via Feide",
+                            "webview_height_ratio": "compact",
+                            "messenger_extensions": True,
+                            "fallback_url": url}]
+                    }
+                }
+            }
+        }
+        response = requests.post(self.get_reply_url(), json=data)
+        feedback = json.loads(response.content.decode())
+        if "error" in feedback:
+            with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
+                f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
+
+    def make_typo_correction_buttons(self, user_id, content_lower):
         """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
         query. No carries 'most_likely_command_was_not_true'"""
         most_likely_cmd = help_methods.get_most_similar_command(content_lower)
@@ -847,5 +853,5 @@ class Reply:
                 f.write(user_id + ": msg: " + content_lower + ". Assumed: " + most_likely_cmd + "; ERROR msg: "
                         + str(feedback["error"]) + "\n")
 
-    def get_reply_url(self):  # pragma: no cover
+    def get_reply_url(self):  
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
