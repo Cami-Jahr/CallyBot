@@ -21,9 +21,9 @@ install:
 # command to run tests
 script: 
   - test_reply.py
-  - test_callybot_database.py
+  - astest_callybot_database.py
   - test_help_method.py
-  - test_ilearn_scrape.py
+  - astest_scrape.py
 
 # send to coveralls
 after_success:

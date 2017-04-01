@@ -61,6 +61,13 @@ class Tester(unittest.TestCase):
         self.assertEqual(data_type, "geolocation")
         self.assertEqual(content, "this is geolocation url")
 
+        test_data_quick_reply = {'entry': [{'messaging': [
+            {'message': {'quick_reply': {'payload': "this is reply"},
+                         'text': 'this is text'}}]}]}  # check for quick reply
+        data_type, content = reply.Reply.process_data(test_data_quick_reply)
+        self.assertEqual(data_type, "text")
+        self.assertEqual(content, "this is reply")
+
 
 if __name__ == '__main__':
     unittest.main()

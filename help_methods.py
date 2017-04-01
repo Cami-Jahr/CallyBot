@@ -44,7 +44,7 @@ def add_default_reminders(user_id, assignments, db):
             db.add_reminder(assignment[1], assignment[2], 1, user_id)
 
 
-def search_reminders(db):
+def search_reminders(db):  # pragma: no cover
     """Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
     listing = db.get_all_reminders()
     min_ago = datetime.now() - timedelta(minutes=3)
@@ -63,12 +63,12 @@ def get_course_exam_date(course_code):
     try:
         info = requests.get('http://www.ime.ntnu.no/api/course/' + course_code).json()
     except json.decoder.JSONDecodeError:  # course does not exist in ime api
-        return "Was unable to retrive exam date for " + course_code
+        return "Was unable to retrieve exam date for " + course_code
     now = datetime.now()
-    if 1 < now.month < 7:
+    if 1 < now.month < 7:  # pragma: no cover
         start = datetime(now.year, 1, 1)
         end = datetime(now.year, 6, 30)
-    else:
+    else:  # pragma: no cover
         start = datetime(now.year, 7, 1)
         end = datetime(now.year, 12, 31)
     exam_dates = set()
@@ -78,7 +78,7 @@ def get_course_exam_date(course_code):
                 exam_date = datetime.strptime(info["course"]["assessment"][i]["date"], "%Y-%m-%d")
                 if start < exam_date < end:
                     exam_dates.add(exam_date.strftime("%Y-%m-%d"))
-    except (KeyError, TypeError):  # Catch if date does not exist, or assessment does not exist
+    except KeyError:  # Catch if date does not exist, or assessment does not exist
         pass
     return ", ".join(sorted(exam_dates))
 
@@ -155,7 +155,7 @@ def IL_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
-        info = ilearn_scrape.scrape(result[2], decrypt(result[3]))
+        info = ilearn_scrape.scrape(result[1], decrypt(result[2]))
         msg = ""
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])
@@ -164,7 +164,7 @@ def IL_scrape(user_id, course, until, db):
         reminders_to_set = []
         defaulttime = db.get_defaulttime(user_id)
         if course == "ALL":
-            for line in info:
+            for line in info:  # pragma: no cover
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 due_year = int(line[3].split(".")[2])
@@ -179,7 +179,7 @@ def IL_scrape(user_id, course, until, db):
             db.delete_all_coursemade_reminders(user_id)  # Clears database of old reminders from classes
             add_default_reminders(user_id, reminders_to_set, db)
         else:
-            for line in info:
+            for line in info:  # pragma: no cover
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 if line[1] == course and (max_month > due_month or (
@@ -196,7 +196,7 @@ def BB_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
-        info = iblack_scrape.scrape(result[2], decrypt(result[3]))
+        info = iblack_scrape.scrape(result[1], decrypt(result[2]))
         msg = ""
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])
@@ -205,7 +205,7 @@ def BB_scrape(user_id, course, until, db):
         # Max time it should get deadlines to
         reminders_to_set = []
         if course == "ALL":
-            for line in info:
+            for line in info:  # pragma: no cover
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 due_year = int("20" + line[3].split(".")[2])
@@ -218,7 +218,7 @@ def BB_scrape(user_id, course, until, db):
                         3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
             add_default_reminders(user_id, reminders_to_set, db)
         else:
-            for line in info:
+            for line in info:  # pragma: no cover
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 if line[1] == course and (max_month > due_month or (

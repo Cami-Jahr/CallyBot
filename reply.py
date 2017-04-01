@@ -722,7 +722,7 @@ class Reply:
                 content = ""
         return data_type, content
 
-    def reply(self, user_id, msg, msg_type):
+    def reply(self, user_id, msg, msg_type):  # pragma: no cover
         """Replies to the user with the given message"""
         if msg_type == 'text':  # Text reply
             data = {
@@ -752,7 +752,7 @@ class Reply:
             with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
                 f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
 
-    def login(self, user_id):
+    def login(self, user_id):  # pragma: no cover
         """Sends the user to the login page"""
         fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Retrieve user info
         url = "https://folk.ntnu.no/halvorkm/TDT4140?userid=" + str(user_id) + "?name=" + fname + "%" + lname
@@ -811,7 +811,7 @@ class Reply:
             msg += "You do not have any active reminders"
         return msg
 
-    def make_typo_correction_buttons(self, user_id, content_lower):
+    def make_typo_correction_buttons(self, user_id, content_lower):  # pragma: no cover
         """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
         query. No carries 'most_likely_command_was_not_true'"""
         most_likely_cmd = help_methods.get_most_similar_command(content_lower)
@@ -847,5 +847,5 @@ class Reply:
                 f.write(user_id + ": msg: " + content_lower + ". Assumed: " + most_likely_cmd + "; ERROR msg: "
                         + str(feedback["error"]) + "\n")
 
-    def get_reply_url(self):
+    def get_reply_url(self):  # pragma: no cover
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
