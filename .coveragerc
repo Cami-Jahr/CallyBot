@@ -4,3 +4,4 @@ omit =
     */site-packages/*
     *test_*
     server_main.py
+    testing.py
