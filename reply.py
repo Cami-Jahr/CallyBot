@@ -491,9 +491,9 @@ class Reply:
         if content_list[0] == 'announcement' or content_list[0] == 'announcements':
             result = self.db.subscribe_announcement(user_id)
             if result:
-                return 'You are now subscribed to announcements from my developers'
+                return 'You are now subscribed to announcements!'
             else:
-                return 'You are already subscribed to announcements from my developers'
+                return 'You are already subscribed to announcements!'
 
         self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
@@ -523,9 +523,9 @@ class Reply:
         if content_list[0] == 'announcement':
             result = self.db.unsubscribe_announcement(user_id)
             if result:
-                return 'You are now unsubscribed from announcements from my developers'
+                return 'You are now unsubscribed from announcements!'
             else:
-                return 'You are already unsubscribed from announcements from my developers'
+                return 'You are already unsubscribed from announcements!'
         if content_list[0] == 'all':
             result = self.db.clean_course(user_id)
             if result != 0:
