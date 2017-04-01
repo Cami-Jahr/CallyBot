@@ -56,8 +56,8 @@ def handle_incoming_messages():
     global handled_timestamps
     try:
         timestamp = data['entry'][0]['time']
-    except KeyError:
-        print("\x1b[0;31;0mError: Could not find timestamp\x1b[0m")
+    except (KeyError, TypeError):
+        print("\x1b[0;31;0mError: Could not find timestamp, or unknown format\x1b[0m")
         return "ok", 200
     if timestamp in handled_timestamps:
         print("\x1b[0;34;0mDuplicated message\x1b[0m")
