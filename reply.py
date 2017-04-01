@@ -57,7 +57,8 @@ class Reply:
             reply_type = "text"
 
         elif content_list[0] == "profile":
-            return self.profile(user_id)
+            msg = self.profile(user_id)
+            reply_type = "text"
 
         elif content_list[0] == "subscribed" or content_list[0] == 'classes' \
                 or content_list[0] == 'class' or content_list[0] == 'courses' or content_list[0] == 'course':
@@ -310,13 +311,13 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    return "https://ilearn.sexy"
+                    return "http://ilearn.sexy"
                 elif content_list[1] == "blackboard":
-                    return "https://iblack.sexy"
+                    return "http://iblack.sexy"
                 else:
-                    return "https://iblack.sexy\nhttps://ilearn.sexy"
+                    return "http://iblack.sexy\nhttp://ilearn.sexy"
             except IndexError:
-                return "https://iblack.sexy\nhttps://ilearn.sexy"
+                return "http://iblack.sexy\nhttp://ilearn.sexy"
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed" or content_list[0] == 'classes' \
                 or content_list[0] == 'class' or content_list[0] == 'courses' or content_list[0] == 'course':
