@@ -5,3 +5,4 @@ omit =
     *test_*
     server_main.py
     testing.py
+    credentials.py
