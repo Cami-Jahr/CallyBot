@@ -825,7 +825,7 @@ class Reply:
                 "quick_replies": [{
                     "content_type": "text",
                     "title": "Yes",
-                    "payload": most_likely_cmd,
+                    "payload": total_msg,
                     "image_url": "http://i.imgur.com/JcMP9XD.png"
                 },
                     {
