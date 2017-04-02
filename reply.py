@@ -4,13 +4,14 @@ import re
 from datetime import datetime, timedelta
 import json
 import scraper
+from collections import deque
 
 
 class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
 
-    def __init__(self, access_token=None, db=None):
+    def __init__(self, access_token, db):
         self.access_token = access_token
         self.db = db
         self.scraper = scraper.Scraper(self, self.db)
@@ -30,17 +31,37 @@ class Reply:
         data_type, content = Reply.process_data(data)
         print("Data type:", data_type)
         print("Content:", content)
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  User: " + content + "\n")
         if data_type == "unknown":  # Cant handle unknown
             print("\x1b[0;34;0mUnknown data type\x1b[0m")
             return True
         content_lower = content.lower()
         content_list = content_lower.split()
-
+        msg = ""
+        reply_type = ""
         # ------------ COMMANDS --------------
         if content_list[0] == "get":
             msg = self.get_statements(user_id, content_list[1:])
+            reply_type = "text"
+
+        elif content_list[0] == "exam" or content_list[0] == "exams":
+            msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
+
+        elif content_list[0] == "deadline" or content_list[0] == "deadlines":
+            msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
+
+        elif content_list[0] == "link" or content_list[0] == "links":
+            msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
+
+        elif content_list[0] == "profile":
+            msg = self.profile(user_id)
+            reply_type = "text"
+
+        elif content_list[0] == "subscribed" or content_list[0] == 'classes' \
+                or content_list[0] == 'class' or content_list[0] == 'courses' or content_list[0] == 'course':
+            msg = self.get_statements(user_id, content_list)
             reply_type = "text"
 
         elif content_list[0] == "set":
@@ -50,10 +71,6 @@ class Reply:
         elif content_list[0] == "delete":
             msg = self.delete_statements(user_id, content_list[1:])
             reply_type = "text"
-
-        elif content_lower == "hello":
-            msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
-            reply_type = "image"
 
         elif content_lower == "login":
             msg = self.login(user_id)
@@ -75,6 +92,7 @@ class Reply:
             msg = self.unsubscribe(user_id, content_list[1:])
             reply_type = "text"
 
+        # Delete confirmation
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
             msg = "I have now deleted all your information. If you have any feedback to give me, please " \
@@ -91,6 +109,10 @@ class Reply:
             reply_type = "text"
 
         # ------------ EASTER EGGS --------------
+        elif content_lower == "hello" or content_lower == "hi":
+            msg = "http://cdn.ebaumsworld.com/mediaFiles/picture/2192630/83801651.gif"
+            reply_type = "image"
+
         elif content_lower == "chicken":
             msg = "Did I scare ya?"
             reply_type = "text"
@@ -122,7 +144,8 @@ class Reply:
             msg = "http://i.imgur.com/NBUNSSG.gif"
             reply_type = "image"
 
-        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll":
+        elif content_lower == "rick" or content_lower == "roll" or content_lower == "rick roll" \
+                or content_lower == "never gonna give you up" or content_lower == "never gonna let you down":
             msg = "Uh huh"
             self.reply(user_id, msg, 'text')
             msg = "https://media.giphy.com/media/Vuw9m5wXviFIQ/giphy.gif"
@@ -134,17 +157,10 @@ class Reply:
 
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
-            msg = "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, " \
-                  "please report it as detailed as possible. If you wish a feature added please inform" \
-                  " us about it. Please do report anything you can, from typos, to " \
-                  "poor sentences, to hard to access information, to any 'shortcuts' you would like to " \
-                  "see. Thank you for helping with testing of " \
-                  "the bot!\n\n- The developers of CallyBot."
-            self.reply(user_id, msg, 'text')
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             self.db.add_user(user_id, fname + lname)
             msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
-                                       "date on your upcomming deadlines on itslearning and Blackboard. Type 'login' " \
+                                       "date on your upcoming deadlines on itslearning and Blackboard. Type 'login' " \
                                        "or use the menu to get started. \nIf you need help, or want to know more " \
                                        "about what I can do for you, just type 'help'.\n\nPlease do enjoy!"
             reply_type = "text"
@@ -156,13 +172,17 @@ class Reply:
             reply_type = "text"
 
         # -------------- DEFAULT ----------------
+        elif content_lower == "most_likely_command_was_not_true":
+            msg = "Im sorry I was not able to help you. Please type 'help' to see my supported commands, or 'help " \
+                  "<feature>' to get information about a specific feature, or visit my " \
+                  "wiki https://github.com/Folstad/TDT4140/wiki/Commands.\nIf you believe you found a bug, or have a " \
+                  "request for a new feature or command, please use the 'bug' and 'request' commands"
+            reply_type = "text"
         else:
-            # with open("LOG/"+user_id+".txt", "a", encoding='utf-8') as f:  #W rite to log file, to see what errors
-            # are made, per user
-            #    f.write(content+"\n")
             if data_type == "text":
-                msg = content + "\nDid you mean to ask me to do something? Type 'help' to see my supported commands"
-                reply_type = "text"
+                # Typo correction prompt
+                self.make_typo_correction_buttons(user_id, content_lower)
+
             else:
                 msg = content
                 reply_type = data_type
@@ -171,17 +191,18 @@ class Reply:
             return msg, reply_type
 
     def developer_statements(self, user_id, content_list):
-
         if user_id not in ('1214261795354796', '1212139502226885', '1439762959401510', '1550995208259075'):
-            return "Error: You are not a developer"
-        if not content_list:
-            return "Specify developer command"
+            return "Sorry, but these commands are only for developers. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+
+        elif not content_list:
+            return "Specify developer command: id, requests, bugs, users or announcement"
 
         elif content_list[0] == "id":
             return str(user_id)
 
-        elif content_list[0] == "requests":
-            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
+        elif content_list[0] == "requests" or content_list[0] == "request":
+            with open("user_requests.txt", "r", encoding='utf-8') as f:
                 all_requests = f.readlines()
                 msg = ""
                 for request in all_requests:
@@ -192,8 +213,8 @@ class Reply:
                         msg += request
             return msg
 
-        elif content_list[0] == "bugs":
-            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
+        elif content_list[0] == "bugs" or content_list[0] == "bug":
+            with open("user_bug_reports.txt", "r", encoding='utf-8') as f:
                 reports = f.readlines()
                 msg = ""
                 for report in reports:
@@ -204,15 +225,21 @@ class Reply:
                         msg += report
             return msg
 
-        elif content_list[0] == "users":
-            msg = '\n'.join(self.db.get_user_ids())
+        elif content_list[0] == "users" or content_list[0] == "user":
+            msg = ""
+            ids = self.db.get_user_ids()
+            for id in ids:
+                if len(msg) + len(id) < 600:
+                    msg += id + '\n'
+                else:
+                    self.reply(user_id, msg, "text")
+                    msg = id
             return msg
 
         elif content_list[0] == 'announcement':
-            users = self.db.get_user_ids()
+            users = self.db.get_announcement_subscribers()
             for user in users:
-                self.reply(user, 'Announcement: ' + ' '.join(content_list[1:]), 'text')
-            return ""
+                self.reply(user, 'Announcement:\n' + ' '.join(content_list[1:]), 'text')
 
         else:
             return "Unknown command"
@@ -220,9 +247,10 @@ class Reply:
     def get_statements(self, user_id, content_list):
         """All get statements. Takes in user id and list of message, without 'get' at List[0]. Replies and ends"""
         if not content_list:
-            return 'Please specify what to get\nType help get if you need help.'
+            return "Please specify what to get. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
-        if content_list[0] == "deadline" or content_list[0] == "deadlines":
+        elif content_list[0] == "deadline" or content_list[0] == "deadlines":
             return self.deadlines(user_id, content_list)
 
         elif content_list[0] == "profile":
@@ -263,10 +291,9 @@ class Reply:
                         msg += "I cant find the exam date for " + exam + "\n\n"
                 if not msg:
                     msg = "I could not find any exam date, are you sure you are subscribed to courses?"
-            print(msg)
             return msg
 
-        elif content_list[0] == "default-time":
+        elif content_list[0] == "default-time" or content_list[0] == "default":
             df = self.db.get_defaulttime(user_id)
             if df == -1:
                 return "To check default-time, please login."
@@ -276,13 +303,13 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             try:
                 if content_list[1] == "itslearning":
-                    return "https://ilearn.sexy"
+                    return "Itslearning:\nhttp://ilearn.sexy"
                 elif content_list[1] == "blackboard":
-                    return "https://iblack.sexy"
+                    return "Blackboard:\nhttp://iblack.sexy"
                 else:
-                    return "https://iblack.sexy\nhttps://ilearn.sexy"
+                    return "Blackboard:\nhttp://iblack.sexy\nItslearning:\nhttp://ilearn.sexy"
             except IndexError:
-                return "https://iblack.sexy\nhttps://ilearn.sexy"
+                return "Blackboard:\nhttp://iblack.sexy\nItslearning:\nhttp://ilearn.sexy"
 
         elif content_list[0] == "subscribe" or content_list[0] == "subscribed" or content_list[0] == 'classes' \
                 or content_list[0] == 'class' or content_list[0] == 'courses' or content_list[0] == 'course':
@@ -296,7 +323,7 @@ class Reply:
             return msg
 
         else:
-            return "I'm sorry, I'm not sure how to retrieve that. Type 'help get' to see supported commands."
+            self.make_typo_correction_buttons(user_id, " ".join(["get"] + content_list))
 
     def deadlines(self, user_id, content_list):
         """Handles all requests for deadlines, with all parameters supported, returns nothing, but replies to user"""
@@ -311,11 +338,14 @@ class Reply:
     def delete_statements(self, user_id, content_list):
         """All delete statements. Takes in user id and what to delete. Replies with confirmation and ends"""
         if not content_list:
-            return 'Please specify what to delete\nType help delete if you need help.'
-        if content_list[0] == 'me':
+            return "Please specify what to delete. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+
+        elif content_list[0] == 'me':
             return "Are you sure? By deleting your information i will also delete all reminders you have " \
                    "scheduled with me. To delete all your information, type 'yes, i agree to delete all " \
                    "my information'."
+
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 try:
@@ -355,15 +385,15 @@ class Reply:
                 if complete:
                     self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
         else:
-            return "Im not sure how to delete that, are you sure you wrote it correctly?\nType " \
-                   "'help delete' for more information."
+            self.make_typo_correction_buttons(user_id, " ".join(["delete"] + content_list))
 
     def set_statements(self, user_id, content_list):
         """All set statements. Takes in user id and list of message, without 'set' at List[0]. Replies and ends"""
         if not content_list:
-            return 'Please specify what to set\nType help set if you need help.'
+            return "Please specify what to set. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
 
-        if content_list[0] == "reminder" or content_list[0] == "reminders":
+        elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 return 'Please specify what to be reminded of\nType help set reminder if you need help'
             try:
@@ -407,7 +437,7 @@ class Reply:
                 if time < current + timedelta(minutes=10):
                     self.reply(user_id,
                                "I am sorry, I could not set the reminder '" +
-                               msg.capitalize() + "' as it tried to set itself to a time in the past, or within the "
+                               msg + "' as it tried to set itself to a time in the past, or within the "
                                                   "next 10 minutes: " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
                                                                  "If you believe this was a bug, report it with the "
@@ -417,17 +447,19 @@ class Reply:
                     self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
                                time.strftime("%Y-%m-%d %H:%M"), "text")
                 else:
-                    self.db.add_reminder(msg.capitalize(), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                    self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                    self.reply(user_id, "The reminder " + msg.capitalize() + " was sat at " +
+                    self.reply(user_id, "The reminder " + msg + " was sat at " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
+
         elif content_list[0] == 'class' or content_list[0] == 'classes' or content_list[0] == 'course' or \
-                content_list[0] == 'courses':
+                        content_list[0] == 'courses':
             return self.subscribe(user_id, content_list[1:])
-        elif content_list[0] == 'default-time':
+
+        elif content_list[0] == 'default-time' or content_list[0] == 'default':
             if not content_list[1:]:
                 return 'Please specify default-time to set.'
             try:
@@ -440,63 +472,72 @@ class Reply:
                 return 'Could not set default-time. Please check if you are using the correct format ' \
                        'and that you are logged in. Type "help set default-time" for more help'
         else:
-            return "I'm sorry, I'm not sure what you want me to remember."
+            self.make_typo_correction_buttons(user_id, " ".join(["set"] + content_list))
 
     def subscribe(self, user_id, content_list):
         """Subscribes user to course(s). Takes in user id and course(s) to be subscribed to.
         Replies with confirmation and ends"""
         if not content_list:
-            return 'Subscribe to what?\nType help subscribe if you need help.'
-
-        self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
-        non_existing, already_subscribed, success_subscribed = [], [], []
-        for course in content_list:
-            course = course.upper()
-            if self.db.course_exists(course):
-                if not self.db.user_subscribed_to_course(user_id, course):
-                    self.db.subscribe(user_id, course)
-                    success_subscribed.append(course)
+            return "Please specify what to subscribe to. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        elif content_list[0] == "announcement" or content_list[0] == "announcements":
+            self.db.subscribe_announcement(user_id)
+            return "You are now subscribed to announcements!"
+        else:
+            self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
+            non_existing, already_subscribed, success_subscribed = [], [], []
+            for course in content_list:
+                course = course.upper()
+                if self.db.course_exists(course):
+                    if not self.db.user_subscribed_to_course(user_id, course):
+                        self.db.subscribe(user_id, course)
+                        success_subscribed.append(course)
+                    else:
+                        already_subscribed.append(course)
                 else:
-                    already_subscribed.append(course)
-            else:
-                non_existing.append(course)
-        if non_existing:
-            self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
-        if already_subscribed:
-            self.reply(user_id, 'You are already subscribed to ' + ','.join(already_subscribed), 'text')
-        if success_subscribed:
-            self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
+                    non_existing.append(course)
+            if non_existing:
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+            if already_subscribed:
+                self.reply(user_id, 'You are already subscribed to ' + ','.join(already_subscribed), 'text')
+            if success_subscribed:
+                self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
 
     def unsubscribe(self, user_id, content_list):
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
          Replies with confirmation and ends"""
         if not content_list:
-            return 'Unsubsribe from what?\nType help unsubscribe if you need help.'
-
-        self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
-        non_existing, not_subscribed, success_unsubscribed = [], [], []
-        for course in content_list:
-            course = course.upper()
-            if self.db.course_exists(course):
-                if self.db.user_subscribed_to_course(user_id, course):
-                    self.db.unsubscribe(user_id, course)
-                    success_unsubscribed.append(course)
+            return "Please specify what to unsubscribe to. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        elif content_list[0] == "announcement" or content_list[0] == "announcements":
+            self.db.unsubscribe_announcement(user_id)
+            return "You are now unsubscribed from announcements!"
+        else:
+            self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
+            non_existing, not_subscribed, success_unsubscribed = [], [], []
+            for course in content_list:
+                course = course.upper()
+                if self.db.course_exists(course):
+                    if self.db.user_subscribed_to_course(user_id, course):
+                        self.db.unsubscribe(user_id, course)
+                        success_unsubscribed.append(course)
+                    else:
+                        not_subscribed.append(course)
                 else:
-                    not_subscribed.append(course)
-            else:
-                non_existing.append(course)
-        if non_existing:
-            self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
-        if not_subscribed:
-            self.reply(user_id, 'You are not subscribed to ' + ','.join(not_subscribed), 'text')
-        if success_unsubscribed:
-            self.reply(user_id, 'You have successfully unsubscribed from ' + ','.join(success_unsubscribed), 'text')
+                    non_existing.append(course)
+            if non_existing:
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+            if not_subscribed:
+                self.reply(user_id, 'You are not subscribed to ' + ','.join(not_subscribed), 'text')
+            if success_unsubscribed:
+                self.reply(user_id, 'You have successfully unsubscribed from ' + ','.join(success_unsubscribed), 'text')
 
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
         if not content_list:
-            return 'Please specify at least one bug\nType help bug if you need help.'
-        with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
+            return "Please specify the bug you found. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        with open("user_bug_reports.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         return "The bug was taken to my developers. One of them might contact you if they need further " \
                "help with the bug."
@@ -504,8 +545,9 @@ class Reply:
     def request(self, user_id, content_list):
         """Requests. Takes in user id and list of message, without 'request' at List[0]. Replies, saves and ends"""
         if not content_list:
-            return 'Please specify at least one request\nType help bug if you need help.'
-        with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
+            return "Please specify your request. Type 'help' or visit " \
+                   "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        with open("user_requests.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         return "The request was taken to my developers. I will try to make your wish come true, but keep" \
                " in mind that not all request are feasible."
@@ -513,10 +555,11 @@ class Reply:
     def help(self, user_id, content_list):
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
-            return "Oh you need help?\nNo problem!\nFollowing commands are supported:\n" \
+            return "Oh you need help?\nNo problem!\nThe following commands are supported:\n" \
                    "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
                    "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
                    "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
+                   "subscribe announcement\n- unsubscribe announcement\n- " \
                    "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
                    "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
@@ -524,6 +567,12 @@ class Reply:
 
         elif content_list[0] == "get":
             try:
+                if content_list[1] == "subscribe" or content_list[1] == "subscribed":
+                    return "The 'Get subscribed' command will give you a list of all your subscribed courses." \
+                           " When you are subscribed to a course, it's deadlines will automatically be added to your" \
+                           " reminders, and you will get the registered exam dates for it with the 'Get exams'" \
+                           " command. For more info on subscriptions, type 'Help subscribe'."
+
                 if content_list[1] == "deadlines" or content_list[1] == "deadline":
                     return "Deadlines are fetched from It'slearning and Blackboard with the feide username and" \
                            " password you entered with the 'login' command. To get the deadlines you can write" \
@@ -538,10 +587,11 @@ class Reply:
                 elif content_list[1] == "link" or content_list[1] == "links":
                     return "I can give you fast links to It'slearning or Blackboard with these commands:" \
                            "\n- Get links\n- Get link Itslearning\n- Get link Blackboard."
+
                 elif content_list[1] == "reminder" or content_list[1] == "reminders":
                     return "This gives you an overview of all upcoming reminders I have in store for you."
 
-                elif content_list[1] == "default-time":
+                elif content_list[1] == "default-time" or content_list[1] == "default":
                     return 'Default-time decides how many days before an assigment you will be reminded by default. ' \
                            'Get default-time shows your current default-time',
                 else:
@@ -566,11 +616,13 @@ class Reply:
                            "and <Reminder text> is what " \
                            "I should tell you when the reminder is due. I will check " \
                            "reminders every 5 minutes."
-                elif content_list[1] == 'default-time':
+
+                elif content_list[1] == 'default-time' or content_list[1] == 'default':
                     return "I can set your default-time which decides how long before an" \
                            " assignment you will be reminded by default.\n\n" \
                            "To set your default-time please use the following format:\n\n" \
                            "- set default-time <integer>\n\nWhere <integer> can be any number of days."
+
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
                            "it with the 'bug' function. If it something you simply wish to be added, use the " \
@@ -638,15 +690,45 @@ class Reply:
                    " blackboard! You need to log in to use this command."
 
         else:
-            return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-                   "it with the 'bug' function. If it something you simply wish to be added, use the " \
-                   "'request' function."
+            self.make_typo_correction_buttons(user_id, " ".join(["help"] + content_list))
+
+    def profile(self, user_id):
+        first_name, last_name, pic = help_methods.get_user_info(self.access_token, user_id)
+        msg = "Hello {} {}!\n".format(first_name, last_name)
+        subscribed = self.db.get_all_courses(user_id)
+        if subscribed:
+            msg += "You are subscribed to the following classes: "
+            for i, course in enumerate(subscribed):
+                if i < len(subscribed) - 1:
+                    msg += "{}, ".format(course)
+                else:
+                    msg += "{}\n".format(course)
+        else:
+            msg += "You are not subscribed to any courses\n"
+        reminders = self.db.get_reminders(user_id)
+        if reminders:
+            msg += "These are your active reminders:\n\n"
+            for row in reminders:
+                what = row[0]
+                deadline = row[1].strftime("%Y-%m-%d %H:%M")
+                new = "{} at {}\n\n".format(what, deadline)
+                if len(msg) + len(new) > 600:
+                    self.reply(user_id, msg, "text")
+                    msg = new
+                else:
+                    msg += new
+        else:
+            msg += "You do not have any active reminders"
+        return msg
 
     def process_data(data):
         """Classifies data type and extracts the data. Returns [data_type, content]"""
         try:
             content = data['entry'][0]['messaging'][0]['message']  # Pinpoint content
-            if 'text' in content:  # Check if text
+            if 'quick_reply' in content:  # Check if Button reply
+                content = content['quick_reply']['payload']  # Extract reply
+                data_type = 'text'
+            elif 'text' in content:  # Check if text
                 content = content['text']  # Extract text
                 data_type = 'text'
             elif 'attachments' in content:  # Check if attachment
@@ -666,38 +748,71 @@ class Reply:
             except KeyError:
                 data_type = "unknown"
                 content = ""
-
         return data_type, content
 
     def reply(self, user_id, msg, msg_type):
-        """Replies to the user with the given message"""
-        if msg_type == 'text':  # Text reply
-            data = {
-                "recipient": {"id": user_id},
-                "message": {"text": msg}
-            }
-        elif msg_type in ('image', 'audio', 'video', 'file'):  # Media attachment reply
-            data = {
-                "recipient": {"id": user_id},
-                "message": {
-                    "attachment": {
-                        "type": msg_type,
-                        "payload": {
-                            "url": msg
+        """Replies to the user with the given message, splitts the message if it is too long"""
+        msg = self.caplitalize(msg)
+        sectionized = self.sectionize(msg, msg_type == "text")
+        for msg in sectionized:
+            if msg_type == 'text':  # Text reply
+                data = {
+                    "recipient": {"id": user_id},
+                    "message": {"text": msg}
+                }
+            elif msg_type in ('image', 'audio', 'video', 'file'):  # Media attachment reply
+                data = {
+                    "recipient": {"id": user_id},
+                    "message": {
+                        "attachment": {
+                            "type": msg_type,
+                            "payload": {
+                                "url": msg
+                            }
                         }
                     }
                 }
-            }
+            else:
+                print("Error: Type not supported")
+                return True
+            response = requests.post(self.get_reply_url(), json=data)
+            feedback = json.loads(response.content.decode())
+            print(feedback)
+
+    def caplitalize(self, msg):
+        msg = msg.split(". ")
+        for i in range(len(msg)):
+            try:
+                msg[i] = msg[i][0].upper() + msg[i][1:]
+            except IndexError:
+                pass
+        msg = ". ".join(msg)
+        msg = msg.split("\n")
+        for i in range(len(msg)):
+            try:
+                msg[i] = msg[i][0].upper() + msg[i][1:]
+            except IndexError:
+                pass
+        return "\n".join(msg)
+
+    def sectionize(self, msg, text):
+        if len(msg) > 600 and text:  # Should allays be false, and multiple instances of reply called iinstead
+            sectionized = []
+            splitted = deque(msg.split(" "))
+            msg = ""
+            pop = splitted.popleft
+            while splitted:
+                new = pop()
+                if len(msg) + len(new) > 600:
+                    sectionized.append(msg)
+                    msg = new
+                else:
+                    msg += new + " "
+            sectionized.append(msg)
         else:
-            print("Error: Type not supported")
-            return True
-        response = requests.post(self.get_reply_url(), json=data)
-        feedback = json.loads(response.content.decode())
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
-        if "error" in feedback:
-            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
+            sectionized = [msg]
+        return sectionized
+
 
     def login(self, user_id):
         """Sends the user to the login page"""
@@ -725,40 +840,40 @@ class Reply:
         }
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
-        if "error" in feedback:
-            with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
+        print(feedback)
 
-    def profile(self, user_id):
-        first_name, last_name, pic = help_methods.get_user_info(self.access_token, user_id)
-        msg = "Hello {} {}!\n". format(first_name, last_name)
-        subscribed = self.db.get_all_courses(user_id)
-        if subscribed:
-            msg += "You are subscribed to the following classes: "
-            for i, course in enumerate(subscribed):
-                if i < len(subscribed) - 1:
-                    msg += "{}, ".format(course)
-                else:
-                    msg += "{}\n".format(course)
+    def make_typo_correction_buttons(self, user_id, content_lower):
+        """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
+        query. No carries 'most_likely_command_was_not_true'"""
+        most_likely_cmd = help_methods.get_most_similar_command(content_lower)
+        nr_command = len(most_likely_cmd.split())
+        nr_auxiliary_text = len(content_lower.split()) - nr_command
+        if nr_auxiliary_text:
+            total_msg = most_likely_cmd + " " + " ".join(content_lower.split()[-nr_auxiliary_text:])
         else:
-            msg += "You are not subscribed to any courses\n"
-        reminders = self.db.get_reminders(user_id)
-        print(reminders)
-        if reminders:
-            msg += "These are your active reminders:\n\n"
-            for row in reminders:
-                print(row)
-                what = row[0]
-                deadline = row[1].strftime("%Y-%m-%d %H:%M")
-                new = "{} at {}\n\n".format(what, deadline)
-                if len(msg) + len(new) > 600:
-                    self.reply(user_id, msg, "text")
-                    msg = new
-                else:
-                    msg += new
-        else:
-            msg += "You do not have any active reminders"
-        return msg
+            total_msg = most_likely_cmd
+        message = "Did you mean to write '{}'?".format(total_msg)
+        data = {
+            "recipient": {"id": user_id},
+            "message": {
+                "text": message,
+                "quick_replies": [{
+                    "content_type": "text",
+                    "title": "Yes",
+                    "payload": total_msg,
+                    "image_url": "http://i.imgur.com/JcMP9XD.png"
+                },
+                    {
+                        "content_type": "text",
+                        "title": "No",
+                        "payload": "most_likely_command_was_not_true",
+                        "image_url": "http://i.imgur.com/wrzzfNr.png"
+                    }]
+            }
+        }
+        response = requests.post(self.get_reply_url(), json=data)
+        feedback = json.loads(response.content.decode())
+        print(feedback)
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token

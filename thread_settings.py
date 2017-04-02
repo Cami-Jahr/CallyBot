@@ -13,7 +13,7 @@ class ThreadSettings:
             }
         }
         response = requests.post(self.get_thread_url(), json=data)
-        print(response.content)
+        return response.content
 
     def set_get_started(self):  # Set Get Started button
         data = {
@@ -24,7 +24,7 @@ class ThreadSettings:
             }]
         }
         response = requests.post(self.get_thread_url(), json=data)
-        print(response.content)
+        return response.content
 
     def set_persistent_menu(self):  # Set persistent menu
         data = {
@@ -52,7 +52,7 @@ class ThreadSettings:
                     "payload": "get exams"},
             ]}
         response = requests.post(self.get_thread_url(), json=data)
-        print(response.content)
+        return response.content
 
     def whitelist(self, domains):  # Whitelist domains so it can be url'ed
         data = {
@@ -61,7 +61,7 @@ class ThreadSettings:
             "domain_action_type": "add"
         }
         response = requests.post(self.get_thread_url(), json=data)
-        print(response.content)
+        return response.content
 
     def get_thread_url(self):
         return "https://graph.facebook.com/v2.8/me/thread_settings?access_token=" + self.access_token

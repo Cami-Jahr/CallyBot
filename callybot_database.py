@@ -1,6 +1,6 @@
 import MySQLdb
 from datetime import datetime, timedelta
-import help_methods
+from help_methods import IL_scrape, BB_scrape
 
 
 class CallybotDB:
@@ -39,7 +39,7 @@ class CallybotDB:
 
     def get_credential(self, user_id):
         """Get all saved information about a user,
-        :returns a list"""
+        :returns a list [fbid, username, password, defaulttime, announcement]"""
         self.test_connection()
         self.db.commit()
         sql = "SELECT * FROM user WHERE fbid=" + str(user_id)
@@ -47,17 +47,17 @@ class CallybotDB:
         results = self.cursor.fetchall()
         return results[0] if results else []
 
-    def add_user(self, user_id, navn, username=None, password=None, df=1):
+    def add_user(self, user_id, username=None, password=None, df=1, announcement=1):
         """Add a user to the database
         :returns whether sql was successful or not"""
         self.test_connection()
         result = 0
         if username is None or password is None:
-            sql = "INSERT INTO user(fbid, name, defaulttime)" \
-                  " VALUES('%s', '%s', '%d')" % (user_id, navn, df)
+            sql = "INSERT INTO user(fbid, defaulttime, announcement)" \
+                  " VALUES('%s', '%d', '%d')" % (user_id, df, announcement)
         else:
-            sql = "INSERT INTO user(fbid, name, username, password, defaulttime)" \
-                  " VALUES('%s', '%s', '%s', '%s', '%d')" % (user_id, navn, username, password, df)
+            sql = "INSERT INTO user(fbid, username, password, defaulttime, announcement)" \
+                  " VALUES('%s', '%s', '%s', '%d', '%d')" % (user_id, username, password, df, announcement)
         if not self.user_exists(user_id):
             result = self.cursor.execute(sql)
             self.db.commit()
@@ -197,20 +197,57 @@ class CallybotDB:
         return result[0][0] if result else 0
 
     def set_defaulttime(self, user_id, df):
-        """Sets a user's defaulttime to be df <Integer>, returns True if query completed"""
+        """Sets a user's defaulttime to be df <Integer>
+        :returns True if query completed"""
         self.test_connection()
         try:
             sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
             self.cursor.execute(sql)
             self.db.commit()
             try:
-                help_methods.IL_scrape(user_id, 'ALL', '31/12', self)
-                help_methods.BB_scrape(user_id, 'ALL', '31/12', self)
-            except TypeError:  # user not added username/ password to database
+                IL_scrape(user_id, 'ALL', '31/12', self)
+                BB_scrape(user_id, 'ALL', '31/12', self)
+            except (TypeError, ValueError):  # user not added username/ password to database
                 pass
             return True
         except MySQLdb.OperationalError:
             return False
+
+    def unsubscribe_announcement(self, user_id):
+        """Sets announcement field in user table to 0 if user was subscribed to announcements
+        :returns True if query completed"""
+        self.test_connection()
+        if not self.subscribed_to_announcement(user_id):
+            return False
+        try:
+            sql = """UPDATE user SET announcement='0' WHERE fbid='%s'""" % user_id
+            self.cursor.execute(sql)
+            self.db.commit()
+        except MySQLdb.OperationalError:
+            return False
+        return True
+
+    def subscribe_announcement(self, user_id):
+        """Sets announcement field in user table to 1 if user was not subscribed to announcements
+        :returns True if query completed"""
+        self.test_connection()
+        if self.subscribed_to_announcement(user_id):
+            return False
+        try:
+            sql = """UPDATE user SET announcement='1' WHERE fbid='%s'""" % user_id
+            self.cursor.execute(sql)
+            self.db.commit()
+        except MySQLdb.OperationalError:
+            return False
+        return True
+
+    def subscribed_to_announcement(self, user_id):
+        """:returns <Boolean> whether a user is subscribed to announcements"""
+        self.test_connection()
+        sql = """SELECT announcement from user WHERE fbid='%s'""" % user_id
+        self.cursor.execute(sql)
+        result = self.cursor.fetchall()
+        return int(result[0][0])
 
     def clean_course(self, user_id):
         """Deletes all relations a user has to its courses
@@ -263,7 +300,7 @@ class CallybotDB:
         return result
 
     def delete_reminder(self, rid):
-        """Deletes reminder with this RID
+        """Deletes reminder with this rid
         :returns whether sql was successful or not"""
         self.test_connection()
         sql = """DELETE FROM reminder
@@ -281,18 +318,16 @@ class CallybotDB:
         results = self.cursor.fetchall()
         return results
 
+    def get_announcement_subscribers(self):
+        """:returns a list of users subscribed to announcements"""
+        self.test_connection()
+        sql = """SELECT fbid FROM user WHERE announcement='1'"""
+        self.cursor.execute(sql)
+        results = self.cursor.fetchall()
+        return [row[0] for row in results]
+
 
 def fix_new_deadline(deadline, df):
     """:returns deadline minus df days"""
     # deadline is supposed to be a string of format 'YYYY-MM-DD HH:MM:SS'
     return (datetime.strptime(deadline, "%Y-%m-%d %H:%M:%S") - timedelta(days=df)).strftime("%Y-%m-%d %H:%M:%S")
-
-
-def test():
-    db = CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
-    db.remove_user('000')
-    # print(db.delete_all_reminders('000'))
-    db.close()
-
-
-test()

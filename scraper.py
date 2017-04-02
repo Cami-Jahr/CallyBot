@@ -1,7 +1,7 @@
 from threading import Thread
 from collections import deque
 from time import sleep
-import help_methods
+from help_methods import IL_scrape, BB_scrape
 import re
 
 
@@ -39,7 +39,7 @@ class Scraper(Thread):
             if self.requests:
                 self.process(self.pop())
             else:
-                sleep(10)  # Delay until looks again if it did not find an active scrape request
+                sleep(2.5)  # Delay until looks again if it did not find an active scrape request
 
     def scrape(self, user_id, content_list):
         """Queues the scrape request for the server to handle"""
@@ -60,8 +60,8 @@ class Scraper(Thread):
             else:
                 pass
         elif len(content_list) == 5:  # Strict format
-            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
+            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[3] \
+                    == "until" and re.fullmatch(self.date_format, content_list[4]):
                 # Format: get deadline in aaa1111 until DD/MM
                 course = content_list[2]
                 until = content_list[4]
@@ -74,33 +74,23 @@ class Scraper(Thread):
         until = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))], until)
         # Makes any date string split with "/"
 
-        ILdeads = help_methods.IL_scrape(user_id, course, until, self.db)
-        BBdeads = help_methods.BB_scrape(user_id, course, until, self.db)
-        if ILdeads == "SQLerror" or BBdeads == "SQLerror":
+        IL_deadlines = IL_scrape(user_id, course, until, self.db)
+        BB_deadlines = BB_scrape(user_id, course, until, self.db)
+        if IL_deadlines == "SQLerror" or BB_deadlines == "SQLerror":
             self.replier.reply(user_id, "Could not fetch deadlines. Check if your user info is correct. You can "
                                         "probably fix this by using the 'login' command and logging in again with your"
                                         " feide username and password.\n\nIf you believe this is a bug, please report "
                                         "it with the 'bug' function", 'text')
         elif course == "ALL":
-            msg = "ItsLearning:\n" + ILdeads
-            msg2 = "BlackBoard:\n" + BBdeads
-            if len(msg) > 640:  # 640 is max limit for facebook API message size
-                msg, msg3 = msg[:len(msg) // 2], msg[len(
-                    msg) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
-                self.replier.reply(user_id, msg, 'text')
-                self.replier.reply(user_id, msg3, 'text')
-            else:
-                self.replier.reply(user_id, msg, 'text')
-            if len(msg2) > 640:  # 640 is max limit for facebook API message size
-                msg2, msg4 = msg2[:len(msg2) // 2], msg2[len(
-                    msg2) // 2:]  # TODO: Needs tuning. Must send messages at length max 640, no matter input
-                self.replier.reply(user_id, msg2, 'text')
-                self.replier.reply(user_id, msg4, 'text')
-            else:
-                self.replier.reply(user_id, msg2, 'text')
+            IL_msg = "ItsLearning:\n" + IL_deadlines
+            self.replier.reply(user_id, IL_msg, "text")
+            BB_msg = "BlackBoard:\n" + BB_deadlines
+            self.replier.reply(user_id, BB_msg, "text")
         else:
-            if ILdeads or BBdeads:  # Both is returned as empty if does not have course
-                self.replier.reply(user_id, "For course " + course + " I found these deadlines:\n" + ILdeads + BBdeads,
-                                   "text")
+            if IL_deadlines or BB_deadlines:  # Both is returned as empty if does not have course
+                self.replier.reply(user_id,
+                                   "For course " + course.upper() + " I found these deadlines:\n"
+                                   + IL_deadlines + BB_deadlines, "text")
             else:
-                self.replier.reply(user_id, "I couldn't find any deadlines for " + course, "text")
+                self.replier.reply(user_id, "I couldn't find any deadlines for " + course.upper(), "text")
+        return course, until

@@ -7,68 +7,97 @@ class TestCallybotDB(unittest.TestCase):
     def test_a_add_user(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
-        name = 'testbruker'
-        username = 'rubbish'
-        password = 'trash'
+        username = 'username'
+        password = 'password'
         user2 = '1111'
-        name2 = 'annentest'
         user3 = '2222'
         user4 = '3333'
+        user5 = '4444'
         # check user does not exist
         self.assertFalse(db.user_exists(user_id))
         creds = db.get_credential(user_id)
         self.assertTrue(len(creds) == 0)
         # check if callybot could add user
-        self.assertTrue(db.add_user(user_id, name) != 0)
+        self.assertTrue(db.add_user(user_id) != 0)
         # check user now exist
         self.assertTrue(db.user_exists(user_id))
         # check that callybot does not add a user that is already in the database
-        self.assertTrue(db.add_user(user_id, name) == 0)
+        self.assertTrue(db.add_user(user_id) == 0)
         creds = db.get_credential(user_id)
         self.assertEqual(creds[0], user_id)
-        self.assertEqual(creds[1], name)
+        self.assertEqual(creds[1], None)
         self.assertEqual(creds[2], None)
-        self.assertEqual(creds[3], None)
+        self.assertEqual(creds[3], 1)
         self.assertEqual(creds[4], 1)
         # test update username and password, testing if it is done or not
         self.assertTrue(db.set_username_password(user_id, username, password) != 0)
         # test get credentials
         creds = db.get_credential(user_id)
         self.assertEqual(creds[0], user_id)
-        self.assertEqual(creds[1], name)
-        self.assertEqual(creds[2], username)
-        self.assertEqual(creds[3], password)
+        self.assertEqual(creds[1], username)
+        self.assertEqual(creds[2], password)
+        self.assertEqual(creds[3], 1)
         self.assertEqual(creds[4], 1)
         # test user2, user3 and user4
         self.assertFalse(db.user_exists(user2))
-        self.assertTrue(db.add_user(user2, name2, username) != 0)
+        self.assertTrue(db.add_user(user2, username) != 0)
         self.assertTrue(db.user_exists(user2))
         creds = db.get_credential(user2)
         self.assertEqual(creds[0], user2)
-        self.assertEqual(creds[1], name2)
+        self.assertEqual(creds[1], None)
         self.assertEqual(creds[2], None)
-        self.assertEqual(creds[3], None)
+        self.assertEqual(creds[3], 1)
         self.assertEqual(creds[4], 1)
         # user3
         self.assertFalse(db.user_exists(user3))
-        self.assertTrue(db.add_user(user3, name2, username, password) != 0)
+        self.assertTrue(db.add_user(user3, username, password) != 0)
         self.assertTrue(db.user_exists(user3))
         creds = db.get_credential(user3)
         self.assertEqual(creds[0], user3)
-        self.assertEqual(creds[1], name2)
-        self.assertEqual(creds[2], username)
-        self.assertEqual(creds[3], password)
+        self.assertEqual(creds[1], username)
+        self.assertEqual(creds[2], password)
+        self.assertEqual(creds[3], 1)
         self.assertEqual(creds[4], 1)
         # user4
         self.assertFalse(db.user_exists(user4))
-        self.assertTrue(db.add_user(user4, name2, username, password, 2) != 0)
+        self.assertTrue(db.add_user(user4, username, password, 2) != 0)
         self.assertTrue(db.user_exists(user4))
         creds = db.get_credential(user4)
         self.assertEqual(creds[0], user4)
-        self.assertEqual(creds[1], name2)
-        self.assertEqual(creds[2], username)
-        self.assertEqual(creds[3], password)
-        self.assertEqual(creds[4], 2)
+        self.assertEqual(creds[1], username)
+        self.assertEqual(creds[2], password)
+        self.assertEqual(creds[3], 2)
+        self.assertEqual(creds[4], 1)
+        # user5
+        self.assertFalse(db.user_exists(user5))
+        self.assertTrue(db.add_user(user5, username, password, 1, 0) != 0)
+        self.assertTrue(db.user_exists(user5))
+        creds = db.get_credential(user5)
+        self.assertEqual(creds[0], user5)
+        self.assertEqual(creds[1], username)
+        self.assertEqual(creds[2], password)
+        self.assertEqual(creds[3], 1)
+        self.assertEqual(creds[4], 0)
+        # test announcement settings
+        announcement_subscribers = db.get_announcement_subscribers()
+        self.assertEqual(user_id in announcement_subscribers, db.subscribed_to_announcement(user_id))
+        self.assertEqual(user2 in announcement_subscribers, db.subscribed_to_announcement(user2))
+        self.assertEqual(user3 in announcement_subscribers, db.subscribed_to_announcement(user3))
+        self.assertEqual(user4 in announcement_subscribers, db.subscribed_to_announcement(user4))
+        self.assertEqual(user5 in announcement_subscribers, db.subscribed_to_announcement(user5))
+        self.assertTrue(db.subscribed_to_announcement(user_id))
+        self.assertTrue(db.subscribed_to_announcement(user2))
+        self.assertTrue(db.subscribed_to_announcement(user3))
+        self.assertTrue(db.subscribed_to_announcement(user4))
+        self.assertFalse(db.subscribed_to_announcement(user5))
+        self.assertTrue(db.unsubscribe_announcement(user_id))
+        self.assertFalse(db.unsubscribe_announcement(user_id))
+        announcement_subscribers = db.get_announcement_subscribers()
+        self.assertEqual(user_id in announcement_subscribers, db.subscribed_to_announcement(user_id))
+        self.assertTrue(db.subscribe_announcement(user_id))
+        self.assertFalse(db.subscribe_announcement(user_id))
+        announcement_subscribers = db.get_announcement_subscribers()
+        self.assertEqual(user_id in announcement_subscribers, db.subscribed_to_announcement(user_id))
         db.close()
         print("tested add user")
 
@@ -158,11 +187,11 @@ class TestCallybotDB(unittest.TestCase):
         get_what = reminders[1][0]
         get_datetime = reminders[1][1]
         get_coursemade = reminders[1][2]
-        RID = reminders[1][3]
+        rid = reminders[1][3]
         self.assertEqual(get_what, what)
         self.assertEqual(get_datetime, dt)
         self.assertEqual(get_coursemade, coursemade)
-        self.assertTrue(db.delete_reminder(RID) != 0)
+        self.assertTrue(db.delete_reminder(rid) != 0)
         self.assertTrue(len(db.get_reminders(user_id)) == 1)
         self.assertTrue(db.add_reminder(what, deadline, coursemade, user_id) != 0)
         self.assertTrue(db.add_reminder(what, deadline, coursemade, user_id) != 0)
@@ -263,6 +292,8 @@ class TestCallybotDB(unittest.TestCase):
         self.assertFalse(db.user_exists('2222'))
         self.assertTrue(db.remove_user('3333') != 0)
         self.assertFalse(db.user_exists('3333'))
+        self.assertTrue(db.remove_user('4444') != 0)
+        self.assertFalse(db.user_exists('4444'))
         db.close()
         print("tested extra")
 

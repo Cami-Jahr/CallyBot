@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import credentials
 import callybot_database
+from datetime import datetime
 
 app = Flask(__name__)
 credential = credentials.Credentials()
@@ -18,14 +19,22 @@ handled_timestamps = []
 
 
 def init():
+    interrupt()
+    clear_old_reminders()
     thread_handler = thread_settings.ThreadSettings(credential.access_token)
     thread_handler.whitelist("https://folk.ntnu.no/halvorkmTDT4140/")
     thread_handler.set_greeting(
         "Hi there {{user_first_name}}!\nWelcome to CallyBot. Press 'Get Started' to get started!")
     thread_handler.set_get_started()
-    thread_handler.set_persistent_menu()
+    return thread_handler.set_persistent_menu()
 
-    interrupt()
+
+def clear_old_reminders():
+    """Clears old reminders, which were not checked while database was down"""
+    reminders = db.get_all_reminders()
+    for reminder in reminders:
+        if reminder[0] < datetime.now():
+            db.delete_reminder(reminder[4])
 
 
 def interrupt():
@@ -47,17 +56,20 @@ def reminder_check():
     if current:
         for reminder in current:
             replier.reply(reminder[1], "Reminder: " + reminder[2], "text")
-    return
+    return current
 
 
-@app.route('/', methods=['POST'])
-def handle_incoming_messages():
+@app.route('/', methods=['POST'])  # pragma: no cover
+def handle_incoming_messages():  # pragma: no cover
+    """Handles incoming POST messages, has 'pragma: no cover' due to pytest throwing an error
+    when handling flask application methods, and internal testing is not needed as this is 
+    properly tested trough blackbox"""
     data = request.json
     global handled_timestamps
     try:
         timestamp = data['entry'][0]['time']
-    except KeyError:
-        print("\x1b[0;31;0mError: Could not find timestamp\x1b[0m")
+    except (KeyError, TypeError):
+        print("\x1b[0;31;0mError: Could not find timestamp, or unknown format\x1b[0m")
         return "ok", 200
     if timestamp in handled_timestamps:
         print("\x1b[0;34;0mDuplicated message\x1b[0m")
@@ -80,8 +92,11 @@ def handle_incoming_messages():
     return "ok", 200
 
 
-@app.route('/', methods=['GET'])
-def handle_verification():
+@app.route('/', methods=['GET'])  # pragma: no cover
+def handle_verification():  # pragma: no cover
+    """Handles incoming GET messages, has 'pragma: no cover' due to pytest throwing an error
+    when handling flask application methods. This method is properly tested by connectig the server
+    to the server"""
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
         if request.args['hub.verify_token'] == credential.verify_token:
             return request.args['hub.challenge'], 200
@@ -92,4 +107,4 @@ def handle_verification():
 
 if __name__ == '__main__':
     init()
-    app.run(debug=True, use_reloader=False, threaded=True)
+    app.run(threaded=True)
