@@ -75,11 +75,11 @@ pip install -r test_requirements.txt
 ```
 With the terminal open at the codes location, simply write
 ```
-pytest
+./pytest
 ```
 or
 ```
-./ pytest
+pytest
 ```
 to run the test with predefined configuration as spessified in setup.cfg and .coveragerc.
 
