@@ -20,6 +20,7 @@ handled_timestamps = []
 
 def init():
     interrupt()
+    clear_old_reminders()
     thread_handler = thread_settings.ThreadSettings(credential.access_token)
     thread_handler.whitelist("https://folk.ntnu.no/halvorkmTDT4140/")
     thread_handler.set_greeting(
