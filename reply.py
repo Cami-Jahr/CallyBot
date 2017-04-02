@@ -752,7 +752,7 @@ class Reply:
 
     def reply(self, user_id, msg, msg_type):
         """Replies to the user with the given message, splitts the message if it is too long"""
-        msg = ". ".join([i.strip().capitalize() for i in msg.split('. ')])
+        msg = self.caplitalize(msg)
         sectionized = self.sectionize(msg, msg_type == "text")
         for msg in sectionized:
             if msg_type == 'text':  # Text reply
@@ -778,6 +778,22 @@ class Reply:
             response = requests.post(self.get_reply_url(), json=data)
             feedback = json.loads(response.content.decode())
             print(feedback)
+
+    def caplitalize(self, msg):
+        msg = msg.split(". ")
+        for i in range(len(msg)):
+            try:
+                msg[i] = msg[i][0].upper() + msg[i][1:]
+            except IndexError:
+                pass
+        msg = ". ".join(msg)
+        msg = msg.split("\n")
+        for i in range(len(msg)):
+            try:
+                msg[i] = msg[i][0].upper() + msg[i][1:]
+            except IndexError:
+                pass
+        return "\n".join(msg)
 
     def sectionize(self, msg, text):
         if len(msg) > 600 and text:  # Should allays be false, and multiple instances of reply called iinstead
