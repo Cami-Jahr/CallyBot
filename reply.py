@@ -245,7 +245,7 @@ class Reply:
             return msg
 
         elif content_list[0] == 'announcement':
-            users = self.db.get_user_ids()
+            users = self.db.get_announcement_subscribers()
             for user in users:
                 self.reply(user, 'Announcement:\n' + ' '.join(content_list[1:]).capitalize(), 'text')
 
@@ -488,6 +488,12 @@ class Reply:
         if not content_list:
             return "Please specify what to subscribe to. Type 'help' or visit " \
                    "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        if content_list[0] == 'announcement' or content_list[0] == 'announcements':
+            result = self.db.subscribe_announcement(user_id)
+            if result:
+                return 'You are now subscribed to announcements!'
+            else:
+                return 'You are already subscribed to announcements!'
 
         self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, already_subscribed, success_subscribed = [], [], []
@@ -514,6 +520,18 @@ class Reply:
         if not content_list:
             return "Please specify what to unsubscribe to. Type 'help' or visit " \
                    "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        if content_list[0] == 'announcement':
+            result = self.db.unsubscribe_announcement(user_id)
+            if result:
+                return 'You are now unsubscribed from announcements!'
+            else:
+                return 'You are already unsubscribed from announcements!'
+        if content_list[0] == 'all':
+            result = self.db.clean_course(user_id)
+            if result != 0:
+                return 'Successfully unsubscribed you from all your courses'
+            else:
+                return 'Could not unsubscribe you from your courses'
 
         self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
         non_existing, not_subscribed, success_unsubscribed = [], [], []
@@ -561,6 +579,7 @@ class Reply:
                    "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
                    "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
                    "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
+                   "subscribe announcement\n- unsubscribe announcement\n- " \
                    "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
                    "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
