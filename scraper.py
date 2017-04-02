@@ -60,8 +60,8 @@ class Scraper(Thread):
             else:
                 pass
         elif len(content_list) == 5:  # Strict format
-            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[
-                3] == "until" and re.fullmatch(self.date_format, content_list[4]):
+            if content_list[1] == "in" and re.fullmatch(self.course_code_format, content_list[2]) and content_list[3] \
+                    == "until" and re.fullmatch(self.date_format, content_list[4]):
                 # Format: get deadline in aaa1111 until DD/MM
                 course = content_list[2]
                 until = content_list[4]
@@ -83,22 +83,14 @@ class Scraper(Thread):
                                         "it with the 'bug' function", 'text')
         elif course == "ALL":
             IL_msg = "ItsLearning:\n" + IL_deadlines
-            IL_amounts = (IL_msg.rfind("\n\n") // 600) + 1
-            for m in range(IL_amounts):
-                self.replier.reply(user_id,
-                                   IL_msg[(len(IL_msg) // IL_amounts) * m:(len(IL_msg) // IL_amounts) * (m + 1)],
-                                   "text")
+            self.replier.reply(user_id, IL_msg, "text")
             BB_msg = "BlackBoard:\n" + BB_deadlines
-            BB_amounts = (BB_msg.rfind("\n\n") // 600) + 1
-            for m in range(BB_amounts):
-                self.replier.reply(user_id,
-                                   BB_msg[(len(BB_msg) // BB_amounts) * m:(len(BB_msg) // BB_amounts) * (m + 1)],
-                                   "text")
+            self.replier.reply(user_id, BB_msg, "text")
         else:
             if IL_deadlines or BB_deadlines:  # Both is returned as empty if does not have course
                 self.replier.reply(user_id,
-                                   "For course " + course.upper() + " I found these deadlines:\n" + IL_deadlines + BB_deadlines,
-                                   "text")
+                                   "For course " + course.upper() + " I found these deadlines:\n"
+                                   + IL_deadlines + BB_deadlines, "text")
             else:
                 self.replier.reply(user_id, "I couldn't find any deadlines for " + course.upper(), "text")
         return course, until

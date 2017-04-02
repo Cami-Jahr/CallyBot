@@ -174,7 +174,7 @@ def IL_scrape(user_id, course, until, db):
                     day, month, year = line[3].split(".")
                     if current < datetime(due_year, due_month, due_day) - timedelta(days=defaulttime):
                         reminders_to_set.append(
-                            (line[1], line[0] + " in " + line[1], "{}-{}-{}".format(year, month, day) + " 12:00:00"))
+                            (line[1], line[0] + " in " + line[1] + " with due date: " + line[3], "{}-{}-{}".format(year, month, day) + " 12:00:00"))
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[3] + " " + line[
                         4] + "\n\n"  # Format to default ###NOTE### does support time as line[4]
             db.delete_all_coursemade_reminders(user_id)  # Clears database of old reminders from classes
@@ -214,7 +214,7 @@ def BB_scrape(user_id, course, until, db):
                     day, month, year = line[3].split(".")
                     if current < datetime(due_year, due_month, due_day) - timedelta(days=default_time):
                         reminders_to_set.append(
-                            (line[1], line[0] + " in " + line[1], "20{}-{}-{}".format(year, month, day) + " 12:00:00"))
+                            (line[1], line[0] + " in " + line[1] + " with due date: " + line[3], "20{}-{}-{}".format(year, month, day) + " 12:00:00"))
                     msg += line[0] + "\nin " + line[1] + " " + line[2] + "\nDue date: " + line[
                         3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
             add_default_reminders(user_id, reminders_to_set, db)

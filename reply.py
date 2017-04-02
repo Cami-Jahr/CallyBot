@@ -157,13 +157,6 @@ class Reply:
 
         # ------------ GET STARTED --------------
         elif content_lower == "start_new_chat":
-            msg = "_____@_____\nThis is alpha version of the bot, if you encounter anything unusual, " \
-                  "please report it as detailed as possible. If you wish a feature added please inform" \
-                  " us about it. Please do report anything you can, from typos, to " \
-                  "poor sentences, to hard to access information, to any 'shortcuts' you would like to " \
-                  "see. Thank you for helping with testing of " \
-                  "the bot!\n\n- The developers of CallyBot."
-            self.reply(user_id, msg, 'text')
             fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Get userinfo
             self.db.add_user(user_id, fname + lname)
             msg = "Welcome " + fname + "!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
@@ -246,7 +239,7 @@ class Reply:
         elif content_list[0] == 'announcement':
             users = self.db.get_announcement_subscribers()
             for user in users:
-                self.reply(user, 'Announcement:\n' + ' '.join(content_list[1:]).capitalize(), 'text')
+                self.reply(user, 'Announcement:\n' + ' '.join(content_list[1:]), 'text')
 
         else:
             return "Unknown command"
@@ -444,7 +437,7 @@ class Reply:
                 if time < current + timedelta(minutes=10):
                     self.reply(user_id,
                                "I am sorry, I could not set the reminder '" +
-                               msg.capitalize() + "' as it tried to set itself to a time in the past, or within the "
+                               msg + "' as it tried to set itself to a time in the past, or within the "
                                                   "next 10 minutes: " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
                                                                  "If you believe this was a bug, report it with the "
@@ -454,9 +447,9 @@ class Reply:
                     self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
                                time.strftime("%Y-%m-%d %H:%M"), "text")
                 else:
-                    self.db.add_reminder(msg.capitalize(), time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
+                    self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                    self.reply(user_id, "The reminder " + msg.capitalize() + " was sat at " +
+                    self.reply(user_id, "The reminder " + msg + " was sat at " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
             except ValueError:
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
