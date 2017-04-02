@@ -19,7 +19,7 @@ class CallybotDB:
         print("trying to connect to " + self.host)
         try:
             self.db = MySQLdb.connect(self.host, self.username, self.password, self.DB_name)
-        except MySQLdb.OperationalError:  # pragma: no cover
+        except MySQLdb.OperationalError:  
             print("\n\n\n\n\n\n\n\n\n\n####################################################\nServer could not "
                   "connect to database. Fatal error\nTime alive: ", datetime.now() - self.init_time, "\n\nFrom: ",
                   self.init_time, "\nTo: ", datetime.now(), "\n####################################################")
@@ -31,7 +31,7 @@ class CallybotDB:
         """close connection to database, void"""
         self.db.close()
 
-    def test_connection(self):  # pragma: no cover
+    def test_connection(self):  
         """Tests if connection with server is still live, if it is not it tries to open a new connection, void"""
         if self.db.stat() == "MySQL server has gone away":
             self.close()
@@ -204,13 +204,13 @@ class CallybotDB:
             sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
             self.cursor.execute(sql)
             self.db.commit()
-            try:  # pragma: no cover
+            try:  
                 IL_scrape(user_id, 'ALL', '31/12', self)
                 BB_scrape(user_id, 'ALL', '31/12', self)
             except (TypeError, ValueError):  # user not added username/ password to database
                 pass
             return True
-        except MySQLdb.OperationalError:  # pragma: no cover
+        except MySQLdb.OperationalError:  
             return False
 
     def unsubscribe_announcement(self, user_id):
