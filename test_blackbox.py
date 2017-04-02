@@ -46,40 +46,34 @@ class FacebookTester(unittest.TestCase):
 
     def test_some_question(self):
         """Writes some queries, and checks if answer is correct"""
-        queries = deque([(1, "start_new_chat"),
-                         (1, "help"),
-                         (1, "HELP"),
-                         (1, "get default-time"),  # 5
+        queries = deque([(1, "start_new_chat"),  # 1
+                         (1, "get default-time"),
                          (1, "set default-time 2"),
                          (1, "get default-time"),
-                         (1, "set default-time 1"),
+                         (1, "set default-time 1"),  # 5
                          (1, "get exams"),
-                         (1, "subscribe"),  # 10
+                         (1, "GeT ExAmS"),
+                         (1, "subscribe"),
                          (3, "subscribe TTM4100 TDT404"),
-                         (1, "get exams"),
+                         (1, "get exams"),  # 10
                          (3, "unsubscribe TTM4100 TDT404")])
         # Swapped to correspond to queries
-        help_answer = "Oh you need help?\nNo problem!\nFollowing commands are supported:\n\n- Login\n- Get deadlines" \
-                      "\n- Get exams\n- Get links\n- Get reminders\n- Get default-time\n- Get subscribed\n- Set " \
-                      "reminder\n- Set default-time\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe" \
-                      "\n- Unsubscribe\n- Help\n\nThere is also a persistent menu to the left of the input field, it " \
-                      "has shortcuts to some of the commands!\n\nBut that's not all, there are also some more hidden " \
-                      "commands!\nIt is up to you to find them \n\nIf you want a more detailed overview over a " \
-                      "feature, you can write 'help <feature>'. You can try this with 'help help' now!."
         answers = deque(
-            ["My name is CallyBot, but you may call me Cally \nI will keep you up to date on your upcoming deadlines on itslearning and Blackboard. Type 'login' or use the menu to get started. \nIf you need help, or want to know more about what I can do for you, just type 'help'.\n\nPlease do enjoy!",
-             help_answer,
-             help_answer,
-             "Your default-time is: 1 day(s)",  # 5
+            ["Welcome Joachim!\nMy name is CallyBot, but you may call me Cally \nI will keep you up to "
+             "date on your upcoming deadlines on itslearning and Blackboard. Type 'login' or use the menu "
+             "to get started. \nIf you need help, or want to know more about what I can do for you, just "
+             "type 'help'.\n\nPlease do enjoy!",  # 1
+             "Your default-time is: 1 day(s)",
              "Your default-time was set to: 2 day(s)",
              "Your default-time is: 2 day(s)",
-             "Your default-time was set to: 1 day(s)",
+             "Your default-time was set to: 1 day(s)",  # 5
              "I could not find any exam date, are you sure you are subscribed to courses?",
-             "Please specify what to subscribe to. Type 'help' or visit https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands",
-             # 10
+             "I could not find any exam date, are you sure you are subscribed to courses?",
+             "Please specify what to subscribe to. Type 'help' or visit "
+             "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands",
              "Subscribing to TTM4100,TDT404...", "The following course(s) do(es) not exist: TDT404",
              "You have successfully subscribed to TTM4100",
-             "The exam in TTM4100 is on 2017-05-22",
+             "The exam in TTM4100 is on 2017-05-22",  # 10
              "Unsubscribing from TTM4100,TDT404...", "The following course(s) do(es) not exist: TDT404",
              "You have successfully unsubscribed from TTM4100"])
         next_question = queries.popleft
@@ -97,9 +91,11 @@ class FacebookTester(unittest.TestCase):
                 if seen + number == now_amount:  # If there are any new messages
                     for nr in range(seen, now_amount):
                         expected = next_answer()
-                        #self.assertEqual(new_elems[nr].text, expected, "Failed at query: " + question)
+                        # self.assertEqual(new_elems[nr].text, expected, "Failed at query: " + question)
                         if expected != new_elems[nr].text:
                             print(question + "\n\n" + new_elems[nr].text + "\n" + expected)
+                            for i in range(len(expected)):
+                                print("Exp: " + expected[i] + "\nGot: " + new_elems[nr].text[i], i)
                     sent = False  # Tester should send next question
                 else:
                     sleep(.1)  # Waiting time in pooling. in sec
