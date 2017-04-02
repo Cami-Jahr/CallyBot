@@ -6,7 +6,7 @@ $username = $_POST['username'];
 $password = $_POST['password'];
 $fbid = $_POST['fbid'];
 
-$key="this should be a key"
+$key="this should be a key";
 
 $enc = openssl_encrypt($password, "AES-256-CBC", $key);
 
