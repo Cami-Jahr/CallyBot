@@ -1,9 +1,10 @@
 import reply
 import credentials
 import unittest
-
+import callybot_database
 credential = credentials.Credentials()
-replier = reply.Reply(credential.access_token)
+db = callybot_database.CallybotDB(*credential.db_info)
+replier = reply.Reply(credential.access_token, db)
 
 
 class Tester(unittest.TestCase):

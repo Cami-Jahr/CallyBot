@@ -51,6 +51,17 @@ class TestHelpMethods(unittest.TestCase):
             self.assertNotEqual(data, "SQLerror")
         self.assertEqual(HM.BB_scrape("00000", "ALL", "31/12", db), "SQLerror")
 
+    def test_typo_correction(self):
+        typo = HM.get_most_similar_command
+        self.assertEqual(typo("zet reminder"), "set reminder")
+        self.assertEqual(typo("het reminder"), "get reminder")
+        self.assertEqual(typo("ramx"), "exams")
+        self.assertEqual(typo("subscribe anuncement"), "subscribe announcement")
+        self.assertEqual(typo("halp"), "help")
+        self.assertEqual(typo("help helap"), "help help")
+        self.assertEqual(typo("hep get deafault.time"), "help get default-time")
+        self.assertEqual(typo("developer announce"), "developer announcement")
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -18,14 +18,13 @@ handled_timestamps = []
 
 
 def init():
+    interrupt()
     thread_handler = thread_settings.ThreadSettings(credential.access_token)
     thread_handler.whitelist("https://folk.ntnu.no/halvorkmTDT4140/")
     thread_handler.set_greeting(
         "Hi there {{user_first_name}}!\nWelcome to CallyBot. Press 'Get Started' to get started!")
     thread_handler.set_get_started()
-    thread_handler.set_persistent_menu()
-
-    interrupt()
+    return thread_handler.set_persistent_menu()
 
 
 def interrupt():
@@ -47,7 +46,7 @@ def reminder_check():
     if current:
         for reminder in current:
             replier.reply(reminder[1], "Reminder: " + reminder[2], "text")
-    return
+    return current
 
 
 @app.route('/', methods=['POST'])  # pragma: no cover

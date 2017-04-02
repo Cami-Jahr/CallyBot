@@ -1,14 +1,14 @@
 import ilearn_scrape
 import iblack_scrape
 import requests
-import json
+from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
 from Crypto.Cipher import AES  # pip pycrypto
 import base64
-import credentials
-import math
+from credentials import Credentials
+from math import inf
 
-AES_key = credentials.Credentials().key
+AES_key = Credentials().key
 
 
 def add_padding(text):
@@ -44,7 +44,7 @@ def add_default_reminders(user_id, assignments, db):
             db.add_reminder(assignment[1], assignment[2], 1, user_id)
 
 
-def search_reminders(db):  # pragma: no cover
+def search_reminders(db):
     """Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
     listing = db.get_all_reminders()
     min_ago = datetime.now() - timedelta(minutes=3)
@@ -62,13 +62,13 @@ def get_course_exam_date(course_code):
     """Returns the exam date of the given course. Sorted and split with ', '"""
     try:
         info = requests.get('http://www.ime.ntnu.no/api/course/' + course_code).json()
-    except json.decoder.JSONDecodeError:  # course does not exist in ime api
+    except JSONDecodeError:  # course does not exist in ime api
         return "Was unable to retrieve exam date for " + course_code
     now = datetime.now()
-    if 1 < now.month < 7:  # pragma: no cover
+    if 1 < now.month < 7:
         start = datetime(now.year, 1, 1)
         end = datetime(now.year, 6, 30)
-    else:  # pragma: no cover
+    else:
         start = datetime(now.year, 7, 1)
         end = datetime(now.year, 12, 31)
     exam_dates = set()
@@ -111,13 +111,13 @@ supported_commands = ('help get deadline', 'set reminder', 'help unsubscribe', '
                       'get default', 'request', 'get deadline', 'help subscribe', 'classes', 'exam', 'help login',
                       'help set reminders', 'help set default', 'set course', 'help get subscribed', 'courses',
                       'get course', 'help get deadlines', 'set courses', 'help get links', "subscribe announcement",
-                      "subscribe announcements","unsubscribe announcement", "unsubscribe announcements")
+                      "subscribe announcements", "unsubscribe announcement", "unsubscribe announcements")
 
 
 def get_most_similar_command(user_input):
     """Uses edit distance to calculate which command user most likely was trying to type in case of typo. 
     Needs a test."""
-    min_change = math.inf
+    min_change = inf
     most_similar_cmd = ""
     for cmd in supported_commands:
         distance = edit_distance(cmd, user_input)
@@ -165,7 +165,7 @@ def IL_scrape(user_id, course, until, db):
         reminders_to_set = []
         defaulttime = db.get_defaulttime(user_id)
         if course == "ALL":
-            for line in info:  # pragma: no cover
+            for line in info:
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 due_year = int(line[3].split(".")[2])
@@ -180,7 +180,7 @@ def IL_scrape(user_id, course, until, db):
             db.delete_all_coursemade_reminders(user_id)  # Clears database of old reminders from classes
             add_default_reminders(user_id, reminders_to_set, db)
         else:
-            for line in info:  # pragma: no cover
+            for line in info:
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 if line[1] == course and (max_month > due_month or (
@@ -206,7 +206,7 @@ def BB_scrape(user_id, course, until, db):
         # Max time it should get deadlines to
         reminders_to_set = []
         if course == "ALL":
-            for line in info:  # pragma: no cover
+            for line in info:
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 due_year = int("20" + line[3].split(".")[2])
@@ -219,7 +219,7 @@ def BB_scrape(user_id, course, until, db):
                         3] + "\n\n"  # Format to default ###NOTE### do NOT support time as line[4]
             add_default_reminders(user_id, reminders_to_set, db)
         else:
-            for line in info:  # pragma: no cover
+            for line in info:
                 due_day = int(line[3].split(".")[0])
                 due_month = int(line[3].split(".")[1])
                 if line[1] == course and (max_month > due_month or (

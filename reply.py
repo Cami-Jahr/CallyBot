@@ -10,7 +10,7 @@ class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
 
-    def __init__(self, access_token=None, db=None):
+    def __init__(self, access_token, db):
         self.access_token = access_token
         self.db = db
         self.scraper = scraper.Scraper(self, self.db)
@@ -30,8 +30,6 @@ class Reply:
         data_type, content = Reply.process_data(data)
         print("Data type:", data_type)
         print("Content:", content)
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + "  User: " + content + "\n")
         if data_type == "unknown":  # Cant handle unknown
             print("\x1b[0;34;0mUnknown data type\x1b[0m")
             return True
@@ -210,7 +208,7 @@ class Reply:
             return str(user_id)
 
         elif content_list[0] == "requests" or content_list[0] == "request":
-            with open("REQUEST/user_requests.txt", "r", encoding='utf-8') as f:
+            with open("user_requests.txt", "r", encoding='utf-8') as f:
                 all_requests = f.readlines()
                 msg = ""
                 for request in all_requests:
@@ -222,7 +220,7 @@ class Reply:
             return msg
 
         elif content_list[0] == "bugs" or content_list[0] == "bug":
-            with open("BUG/user_bug_reports.txt", "r", encoding='utf-8') as f:
+            with open("user_bug_reports.txt", "r", encoding='utf-8') as f:
                 reports = f.readlines()
                 msg = ""
                 for report in reports:
@@ -545,7 +543,7 @@ class Reply:
         if not content_list:
             return "Please specify the bug you found. Type 'help' or visit " \
                    "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
-        with open("BUG/user_bug_reports.txt", "a", encoding='utf-8') as f:
+        with open("user_bug_reports.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         return "The bug was taken to my developers. One of them might contact you if they need further " \
                "help with the bug."
@@ -555,7 +553,7 @@ class Reply:
         if not content_list:
             return "Please specify your request. Type 'help' or visit " \
                    "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
-        with open("REQUEST/user_requests.txt", "a", encoding='utf-8') as f:
+        with open("user_requests.txt", "a", encoding='utf-8') as f:
             f.write(datetime.now().strftime("%Y-%m-%d %H:%M") + ";" + user_id + ": " + " ".join(content_list) + "\n")
         return "The request was taken to my developers. I will try to make your wish come true, but keep" \
                " in mind that not all request are feasible."
@@ -757,7 +755,7 @@ class Reply:
                 content = ""
         return data_type, content
 
-    def reply(self, user_id, msg, msg_type):  
+    def reply(self, user_id, msg, msg_type):
         """Replies to the user with the given message"""
         if msg_type == 'text':  # Text reply
             data = {
@@ -781,13 +779,8 @@ class Reply:
             return True
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
-        with open("LOG/" + user_id + "_chat.txt", "a", encoding="UTF-8") as f:
-            f.write(datetime.now().strftime("%Y-%m-%d %H:%M:%S") + " Cally: " + msg + "\n")
-        if "error" in feedback:
-            with open("LOG/reply_fail.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": msg: " + msg + "; ERROR msg: " + str(feedback["error"]) + "\n")
 
-    def login(self, user_id):  
+    def login(self, user_id):
         """Sends the user to the login page"""
         fname, lname, pic = help_methods.get_user_info(self.access_token, user_id)  # Retrieve user info
         url = "https://folk.ntnu.no/halvorkm/TDT4140?userid=" + str(user_id) + "?name=" + fname + "%" + lname
@@ -813,9 +806,6 @@ class Reply:
         }
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
-        if "error" in feedback:
-            with open("LOG/login_fail.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": login ; ERROR msg: " + str(feedback["error"]) + "\n")
 
     def make_typo_correction_buttons(self, user_id, content_lower):
         """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
@@ -848,10 +838,6 @@ class Reply:
         }
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
-        if "error" in feedback:
-            with open("LOG/quick_reply_errors.txt", "a", encoding="UTF-8") as f:
-                f.write(user_id + ": msg: " + content_lower + ". Assumed: " + most_likely_cmd + "; ERROR msg: "
-                        + str(feedback["error"]) + "\n")
 
-    def get_reply_url(self):  
+    def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token

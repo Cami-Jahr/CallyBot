@@ -36,7 +36,7 @@ def scrape(username, password):
     try:
         wait.until(lambda driver: driver.find_element_by_id(
             'block::1-dueView::1-dueView_1'))  # Wait for the site to load properly
-    except TimeoutException:  # pragma: no cover
+    except TimeoutException:
         driver.quit()
         return "error"
 
