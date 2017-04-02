@@ -6,3 +6,5 @@ reply.fail.txt
 user_bug_reports.txt
 .cache
 testing.py
+.coverage
+LOG
