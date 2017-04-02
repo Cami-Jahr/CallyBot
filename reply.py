@@ -4,6 +4,7 @@ import re
 from datetime import datetime, timedelta
 import json
 import scraper
+from collections import deque
 
 
 class Reply:
@@ -757,30 +758,52 @@ class Reply:
         return data_type, content
 
     def reply(self, user_id, msg, msg_type):
-        """Replies to the user with the given message"""
-        if msg_type == 'text':  # Text reply
-            data = {
-                "recipient": {"id": user_id},
-                "message": {"text": msg}
-            }
-        elif msg_type in ('image', 'audio', 'video', 'file'):  # Media attachment reply
-            data = {
-                "recipient": {"id": user_id},
-                "message": {
-                    "attachment": {
-                        "type": msg_type,
-                        "payload": {
-                            "url": msg
+        """Replies to the user with the given message, splitts the message if it is too long"""
+        msg = ". ".join([i.strip().capitalize() for i in msg.split('. ')])
+        sectionized = self.sectionize(msg, msg_type == "text")
+        for msg in sectionized:
+            if msg_type == 'text':  # Text reply
+                data = {
+                    "recipient": {"id": user_id},
+                    "message": {"text": msg}
+                }
+            elif msg_type in ('image', 'audio', 'video', 'file'):  # Media attachment reply
+                data = {
+                    "recipient": {"id": user_id},
+                    "message": {
+                        "attachment": {
+                            "type": msg_type,
+                            "payload": {
+                                "url": msg
+                            }
                         }
                     }
                 }
-            }
+            else:
+                print("Error: Type not supported")
+                return True
+            response = requests.post(self.get_reply_url(), json=data)
+            feedback = json.loads(response.content.decode())
+            print(feedback)
+
+    def sectionize(self, msg, text):
+        if len(msg) > 600 and text:  # Should allays be false, and multiple instances of reply called iinstead
+            sectionized = []
+            splitted = deque(msg.split(" "))
+            msg = ""
+            pop = splitted.popleft
+            while splitted:
+                new = pop()
+                if len(msg) + len(new) > 600:
+                    sectionized.append(msg)
+                    msg = new
+                else:
+                    msg += new + " "
+            sectionized.append(msg)
         else:
-            print("Error: Type not supported")
-            return True
-        response = requests.post(self.get_reply_url(), json=data)
-        feedback = json.loads(response.content.decode())
-        print(feedback)
+            sectionized = [msg]
+        return sectionized
+
 
     def login(self, user_id):
         """Sends the user to the login page"""
