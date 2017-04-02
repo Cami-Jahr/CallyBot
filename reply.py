@@ -561,7 +561,7 @@ class Reply:
     def help(self, user_id, content_list):
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
-            return "Oh you need help?\nNo problem!\nFollowing commands are supported:\n" \
+            return "Oh you need help?\nNo problem!\nThe following commands are supported:\n" \
                    "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
                    "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
                    "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \

@@ -95,23 +95,23 @@ def get_user_info(access_token, user_id):
     return firstname, lastname, picture
 
 
-supported_commands = ('help get deadline', 'set reminder', 'help unsubscribe', 'help delete reminder', 'set classes',
-                      'set class', 'course', 'help deadline', 'delete me', 'deadline', 'developer requests',
-                      'help get exam', 'get exams', 'get', 'set', 'get deadlines', 'help get exams', 'get reminder',
-                      'get link', 'help get', 'help get default', 'help set reminder', 'links', 'get reminders',
-                      'unsubscribe', 'developer announcement', 'hint', 'get exam', 'profile', 'delete reminders',
-                      'subscribed', 'help delete me', 'developer users', 'help bug', 'get links', 'login',
-                      'get classes', 'help help', 'get class', 'help get reminder', 'delete', 'get default-time',
-                      'help delete reminders', 'delete reminder', 'set reminders', 'set default-time',
-                      'help get reminders', 'help get link', 'deadlines', 'help reminders', 'get subscribe',
-                      'help request', 'bug', 'help', 'help set', 'subscribe', 'exams', 'developer id',
-                      'developer request', 'get subscribed', 'help get default-time', 'help get subscribe',
-                      'help reminder', 'help set default-time', 'developer bug', 'help deadlines', 'developer user',
-                      'developer bugs', 'get courses', 'link', 'help delete', 'set default', 'get profile',
-                      'get default', 'request', 'get deadline', 'help subscribe', 'classes', 'exam', 'help login',
-                      'help set reminders', 'help set default', 'set course', 'help get subscribed', 'courses',
-                      'get course', 'help get deadlines', 'set courses', 'help get links', "subscribe announcement",
-                      "subscribe announcements", "unsubscribe announcement", "unsubscribe announcements")
+supported_commands = (
+    'bug', 'classes', 'course', 'courses', 'deadline', 'deadlines', 'delete', 'delete me', 'delete reminder',
+    'delete reminders', 'developer announcement', 'developer bug', 'developer bugs', 'developer id',
+    'developer request',
+    'developer requests', 'developer user', 'developer users', 'exam', 'exams', 'get', 'get class', 'get classes',
+    'get course', 'get courses', 'get deadline', 'get deadlines', 'get default', 'get default-time', 'get exam',
+    'get exams', 'get link', 'get links', 'get profile', 'get reminder', 'get reminders', 'get subscribe',
+    'get subscribed',
+    'help', 'help bug', 'help deadline', 'help deadlines', 'help delete', 'help delete me', 'help delete reminder',
+    'help delete reminders', 'help get', 'help get deadline', 'help get deadlines', 'help get default',
+    'help get default-time', 'help get exam', 'help get exams', 'help get link', 'help get links', 'help get reminder',
+    'help get reminders', 'help get subscribe', 'help get subscribed', 'help help', 'help login', 'help reminder',
+    'help reminders', 'help request', 'help set', 'help set default', 'help set default-time', 'help set reminder',
+    'help set reminders', 'help subscribe', 'help unsubscribe', 'hint', 'link', 'links', 'login', 'profile', 'request',
+    'set', 'set class', 'set classes', 'set course', 'set courses', 'set default', 'set default-time', 'set reminder',
+    'set reminders', 'subscribe', 'subscribe announcement', 'subscribe announcements', 'subscribed', 'unsubscribe',
+    'unsubscribe announcement', 'unsubscribe announcements')
 
 
 def get_most_similar_command(user_input):
