@@ -8,6 +8,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.triggers.cron import CronTrigger
 import credentials
 import callybot_database
+from datetime import datetime
 
 app = Flask(__name__)
 credential = credentials.Credentials()
@@ -25,6 +26,14 @@ def init():
         "Hi there {{user_first_name}}!\nWelcome to CallyBot. Press 'Get Started' to get started!")
     thread_handler.set_get_started()
     return thread_handler.set_persistent_menu()
+
+
+def clear_old_reminders():
+    """Clears old reminders, which were not checked while database was down"""
+    reminders = db.get_all_reminders()
+    for reminder in reminders:
+        if reminder[0] < datetime.now():
+            db.delete_reminder(reminder[4])
 
 
 def interrupt():
