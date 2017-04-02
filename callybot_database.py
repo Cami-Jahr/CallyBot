@@ -235,7 +235,7 @@ class CallybotDB:
             return False
         try:
             sql = """UPDATE user SET announcement='1' WHERE fbid='%s'""" % user_id
-            self.cursor(sql)
+            self.cursor.execute(sql)
             self.db.commit()
         except MySQLdb.OperationalError:
             return False
@@ -323,7 +323,7 @@ class CallybotDB:
         self.test_connection()
         sql = """SELECT fbid FROM user WHERE announcement='1'"""
         self.cursor.execute(sql)
-        results = self.cursor.fetchall
+        results = self.cursor.fetchall()
         return [row[0] for row in results]
 
 
