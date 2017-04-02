@@ -147,7 +147,7 @@ def edit_distance(s1, s2):
         for j in range(1, n):
             cost = 0 if s1[i - 1] == s2[j - 1] else 1
             tbl[i, j] = min(tbl[i, j - 1] + 1, tbl[i - 1, j] + 1, tbl[i - 1, j - 1] + cost)
-    return tbl[i, j]
+    return tbl[i, j] + abs(i - j)  # Gives penalty if s1 and s2 are of different length
 
 
 def IL_scrape(user_id, course, until, db):
