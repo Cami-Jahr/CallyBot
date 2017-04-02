@@ -50,8 +50,11 @@ def reminder_check():
     return
 
 
-@app.route('/', methods=['POST'])
-def handle_incoming_messages():
+@app.route('/', methods=['POST'])  # pragma: no cover
+def handle_incoming_messages():  # pragma: no cover
+    """Handles incoming POST messages, has 'pragma: no cover' due to pytest throwing an error
+    when handling flask application methods, and internal testing is not needed as this is 
+    properly tested trough blackbox"""
     data = request.json
     global handled_timestamps
     try:
@@ -80,8 +83,11 @@ def handle_incoming_messages():
     return "ok", 200
 
 
-@app.route('/', methods=['GET'])
-def handle_verification():
+@app.route('/', methods=['GET'])  # pragma: no cover
+def handle_verification():  # pragma: no cover
+    """Handles incoming GET messages, has 'pragma: no cover' due to pytest throwing an error
+    when handling flask application methods. This method is properly tested by connectig the server
+    to the server"""
     if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
         if request.args['hub.verify_token'] == credential.verify_token:
             return request.args['hub.challenge'], 200
@@ -92,4 +98,4 @@ def handle_verification():
 
 if __name__ == '__main__':
     init()
-    app.run(debug=True, use_reloader=False, threaded=True)
+    app.run(threaded=True)
