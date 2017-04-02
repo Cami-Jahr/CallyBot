@@ -7,8 +7,8 @@ class TestCallybotDB(unittest.TestCase):
     def test_a_add_user(self):  # 200 OK
         db = CDB.CallybotDB("mysql.stud.ntnu.no", "ingritu", "FireFly33", "ingritu_callybot")
         user_id = '0000'
-        username = 'rubbish'
-        password = 'trash'
+        username = 'username'
+        password = 'password'
         user2 = '1111'
         user3 = '2222'
         user4 = '3333'

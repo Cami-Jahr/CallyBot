@@ -1,9 +1,10 @@
 import reply
 import credentials
 import unittest
-
+import callybot_database
 credential = credentials.Credentials()
-replier = reply.Reply(credential.access_token)
+db = callybot_database.CallybotDB(*credential.db_info)
+replier = reply.Reply(credential.access_token, db)
 
 
 class Tester(unittest.TestCase):
@@ -60,6 +61,13 @@ class Tester(unittest.TestCase):
         data_type, content = reply.Reply.process_data(test_data_geolocation)
         self.assertEqual(data_type, "geolocation")
         self.assertEqual(content, "this is geolocation url")
+
+        test_data_quick_reply = {'entry': [{'messaging': [
+            {'message': {'quick_reply': {'payload': "this is reply"},
+                         'text': 'this is text'}}]}]}  # check for quick reply
+        data_type, content = reply.Reply.process_data(test_data_quick_reply)
+        self.assertEqual(data_type, "text")
+        self.assertEqual(content, "this is reply")
 
 
 if __name__ == '__main__':

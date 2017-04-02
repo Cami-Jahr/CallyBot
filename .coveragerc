@@ -1,0 +1,7 @@
+[run]
+omit =
+    dummy_main.py
+    */site-packages/*
+    *test_*
+    testing.py
+    credentials.py

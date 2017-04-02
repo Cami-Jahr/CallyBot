@@ -31,9 +31,20 @@ To install all packages, locate requirements.txt on your computed, open your ter
 pip install -r requirements.txt
 ```
 
-Go into the **server_main.py** file and locate the variable **ACCESS_TOKEN**. Switch the value with the token you generated earlier.<br />
+A **credentials.py** file will also be needed, it should have the following format:
+```
+class Credentials:  # Add credentials here
+    def __init__(self):
+        self.access_token = Your_access_token        
+        self.verify_token = Your_verify_token
+        self.db_info = (URL_to_database, Login_name, Login_password, Database_name)
+        self.key = Your_encryption_key
+        self.feide = (A_feide_login_name, The_encrypted_password)  # This is only used in testing
+
+```
+Begin by adding the access token you generated earlier in the correct field. Enter a verify token and a key, the verify token is used when connection the bot to facebook, chose a safe password. The key is used in encryption, it should consist of 32 characters. The database information should be inserted into its field. The database structure supported by this code follows ![this ER scheme](http://i.imgur.com/GX2U4RJ.png)<br />
 Now when you run the **server_main.py** file the server will run locally. We want to put it online. To do so we use [ngrok](https://ngrok.com/download)<br />
-To use it simply, run the exe file with arguments **http** and **used_port**. We have not specified any port in the code, so Flask will use the default which is 5000. For instance:
+To use it, run the exe file with arguments **http** and **used_port**. We have not specified any port in the code, so Flask will use the default which is 5000. For instance:
 ```
 ./ngrok http 5000
 ```
@@ -43,21 +54,35 @@ ngrok http 5000
 ```
 Be sure to be in the folder in which ngrok was downloaded <br /><br />
 If everything went as it should ngrok has now given you a https url which points to your local port.<br />
-Copy this url then run the **server_main.py** file. The current code uses an MySQL server from NTNU, which requires the code to be launched from within NTNU's eduroam, or on a computer running the [NTNU VPN](https://innsida.ntnu.no/wiki/-/wiki/English/Install+VPN?_36_pageResourcePrimKey=915712). <br />
+Copy this url then run the **server_main.py** file. The current code uses an MySQL. We spessificly use servers from NTNU, which requires the code to be launched from within NTNU's eduroam, or on a computer running the [NTNU VPN](https://innsida.ntnu.no/wiki/-/wiki/English/Install+VPN?_36_pageResourcePrimKey=915712). <br />
 Now go back to the app creation page and click on **+ Add Product**. Choose **webhook** and click **New subscription** and select **Page**<br /><br />
 Be sure to be in the folder in which ngrok was saved. <br /><br />
 If everything went as it should, ngrok has now given you a https url which points to your local port.<br />
 Copy this url and then run the **server_main.py** file.<br />
 Now go back to the app creation page and click on **+ Add Product**. Choose **webhook**, click **New subscription** and select **Page**.<br /><br />
-In the **Callback URL** field, paste the url you got from ngrok. In the **Verify Token** field type in "**verifytoken**". This is already chosen in the code, under the variable name **VERIFY_TOKEN** in **server_main.py**. You are free to change this if you like, just be sure that it matches.<br /><br />
+In the **Callback URL** field, paste the url you got from ngrok. In the **Verify Token** field type in the token you chose in your **credentials** file. <br /><br />
 In the **Subscription Fields**, choose **messages** and **messaging_postbacks**. <br />
-Now cross your fingers and then press **Verify and save**. Now you should see a **POST** request in ngrok and server_main with **200 ok** or similar as answer. If you do not, go over the steps and see if you missed anything. <br /><br />
+Now press **Verify and save**. Now you should see a **POST** request in ngrok and server_main with **200 ok** or similar as answer. If you do not, go over the steps and see if you missed anything. <br /><br />
 To complete the setup, go back to **Messenger** under **Products** and go to the **Webhooks** section. Select your page and make it subscribe to the webook. <br /><br />
 Now you should be good to go! Have fun chatting! <br/><br />
-<sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*.<br />
-<sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compiler](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.*
 #### Notes
 Every time you start ngrok you get a new url. Be sure to change the webhook url to this. Also, if you shut down ngrok (the url) for too long, the webhook will be disabled. To fix this, you need to first update it with the new url, then make the page resubscribe to the webhook. <br /><br />
+
+## Testing
+To test that the code runs correctly, you should run the included test\_ files. You will need to insert supported values into the feide field in the **credentials.py** file discussed earlier. This code is made to support pytest, to run all tests, and see a detailed overview of the test coverage, install the pytest library or run
+```
+pip install -r test_requirements.txt
+```
+With the terminal open at the codes location, simply write
+```
+./pytest
+```
+or
+```
+pytest
+```
+to run the test with predefined configuration as spessified in setup.cfg and .coveragerc.
+
 
 ## Coding Convention
 In this project, the chosen coding convention is PEP 8 for the Python Code. Further detailed information can be found [here](https://www.python.org/dev/peps/pep-0008/#introduction).
@@ -66,3 +91,6 @@ In this project, the chosen coding convention is PEP 8 for the Python Code. Furt
 Our team is here to help if you have any questions. There are several ways to get in touch with our team member:
 * Get support by joining our communication channel on Facebook Messenger [here](http://m.me/CallyBot).
 * Report issues [here](https://github.com/Folstad/TDT4140/issues) by opening a Github Issue on our repository.
+<br />
+<sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*.<br />
+<sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compiler](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.*

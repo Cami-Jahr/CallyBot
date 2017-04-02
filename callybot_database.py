@@ -1,6 +1,6 @@
 import MySQLdb
 from datetime import datetime, timedelta
-import help_methods
+from help_methods import IL_scrape, BB_scrape
 
 
 class CallybotDB:
@@ -205,9 +205,9 @@ class CallybotDB:
             self.cursor.execute(sql)
             self.db.commit()
             try:
-                help_methods.IL_scrape(user_id, 'ALL', '31/12', self)
-                help_methods.BB_scrape(user_id, 'ALL', '31/12', self)
-            except TypeError:  # user not added username/ password to database
+                IL_scrape(user_id, 'ALL', '31/12', self)
+                BB_scrape(user_id, 'ALL', '31/12', self)
+            except (TypeError, ValueError):  # user not added username/ password to database
                 pass
             return True
         except MySQLdb.OperationalError:

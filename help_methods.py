@@ -1,14 +1,14 @@
 import ilearn_scrape
 import iblack_scrape
 import requests
-import json
+from json.decoder import JSONDecodeError
 from datetime import datetime, timedelta
 from Crypto.Cipher import AES  # pip pycrypto
 import base64
-import credentials
-import math
+from credentials import Credentials
+from math import inf
 
-AES_key = credentials.Credentials().key
+AES_key = Credentials().key
 
 
 def add_padding(text):
@@ -62,8 +62,8 @@ def get_course_exam_date(course_code):
     """Returns the exam date of the given course. Sorted and split with ', '"""
     try:
         info = requests.get('http://www.ime.ntnu.no/api/course/' + course_code).json()
-    except json.decoder.JSONDecodeError:  # course does not exist in ime api
-        return "Was unable to retrive exam date for " + course_code
+    except JSONDecodeError:  # course does not exist in ime api
+        return "Was unable to retrieve exam date for " + course_code
     now = datetime.now()
     if 1 < now.month < 7:
         start = datetime(now.year, 1, 1)
@@ -78,7 +78,7 @@ def get_course_exam_date(course_code):
                 exam_date = datetime.strptime(info["course"]["assessment"][i]["date"], "%Y-%m-%d")
                 if start < exam_date < end:
                     exam_dates.add(exam_date.strftime("%Y-%m-%d"))
-    except (KeyError, TypeError):  # Catch if date does not exist, or assessment does not exist
+    except KeyError:  # Catch if date does not exist, or assessment does not exist
         pass
     return ", ".join(sorted(exam_dates))
 
@@ -110,13 +110,14 @@ supported_commands = ('help get deadline', 'set reminder', 'help unsubscribe', '
                       'developer bugs', 'get courses', 'link', 'help delete', 'set default', 'get profile',
                       'get default', 'request', 'get deadline', 'help subscribe', 'classes', 'exam', 'help login',
                       'help set reminders', 'help set default', 'set course', 'help get subscribed', 'courses',
-                      'get course', 'help get deadlines', 'set courses', 'help get links')
+                      'get course', 'help get deadlines', 'set courses', 'help get links', "subscribe announcement",
+                      "subscribe announcements", "unsubscribe announcement", "unsubscribe announcements")
 
 
 def get_most_similar_command(user_input):
     """Uses edit distance to calculate which command user most likely was trying to type in case of typo. 
     Needs a test."""
-    min_change = math.inf
+    min_change = inf
     most_similar_cmd = ""
     for cmd in supported_commands:
         distance = edit_distance(cmd, user_input)
@@ -155,7 +156,7 @@ def IL_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
-        info = ilearn_scrape.scrape(result[2], decrypt(result[3]))
+        info = ilearn_scrape.scrape(result[1], decrypt(result[2]))
         msg = ""
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])
@@ -196,7 +197,7 @@ def BB_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
-        info = iblack_scrape.scrape(result[2], decrypt(result[3]))
+        info = iblack_scrape.scrape(result[1], decrypt(result[2]))
         msg = ""
         max_day = int(until.split("/")[0])
         max_month = int(until.split("/")[1])

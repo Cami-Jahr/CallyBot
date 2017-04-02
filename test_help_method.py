@@ -25,7 +25,8 @@ class TestHelpMethods(unittest.TestCase):
 
     def test_get_course_exam_date(self):
         courses = (("kj2022", "2017-05-27"), ("TDT4140", ""), ("TDT4145", "2017-06-07"), ("TDT4180", "2017-06-02"),
-                   ("TFY4125", "2017-05-30"), ("TTM4100", "2017-05-22"))
+                   ("TFY4125", "2017-05-30"), ("TTM4100", "2017-05-22"), ("IE502314", ""),
+                   ("0", "Was unable to retrieve exam date for 0"))
         for course, exam in courses:
             date = HM.get_course_exam_date(course)
             self.assertEqual(date, exam)
@@ -37,16 +38,29 @@ class TestHelpMethods(unittest.TestCase):
         self.assertIn("https://scontent.xx.fbcdn.net/v/", pic)  # Checks that is https to picture on facebook
 
     def test_IL_scrape(self):
-        queries = (("ALL", "31/12"), ("TDT4140", "31/12"), ("ALL", "1/4"), ("TDT4140", "1/4"))
+        queries = (("ALL", "31/12"), ("TDT4140", "31/12"), ("ALL", "1/5"), ("TDT4140", "1/5"))
         for course, date in queries:
             data = HM.IL_scrape(joachim_jahr_id, course, date, db)
             self.assertNotEqual(data, "SQLerror")
+        self.assertEqual(HM.IL_scrape("00000", "ALL", "31/12", db), "SQLerror")
 
     def test_BB_scrape(self):
-        queries = (("ALL", "31/12"), ("TDT4140", "31/12"), ("ALL", "1/4"), ("TDT4140", "1/4"))
+        queries = (("ALL", "31/12"), ("TDT4140", "31/12"), ("ALL", "1/5"), ("TDT4140", "1/5"))
         for course, date in queries:
             data = HM.BB_scrape(joachim_jahr_id, course, date, db)
             self.assertNotEqual(data, "SQLerror")
+        self.assertEqual(HM.BB_scrape("00000", "ALL", "31/12", db), "SQLerror")
+
+    def test_typo_correction(self):
+        typo = HM.get_most_similar_command
+        self.assertEqual(typo("zet reminder"), "set reminder")
+        self.assertEqual(typo("het reminder"), "get reminder")
+        self.assertEqual(typo("ramx"), "exams")
+        self.assertEqual(typo("subscribe anuncement"), "subscribe announcement")
+        self.assertEqual(typo("halp"), "help")
+        self.assertEqual(typo("help helap"), "help help")
+        self.assertEqual(typo("hep get deafault.time"), "help get default-time")
+        self.assertEqual(typo("developer announce"), "developer announcement")
 
 
 if __name__ == '__main__':
