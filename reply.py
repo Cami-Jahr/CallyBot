@@ -780,6 +780,7 @@ class Reply:
             return True
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
+        print(feedback)
 
     def login(self, user_id):
         """Sends the user to the login page"""
@@ -807,6 +808,7 @@ class Reply:
         }
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
+        print(feedback)
 
     def make_typo_correction_buttons(self, user_id, content_lower):
         """Help method for typo correction prompt: Makes 'Yes' and 'No' button for user. Yes button carries most likely
@@ -839,6 +841,7 @@ class Reply:
         }
         response = requests.post(self.get_reply_url(), json=data)
         feedback = json.loads(response.content.decode())
+        print(feedback)
 
     def get_reply_url(self):
         return "https://graph.facebook.com/v2.8/me/messages?access_token=" + self.access_token
