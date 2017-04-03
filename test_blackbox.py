@@ -71,10 +71,10 @@ class FacebookTester(unittest.TestCase):
              "I could not find any exam date, are you sure you are subscribed to courses?",
              "Please specify what to subscribe to. Type 'help' or visit "
              "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands",
-             "Subscribing to TTM4100,TDT404...", "The following course(s) do(es) not exist: TDT404",
+             "Subscribing to TTM4100, TDT404...", "The following course(s) do(es) not exist: TDT404",
              "You have successfully subscribed to TTM4100",
              "The exam in TTM4100 is on 2017-05-22",  # 10
-             "Unsubscribing from TTM4100,TDT404...", "The following course(s) do(es) not exist: TDT404",
+             "Unsubscribing from TTM4100, TDT404...", "The following course(s) do(es) not exist: TDT404",
              "You have successfully unsubscribed from TTM4100"])
         next_question = queries.popleft
         next_answer = answers.popleft
@@ -91,11 +91,7 @@ class FacebookTester(unittest.TestCase):
                 if seen + number == now_amount:  # If there are any new messages
                     for nr in range(seen, now_amount):
                         expected = next_answer()
-                        # self.assertEqual(new_elems[nr].text, expected, "Failed at query: " + question)
-                        if expected != new_elems[nr].text:
-                            print(question + "\n\n" + new_elems[nr].text + "\n" + expected)
-                            for i in range(len(expected)):
-                                print("Exp: " + expected[i] + "\nGot: " + new_elems[nr].text[i], i)
+                        self.assertEqual(new_elems[nr].text, expected, "Failed at query: " + question)
                     sent = False  # Tester should send next question
                 else:
                     sleep(.1)  # Waiting time in pooling. in sec

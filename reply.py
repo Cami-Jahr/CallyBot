@@ -11,7 +11,7 @@ class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
 
-    def __init__(self, access_token, db):
+    def __init__(self, access_token=None, db=None):
         self.access_token = access_token
         self.db = db
         self.scraper = scraper.Scraper(self, self.db)
@@ -279,8 +279,6 @@ class Reply:
                         msg += "The exam in " + exam + " is on " + date + "\n\n"
                     else:
                         msg += "I cant find the exam date for " + exam + "\n\n"
-                if not msg:
-                    msg = "I could not find any exam dates, are you sure you wrote the correct code?"
             else:
                 courses = self.db.get_all_courses(user_id)
                 for exam in courses:
@@ -778,6 +776,7 @@ class Reply:
             response = requests.post(self.get_reply_url(), json=data)
             feedback = json.loads(response.content.decode())
             print(feedback)
+        return msg, msg_type
 
     def caplitalize(self, msg):
         msg = msg.split(". ")
