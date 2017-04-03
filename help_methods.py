@@ -63,7 +63,7 @@ def get_course_exam_date(course_code):
     try:
         info = requests.get('http://www.ime.ntnu.no/api/course/' + course_code).json()
     except JSONDecodeError:  # course does not exist in ime api
-        return "Was unable to retrieve exam date for " + course_code
+        return ""
     now = datetime.now()
     if 1 < now.month < 7:
         start = datetime(now.year, 1, 1)
