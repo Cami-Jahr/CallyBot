@@ -250,21 +250,66 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type,'text')
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'subscribe TDT4100'}}]}]}  # check for text string
+        msg = None
+        response = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'get subscribed'}}]}]}  # check for text string
+        msg = "You are subscribed to:\nTDT4100\n"
+        response, response_type = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
+        self.assertEqual(response_type,'text')
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'get exams'}}]}]}  # check for text string
+        msg = "The exam in TDT4100 is on 2017-05-16\n\n"
+        response, response_type = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
+        self.assertEqual(response_type,'text')
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'subscribe announcement'}}]}]}  # check for text string
+        msg = "You are now subscribed to announcements!"
+        response, response_type = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
+        self.assertEqual(response_type,'text')
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'subscribe'}}]}]}  # check for text string
+        msg = "Please specify what to subscribe to. Type 'help' or visit " \
+               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        response, response_type = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
+        self.assertEqual(response_type,'text')
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'subscribe TDT4100'}}]}]}  # check for text string
+        msg = None
+        response = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'subscribe TDTPOTET'}}]}]}  # check for text string
+        msg = None
+        response = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
 
 
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'unsubscribe'}}]}]}  # check for text string
+        msg = "Please specify what to unsubscribe to. Type 'help' or visit " \
+               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
+        response, response_type = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
+        self.assertEqual(response_type,'text')
 
+
+        test_text = {'entry': [{'messaging': [{'message': {'text': 'unsubscribe announcement'}}]}]}  # check for text string
+        msg = "You are now unsubscribed from announcements!"
+        response, response_type = replier.arbitrate(test_id,test_text)
+        self.assertEqual(response,msg)
+        self.assertEqual(response_type,'text')
 
 
 
