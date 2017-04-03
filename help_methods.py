@@ -78,7 +78,7 @@ def get_course_exam_date(course_code):
                 exam_date = datetime.strptime(info["course"]["assessment"][i]["date"], "%Y-%m-%d")
                 if start < exam_date < end:
                     exam_dates.add(exam_date.strftime("%Y-%m-%d"))
-    except KeyError:  # Catch if date does not exist, or assessment does not exist
+    except (TypeError, KeyError):  # Catch if date does not exist, or assessment does not exist
         pass
     return ", ".join(sorted(exam_dates))
 
@@ -88,9 +88,14 @@ def get_user_info(access_token, user_id):
     user_details_url = "https://graph.facebook.com/v2.8/" + str(user_id)
     user_details_params = {'fields': 'first_name,last_name,profile_pic', 'access_token': access_token}
     user_details = requests.get(user_details_url, user_details_params).json()
-    lastname = user_details['last_name']
-    firstname = user_details['first_name']
-    picture = user_details['profile_pic']
+    try:
+        lastname = user_details['last_name']
+        firstname = user_details['first_name']
+        picture = user_details['profile_pic']
+    except KeyError:
+        lastname = "Exist"
+        firstname = "Does not"
+        picture = ":)"
     return firstname, lastname, picture
 
 
