@@ -96,7 +96,7 @@ class Reply:
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
             msg = "I have now deleted all your information. If you have any feedback to give me, please " \
-                  "do so with the 'request' function.\nI hope to see you again!."
+                  "do so with the 'request' function.\nI hope to see you again!"
             reply_type = "text"
 
         elif content_list[0] == "help":
@@ -355,13 +355,13 @@ class Reply:
                     else:
                         self.delete_conf[user_id]['reminder'] = 1
                         return 'Are you sure you want to delete all your reminders?\nType <delete reminders> ' \
-                               'again to confirm'
+                               'again to confirm.'
 
                 except KeyError:
                     self.delete_conf[user_id] = {
                         'reminder': 1}  # Needs to be changed to an init process to allow other delete confs
                     return 'Are you sure you want to delete all your reminders?\nType ' \
-                           '<delete reminders> again to confirm'
+                           '<delete reminders> again to confirm.'
             else:
                 self.reply(user_id, 'Deleting reminders...', 'text')
                 not_valid, complete = [], []
@@ -378,10 +378,10 @@ class Reply:
                         continue
                 if not_valid:
                     self.reply(user_id,
-                               "The following reminders are not valid:\n" + ",".join(not_valid) + "\nPlease try again",
+                               "The following reminders are not valid:\n" + ", ".join(not_valid) + "\nPlease try again.",
                                'text')
                 if complete:
-                    self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
+                    self.reply(user_id, "The following reminders were deleted:\n" + ", ".join(complete) + ".", 'text')
         else:
             self.make_typo_correction_buttons(user_id, " ".join(["delete"] + content_list))
 
@@ -393,7 +393,7 @@ class Reply:
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
-                return 'Please specify what to be reminded of\nType help set reminder if you need help'
+                return 'Please specify what to be reminded of\nType help set reminder if you need help.'
             try:
                 date = content_list[-2]
                 current = datetime.now()
@@ -428,7 +428,7 @@ class Reply:
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
-                    return "Don't write seconds, check out the valid formats with 'help set reminder'"
+                    return "Please don't write seconds, check out the valid formats with 'help set reminder'."
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
                     time = time + timedelta(days=1)
@@ -468,7 +468,7 @@ class Reply:
                 return 'Your default-time was set to: ' + content_list[1] + " day(s)"
             else:
                 return 'Could not set default-time. Please check if you are using the correct format ' \
-                       'and that you are logged in. Type "help set default-time" for more help'
+                       'and that you are logged in. Type "help set default-time" for more help.'
         else:
             self.make_typo_correction_buttons(user_id, " ".join(["set"] + content_list))
 
@@ -482,7 +482,7 @@ class Reply:
             self.db.subscribe_announcement(user_id)
             return "You are now subscribed to announcements!"
         else:
-            self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
+            self.reply(user_id, 'Subscribing to ' + ', '.join(content_list).upper() + "...", 'text')
             non_existing, already_subscribed, success_subscribed = [], [], []
             for course in content_list:
                 course = course.upper()
@@ -495,11 +495,11 @@ class Reply:
                 else:
                     non_existing.append(course)
             if non_existing:
-                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ', '.join(non_existing), 'text')
             if already_subscribed:
-                self.reply(user_id, 'You are already subscribed to ' + ','.join(already_subscribed), 'text')
+                self.reply(user_id, 'You are already subscribed to ' + ', '.join(already_subscribed), 'text')
             if success_subscribed:
-                self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
+                self.reply(user_id, 'You have successfully subscribed to ' + ', '.join(success_subscribed), 'text')
 
     def unsubscribe(self, user_id, content_list):
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
@@ -511,7 +511,7 @@ class Reply:
             self.db.unsubscribe_announcement(user_id)
             return "You are now unsubscribed from announcements!"
         else:
-            self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
+            self.reply(user_id, 'Unsubscribing from ' + ', '.join(content_list).upper() + "...", 'text')
             non_existing, not_subscribed, success_unsubscribed = [], [], []
             for course in content_list:
                 course = course.upper()
@@ -524,11 +524,11 @@ class Reply:
                 else:
                     non_existing.append(course)
             if non_existing:
-                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ', '.join(non_existing), 'text')
             if not_subscribed:
-                self.reply(user_id, 'You are not subscribed to ' + ','.join(not_subscribed), 'text')
+                self.reply(user_id, 'You are not subscribed to ' + ', '.join(not_subscribed), 'text')
             if success_unsubscribed:
-                self.reply(user_id, 'You have successfully unsubscribed from ' + ','.join(success_unsubscribed), 'text')
+                self.reply(user_id, 'You have successfully unsubscribed from ' + ', '.join(success_unsubscribed), 'text')
 
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
@@ -561,7 +561,7 @@ class Reply:
                    "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
                    "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
-                   "write 'help <feature>'. You can try this with 'help help' now!."
+                   "write 'help <feature>'. You can try this with 'help help' now!"
 
         elif content_list[0] == "get":
             try:
@@ -591,7 +591,7 @@ class Reply:
 
                 elif content_list[1] == "default-time" or content_list[1] == "default":
                     return 'Default-time decides how many days before an assigment you will be reminded by default. ' \
-                           'Get default-time shows your current default-time'
+                           'Get default-time shows your current default-time.'
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
                            "it with the 'bug' function! If it something you simply wish to be added, use the " \
