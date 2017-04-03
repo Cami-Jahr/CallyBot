@@ -591,7 +591,7 @@ class Reply:
 
                 elif content_list[1] == "default-time" or content_list[1] == "default":
                     return 'Default-time decides how many days before an assigment you will be reminded by default. ' \
-                           'Get default-time shows your current default-time',
+                           'Get default-time shows your current default-time'
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
                            "it with the 'bug' function! If it something you simply wish to be added, use the " \
