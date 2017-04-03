@@ -69,7 +69,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(data_type, "text")
         self.assertEqual(content, "this is reply")
 
-    def test_process_data(self):
+    def test_arbitrate(self):
         test_id = "123456789"
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'hint'}}]}]}  # check for text string

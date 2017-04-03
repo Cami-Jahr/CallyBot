@@ -26,7 +26,7 @@ class TestHelpMethods(unittest.TestCase):
     def test_get_course_exam_date(self):
         courses = (("kj2022", "2017-05-27"), ("TDT4140", ""), ("TDT4145", "2017-06-07"), ("TDT4180", "2017-06-02"),
                    ("TFY4125", "2017-05-30"), ("TTM4100", "2017-05-22"), ("IE502314", ""),
-                   ("0", "Was unable to retrieve exam date for 0"))
+                   ("0", ""))
         for course, exam in courses:
             date = HM.get_course_exam_date(course)
             self.assertEqual(date, exam)

@@ -63,7 +63,7 @@ def get_course_exam_date(course_code):
     try:
         info = requests.get('http://www.ime.ntnu.no/api/course/' + course_code).json()
     except JSONDecodeError:  # course does not exist in ime api
-        return "Was unable to retrieve exam date for " + course_code
+        return ""
     now = datetime.now()
     if 1 < now.month < 7:
         start = datetime(now.year, 1, 1)
@@ -160,6 +160,8 @@ def IL_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
+        if result[1] is None or result[2] is None:
+            return "SQLerror"
         info = ilearn_scrape.scrape(result[1], decrypt(result[2]))
         msg = ""
         max_day = int(until.split("/")[0])
@@ -201,6 +203,8 @@ def BB_scrape(user_id, course, until, db):
     try:
         course = course.upper()
         result = db.get_credential(user_id)
+        if result[1] is None or result[2] is None:
+            return "SQLerror"
         info = iblack_scrape.scrape(result[1], decrypt(result[2]))
         msg = ""
         max_day = int(until.split("/")[0])
