@@ -55,7 +55,8 @@ class TestHelpMethods(unittest.TestCase):
         typo = HM.get_most_similar_command
         self.assertEqual(typo("zet reminder"), "set reminder")
         self.assertEqual(typo("het reminder"), "get reminder")
-        self.assertEqual(typo("ramx"), "exams")
+        self.assertEqual(typo("ramx"), "exam")
+        self.assertEqual(typo("ramxs"), "exams")
         self.assertEqual(typo("subscribe anuncement"), "subscribe announcement")
         self.assertEqual(typo("halp"), "help")
         self.assertEqual(typo("help helap"), "help help")
