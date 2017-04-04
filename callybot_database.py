@@ -204,14 +204,9 @@ class CallybotDB:
             sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
             self.cursor.execute(sql)
             self.db.commit()
-            try:
-                IL_scrape(user_id, 'ALL', '31/12', self)
-                BB_scrape(user_id, 'ALL', '31/12', self)
-            except (TypeError, ValueError):  # user not added username/ password to database
-                pass
-            return True
         except MySQLdb.OperationalError:
             return False
+        return True
 
     def unsubscribe_announcement(self, user_id):
         """Sets announcement field in user table to 0 if user was subscribed to announcements

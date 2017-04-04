@@ -465,7 +465,10 @@ class Reply:
             except ValueError:
                 return 'Please type in an integer as default-time.'
             if self.db.set_defaulttime(user_id, df):
-                return 'Your default-time was set to: ' + content_list[1] + " day(s)"
+                return 'Your default-time was set to: ' + content_list[1] + " day(s).\nTo Update your deadlines " \
+                                                                            "to fit this new default-time write " \
+                                                                            "get deadlines or select the get deadlines" \
+                                                                            " from the menu."
             else:
                 return 'Could not set default-time. Please check if you are using the correct format ' \
                        'and that you are logged in. Type "help set default-time" for more help.'
