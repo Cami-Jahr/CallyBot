@@ -378,7 +378,8 @@ class Reply:
                         continue
                 if not_valid:
                     self.reply(user_id,
-                               "The following reminders are not valid:\n" + ", ".join(not_valid) + "\nPlease try again.",
+                               "The following reminders are not valid:\n" + ", ".join(
+                                   not_valid) + "\nPlease try again.",
                                'text')
                 if complete:
                     self.reply(user_id, "The following reminders were deleted:\n" + ", ".join(complete) + ".", 'text')
@@ -436,25 +437,23 @@ class Reply:
                 if time < current:
                     time = time + timedelta(days=1)
                 if time < current + timedelta(minutes=10):
-                    self.reply(user_id,
-                               "I am sorry, I could not set the reminder '" +
-                               msg + "' as it tried to set itself to a time in the past, or within the "
-                                                  "next 10 minutes: " +
-                               time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                                 "If you believe this was a bug, report it with the "
-                                                                 "'bug' function.",
-                               "text")
+                    return "I am sorry, I could not set the reminder '" + \
+                           msg + "' as it tried to set itself to a time in the past, or within the " \
+                                 "next 10 minutes: " + \
+                           time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. " \
+                                                             "If you believe this was a bug, report it with the " \
+                                                             "'bug' function."
                 elif time > current + timedelta(weeks=60):
-                    self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
-                               time.strftime("%Y-%m-%d %H:%M"), "text")
+                    return "I am sorry, i cant remember for that long. Are you sure you ment " + \
+                           time.strftime("%Y-%m-%d %H:%M")
                 else:
                     self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                    self.reply(user_id, "The reminder " + msg + " was sat at " +
-                               time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
+                    return "The reminder " + msg + " was sat at " + \
+                           time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes."
             except (ValueError, IndexError):
-                self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
-                                    "supported format? Type 'help set reminders' to see supported formats.", "text")
+                return "Im not able to set that reminder. Are you sure you wrote the message in a " \
+                       "supported format? Type 'help set reminders' to see supported formats."
 
         elif content_list[0] == 'class' or content_list[0] == 'classes' or content_list[0] == 'course' or \
                         content_list[0] == 'courses':
@@ -534,7 +533,8 @@ class Reply:
             if not_subscribed:
                 self.reply(user_id, 'You are not subscribed to ' + ', '.join(not_subscribed), 'text')
             if success_unsubscribed:
-                self.reply(user_id, 'You have successfully unsubscribed from ' + ', '.join(success_unsubscribed), 'text')
+                self.reply(user_id, 'You have successfully unsubscribed from ' + ', '.join(success_unsubscribed),
+                           'text')
 
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
@@ -817,7 +817,6 @@ class Reply:
         else:
             sectionized = [msg]
         return sectionized
-
 
     def login(self, user_id):
         """Sends the user to the login page"""
