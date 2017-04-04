@@ -39,7 +39,7 @@ class Reply:
         msg = ""
         reply_type = ""
         # ------------ COMMANDS --------------
-        if content_list[0] == "get":
+        if content_list[0] == "get" or content_list[0] == "show":
             msg = self.get_statements(user_id, content_list[1:])
             reply_type = "text"
 
@@ -54,6 +54,9 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             msg = self.get_statements(user_id, content_list)
             reply_type = "text"
+
+        elif content_list[0] == "command" or content_list[0] == "commands":
+            msg = self.get_statements(user_id, content_list)
 
         elif content_list[0] == "profile":
             msg = self.profile(user_id)
@@ -255,6 +258,12 @@ class Reply:
 
         elif content_list[0] == "profile":
             return self.profile(user_id)
+
+        elif content_list[0] == "command" or content_list[0] == "commands":
+            return "- Login\n- Profile\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
+                   "\n- Get default-time\n- Get courses\n- Get commands\n- Set reminder\n- Set default-time" \
+                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
+                   "\n- Help"
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
@@ -564,8 +573,8 @@ class Reply:
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
             return "The following commands are supported:\n" \
-                   "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
-                   "\n- Get default-time\n- Get courses\n- Set reminder\n- Set default-time" \
+                   "\n- Login\n- Profile\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
+                   "\n- Get default-time\n- Get courses\n- Get commands\n- Set reminder\n- Set default-time" \
                    "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
                    "\n- Help\n\nThere is also a persistent menu next to the chat area, it has shortcuts to " \
                    "some of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
