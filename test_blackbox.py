@@ -64,10 +64,9 @@ class FacebookTester(unittest.TestCase):
              "to get started. \nIf you need help, or want to know more about what I can do for you, just "
              "type 'help'.\n\nPlease do enjoy!",  # 1
              "Your default-time is: 1 day(s)",
-             "Your default-time was set to: 2 day(s)",
+             "Your default-time was set to: 2 day(s).\nTo Update your deadlines to fit this new default-time write get deadlines or select the get deadlines from the menu.",
              "Your default-time is: 2 day(s)",
-             "Your default-time was set to: 1 day(s)",  # 5
-             "I could not find any exam date, are you sure you are subscribed to courses?",
+             "Your default-time was set to: 1 day(s).\nTo Update your deadlines to fit this new default-time write get deadlines or select the get deadlines from the menu."  # 5             "I could not find any exam date, are you sure you are subscribed to courses?",
              "I could not find any exam date, are you sure you are subscribed to courses?",
              "Please specify what to subscribe to. Type 'help' or visit "
              "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands",

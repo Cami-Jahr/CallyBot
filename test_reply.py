@@ -2,6 +2,7 @@ import reply
 import credentials
 import unittest
 import callybot_database
+from datetime import datetime, timedelta
 
 credential = credentials.Credentials()
 db = callybot_database.CallybotDB(*credential.db_info)
@@ -313,15 +314,15 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help'}}]}]}  # check for text string
-        msg = "Oh you need help?\nNo problem!\nThe following commands are supported:\n" \
+        msg = "The following commands are supported:\n" \
               "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
-              "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
-              "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
-              "subscribe announcement\n- unsubscribe announcement\n- " \
-              "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
-              "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
+              "\n- Get default-time\n- Get courses\n- Set reminder\n- Set default-time" \
+              "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
+              "\n- Help\n\nThere is also a persistent menu next to the chat area, it has shortcuts to " \
+              "some of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
               "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
-              "write 'help <feature>'. You can try this with 'help help' now!"
+              "visit my wiki: https://github.com/Folstad/TDT4140/wiki/Commands, or write 'help <feature>'. " \
+              "You can try this with 'help help' now!"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
@@ -396,7 +397,7 @@ class Tester(unittest.TestCase):
               "anyone!\n\nThe following commands are supported:\n\n" \
               "- set reminder <Reminder text> at <Due_date>\n" \
               "where <Due_date> can have the following formats:" \
-              "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n" \
+              "\n\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n\n" \
               "and <Reminder text> is what " \
               "I should tell you when the reminder is due. I will check " \
               "reminders every 5 minutes."
@@ -538,28 +539,33 @@ class Tester(unittest.TestCase):
 
         test_text = {'entry': [
             {'messaging': [{'message': {'text': 'set reminder testreminder at 23:59'}}]}]}  # check for text string
-        msg = None
-        response = replier.arbitrate(test_id, test_text)
+        msg = "The reminder testreminder was sat at " + \
+                           datetime.now().strftime("%Y-%m-%d") + " 23:59. Reminders will be checked every 5 minutes."
+        response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
+        self.assertEqual(response_type, "text")
 
         test_text = {'entry': [
             {'messaging': [{'message': {'text': 'set reminder testreminder a 23:59'}}]}]}  # check for text string
-        msg = None
-        response = replier.arbitrate(test_id, test_text)
+        msg = "Please write in a supported format. Se 'help set reminder' for help. Remember to separate your text and the time of the reminder with 'at'"
+        response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
+        self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [
             {'messaging': [{'message': {'text': 'set reminder testreminder at 23:59:59'}}]}]}  # check for text string
-        msg = "Please don't write seconds, check out the valid formats with 'help set reminder'."
+        msg = "Please write in a supported format. Se 'help set reminder' for help."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [
             {'messaging': [{'message': {'text': 'set reminder testreminder at 00:00'}}]}]}  # check for text string
-        msg = None
-        response = replier.arbitrate(test_id, test_text)
+        msg = "The reminder testreminder was sat at " + \
+              (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d") + " 00:00. Reminders will be checked every 5 minutes."
+        response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
+        self.assertEqual(response_type, "text")
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'set class'}}]}]}  # check for text string
         msg = "Please specify what to subscribe to. Type 'help' or visit " \
@@ -581,7 +587,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'set default-time 2'}}]}]}  # check for text string
-        msg = 'Your default-time was set to: 2 day(s)'
+        msg = 'Your default-time was set to: 2 day(s).\nTo Update your deadlines to fit this new default-time write get deadlines or select the get deadlines from the menu.'
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')

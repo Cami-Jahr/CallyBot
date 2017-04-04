@@ -430,7 +430,7 @@ class Reply:
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
-                    return "Please write in a supported format. Se 'help set reminder' for help"
+                    return "Please write in a supported format. Se 'help set reminder' for help."
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
                     time = time + timedelta(days=1)
@@ -443,7 +443,7 @@ class Reply:
                                                              "'bug' function."
                 elif time > current + timedelta(weeks=60):
                     return "I am sorry, i cant remember for that long. Are you sure you ment " + \
-                           time.strftime("%Y-%m-%d %H:%M")
+                           time.strftime("%Y-%m-%d %H:%M") + "."
                 else:
                     self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
