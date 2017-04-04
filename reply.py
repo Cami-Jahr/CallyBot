@@ -785,14 +785,14 @@ class Reply:
         msg = msg.split(". ")
         for i in range(len(msg)):
             try:
-                msg[i] = msg[i][0].upper() + " " + msg[i][1:]
+                msg[i] = msg[i][0].upper() + msg[i][1:]
             except IndexError:
                 pass
         msg = ". ".join(msg)
         msg = msg.split("\n")
         for i in range(len(msg)):
             try:
-                msg[i] = msg[i][0].upper() + " " + msg[i][1:]
+                msg[i] = msg[i][0].upper() + msg[i][1:]
             except IndexError:
                 pass
         return "\n".join(msg)
@@ -807,7 +807,7 @@ class Reply:
                 new = pop()
                 if len(msg) + len(new) > 640:
                     sectionized.append(msg)
-                    msg = new
+                    msg = new + " "
                 else:
                     msg += new + " "
             sectionized.append(msg)
