@@ -33,8 +33,15 @@ class CallybotDB:
 
     def test_connection(self):
         """Tests if connection with server is still live, if it is not it tries to open a new connection, void"""
-        if self.db.stat() == "MySQL server has gone away":
-            self.close()
+        try:
+            if self.db.stat() == "MySQL server has gone away":
+                self.close()
+                self.open()
+        except MySQLdb.OperationalError:
+            try:
+                self.close()
+            except MySQLdb.OperationalError:
+                pass
             self.open()
 
     def get_credential(self, user_id):
