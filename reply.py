@@ -430,7 +430,7 @@ class Reply:
                     msg = " ".join(content_list[1:-2])
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
-                except (ValueError, IndexError):
+                except ValueError:
                     return "Please write in a supported format. Se 'help set reminder' for help"
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
@@ -452,7 +452,7 @@ class Reply:
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
                     self.reply(user_id, "The reminder " + msg + " was sat at " +
                                time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
-            except ValueError:
+            except (ValueError, IndexError):
                 self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
                                     "supported format? Type 'help set reminders' to see supported formats.", "text")
 
