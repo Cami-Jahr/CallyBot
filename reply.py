@@ -397,6 +397,8 @@ class Reply:
                 if content_list[-2] != "at" and content_list[-3] != "at":
                     return "Please write in a supported format. Se 'help set reminder' for help. Remember to " \
                            "separate your text and the time of the reminder with 'at'"
+                if len(content_list[-1]) == 4:  # No separator
+                    content_list[-1] = content_list[-1][:2] + ":" + content_list[-1][2:]
                 date = content_list[-2]
                 current = datetime.now()
                 due_time = content_list[-1]
@@ -406,6 +408,8 @@ class Reply:
                 month = current.month
                 year = current.year
                 if date != "at":  # with date in front. Format reminder <text> at date time
+                    if len(content_list) < 5:
+                        return "You need to include a message in your reminder"
                     date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
                                             date)  # Makes any date string split with "-"
                     date_list = date.split("-")
@@ -426,6 +430,8 @@ class Reply:
                         day = int(date_list[0])
                     msg = " ".join(content_list[1:-3])
                 else:  # without date in front. Format reminder <text> at time
+                    if len(content_list) < 4:
+                        return "You need to include a message in your reminder"
                     msg = " ".join(content_list[1:-2])
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
@@ -614,8 +620,7 @@ class Reply:
                            "anyone!\n\nThe following commands are supported:\n\n" \
                            "- set reminder <Reminder text> at <Due_date>\n" \
                            "where <Due_date> can have the following formats:" \
-                           "\n\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n\n" \
-                           "and <Reminder text> is what " \
+                           "\n\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n\nand <Reminder text> is what " \
                            "I should tell you when the reminder is due. I will check " \
                            "reminders every 5 minutes."
 
