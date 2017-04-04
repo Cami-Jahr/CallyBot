@@ -785,27 +785,27 @@ class Reply:
         msg = msg.split(". ")
         for i in range(len(msg)):
             try:
-                msg[i] = msg[i][0].upper() + msg[i][1:]
+                msg[i] = msg[i][0].upper() + " " + msg[i][1:]
             except IndexError:
                 pass
         msg = ". ".join(msg)
         msg = msg.split("\n")
         for i in range(len(msg)):
             try:
-                msg[i] = msg[i][0].upper() + msg[i][1:]
+                msg[i] = msg[i][0].upper() + " " + msg[i][1:]
             except IndexError:
                 pass
         return "\n".join(msg)
 
     def sectionize(self, msg, text):
-        if len(msg) > 600 and text:  # Should allays be false, and multiple instances of reply called iinstead
+        if len(msg) > 640 and text:  # Should allays be false, and multiple instances of reply called iinstead
             sectionized = []
             splitted = deque(msg.split(" "))
             msg = ""
             pop = splitted.popleft
             while splitted:
                 new = pop()
-                if len(msg) + len(new) > 600:
+                if len(msg) + len(new) > 640:
                     sectionized.append(msg)
                     msg = new
                 else:
