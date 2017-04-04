@@ -610,7 +610,7 @@ class Reply:
                            "anyone!\n\nThe following commands are supported:\n\n" \
                            "- set reminder <Reminder text> at <Due_date>\n" \
                            "where <Due_date> can have the following formats:" \
-                           "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n" \
+                           "\n\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n\n" \
                            "and <Reminder text> is what " \
                            "I should tell you when the reminder is due. I will check " \
                            "reminders every 5 minutes."
