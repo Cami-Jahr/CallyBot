@@ -430,7 +430,7 @@ class Reply:
                     msg = " ".join(content_list[1:-2])
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
-                except ValueError:
+                except (ValueError, IndexError):
                     return "Please write in a supported format. Se 'help set reminder' for help"
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
