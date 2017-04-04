@@ -377,10 +377,8 @@ class Reply:
                         not_valid.append(reminder)
                         continue
                 if not_valid:
-                    self.reply(user_id,
-                               "The following reminders are not valid:\n" + ", ".join(
-                                   not_valid) + "\nPlease try again.",
-                               'text')
+                    self.reply(user_id, "The following reminders are not valid:\n" + ", ".join(
+                        not_valid) + "\nPlease try again.", 'text')
                 if complete:
                     self.reply(user_id, "The following reminders were deleted:\n" + ", ".join(complete) + ".", 'text')
         else:
@@ -559,15 +557,15 @@ class Reply:
     def help(self, user_id, content_list):
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
-            return "Oh you need help?\nNo problem!\nThe following commands are supported:\n" \
+            return "The following commands are supported:\n" \
                    "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
-                   "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
-                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
-                   "subscribe announcement\n- unsubscribe announcement\n- " \
-                   "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
-                   "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
+                   "\n- Get default-time\n- Get courses\n- Set reminder\n- Set default-time" \
+                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
+                   "\n- Help\n\nThere is also a persistent menu next to the chat area, it has shortcuts to " \
+                   "some of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
-                   "write 'help <feature>'. You can try this with 'help help' now!"
+                   "visit my wiki: https://github.com/Folstad/TDT4140/wiki/Commands, or write 'help <feature>'. " \
+                   "You can try this with 'help help' now!"
 
         elif content_list[0] == "get":
             try:
