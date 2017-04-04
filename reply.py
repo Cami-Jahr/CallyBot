@@ -394,10 +394,10 @@ class Reply:
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
                 return 'Please specify what to be reminded of\nType help set reminder if you need help.'
-            if content_list[-2] != "at" and content_list[-3] != "at":
-                return "Please write in a supported format. Se 'help set reminder' for help. Remember to " \
-                       "separate your text and the time of the reminder with 'at'"
             try:
+                if content_list[-2] != "at" and content_list[-3] != "at":
+                    return "Please write in a supported format. Se 'help set reminder' for help. Remember to " \
+                           "separate your text and the time of the reminder with 'at'"
                 date = content_list[-2]
                 current = datetime.now()
                 due_time = content_list[-1]
@@ -431,7 +431,7 @@ class Reply:
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
-                    return "Please don't write seconds, check out the valid formats with 'help set reminder'."
+                    return "Please write in a supported format. Se 'help set reminder' for help"
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
                     time = time + timedelta(days=1)
