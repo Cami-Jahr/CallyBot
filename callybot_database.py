@@ -127,8 +127,8 @@ class CallybotDB:
         """Checks if a course is in the database,
         :returns Boolean value"""
         self.test_connection()
-        #sql = "SELECT * FROM course WHERE coursecode = %s"# % str(course)
-        result = self.cursor.execute("SELECT * FROM course WHERE coursecode = %s",(course,))
+        sql = "SELECT * FROM course WHERE coursecode = %s"
+        result = self.cursor.execute(sql,(course,))
         return result != 0
 
     def subscribe(self, user_id, course):
