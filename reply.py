@@ -65,6 +65,7 @@ class Reply:
             reply_type = "text"
 
         elif content_list[0] == "set":
+            #make regex
             msg = self.set_statements(user_id, content_list[1:])
             reply_type = "text"
 
