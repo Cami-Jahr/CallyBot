@@ -128,7 +128,7 @@ class CallybotDB:
         :returns Boolean value"""
         self.test_connection()
         sql = """SELECT * FROM course WHERE coursecode='%s'""" % str(course)
-        result = self.cursor.execute(sql)
+        result = self.cursor.execute(MySQLdb)
         return result != 0
 
     def subscribe(self, user_id, course):
