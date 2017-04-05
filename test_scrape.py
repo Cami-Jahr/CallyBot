@@ -45,5 +45,6 @@ class TestScraping(unittest.TestCase):
         self.assertEqual(scraper.process((joachim_jahr_id, ["deadlines", "until", "1/5", "in", "tdt404"])),
                          ("tdt404", "1/5"))
 
+
 if __name__ == '__main__':
     unittest.main()

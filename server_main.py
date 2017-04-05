@@ -15,7 +15,7 @@ credential = credentials.Credentials()
 db_credentials = credential.db_info
 db = callybot_database.CallybotDB(db_credentials[0], db_credentials[1], db_credentials[2], db_credentials[3])
 replier = reply.Reply(credential.access_token, db)
-handled_timestamps = []
+received_message = []
 
 
 def init():
@@ -65,30 +65,30 @@ def handle_incoming_messages():  # pragma: no cover
     when handling flask application methods, and internal testing is not needed as this is 
     properly tested trough blackbox"""
     data = request.json
-    global handled_timestamps
+    global received_message
     try:
-        timestamp = data['entry'][0]['time']
+        message_id = data['entry'][0]['messaging'][0]['message']['mid']
     except (KeyError, TypeError):
-        print("\x1b[0;31;0mError: Could not find timestamp, or unknown format\x1b[0m")
+        print("\x1b[0;31;0mError: Could not find message_id, or unknown format\x1b[0m")
         return "ok", 200
-    if timestamp in handled_timestamps:
+    if message_id in received_message:
         print("\x1b[0;34;0mDuplicated message\x1b[0m")
         return 'ok', 200
     else:
-        if len(handled_timestamps) > 256:
-            handled_timestamps = handled_timestamps[-32:]
-        handled_timestamps.append(timestamp)
-    print("\n\n\n")
+        if len(received_message) > 256:
+            received_message = received_message[-32:]
+        received_message.append(message_id)
+    print("\n\n")
     print("----------------START--------------")
     print("DATA:")
     try:
-        print(data)
-        print("---------------END-----------------")
         user_id = data['entry'][0]['messaging'][0]['sender']['id']
+        print(data)
+        print("---------------END-----------------\n")
     except KeyError:
         return "ok", 200
     replier.arbitrate(user_id, data)
-    print("\x1b[0;32;0mok 200 for message with timestamp", timestamp, "\x1b[0m")
+    print("\x1b[0;32;0mok 200 for message with message_id", message_id, "\x1b[0m")
     return "ok", 200
 
 

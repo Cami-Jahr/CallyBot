@@ -45,7 +45,8 @@ class FacebookTester(unittest.TestCase):
         self.assertEqual(logins_before_query + 1, after_query, "Login button did not appear")
 
     def test_some_question(self):
-        """Writes some queries, and checks if answer is correct"""
+        """Writes some queries, and checks if answer is correct, requires that test user has default-time = 1 
+        and courses = None"""
         queries = deque([(1, "start_new_chat"),  # 1
                          (1, "get default-time"),
                          (1, "set default-time 2"),
@@ -63,18 +64,30 @@ class FacebookTester(unittest.TestCase):
              "date on your upcoming deadlines on itslearning and Blackboard. Type 'login' or use the menu "
              "to get started. \nIf you need help, or want to know more about what I can do for you, just "
              "type 'help'.\n\nPlease do enjoy!",  # 1
+
              "Your default-time is: 1 day(s)",
-             "Your default-time was set to: 2 day(s)",
+
+             "Your default-time was set to: 2 day(s).\nTo Update your deadlines to fit this new default-time write get"
+             " deadlines or select the get deadlines from the menu.",
+
              "Your default-time is: 2 day(s)",
-             "Your default-time was set to: 1 day(s)",  # 5
+
+             "Your default-time was set to: 1 day(s).\nTo Update your deadlines to fit this new default-time write get"
+             " deadlines or select the get deadlines from the menu.",  # 5
+
              "I could not find any exam date, are you sure you are subscribed to courses?",
+
              "I could not find any exam date, are you sure you are subscribed to courses?",
+
              "Please specify what to subscribe to. Type 'help' or visit "
              "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands",
-             "Subscribing to TTM4100,TDT404...", "The following course(s) do(es) not exist: TDT404",
+
+             "Subscribing to TTM4100, TDT404...", "The following course(s) do(es) not exist: TDT404",
              "You have successfully subscribed to TTM4100",
+
              "The exam in TTM4100 is on 2017-05-22",  # 10
-             "Unsubscribing from TTM4100,TDT404...", "The following course(s) do(es) not exist: TDT404",
+
+             "Unsubscribing from TTM4100, TDT404...", "The following course(s) do(es) not exist: TDT404",
              "You have successfully unsubscribed from TTM4100"])
         next_question = queries.popleft
         next_answer = answers.popleft
@@ -91,11 +104,7 @@ class FacebookTester(unittest.TestCase):
                 if seen + number == now_amount:  # If there are any new messages
                     for nr in range(seen, now_amount):
                         expected = next_answer()
-                        # self.assertEqual(new_elems[nr].text, expected, "Failed at query: " + question)
-                        if expected != new_elems[nr].text:
-                            print(question + "\n\n" + new_elems[nr].text + "\n" + expected)
-                            for i in range(len(expected)):
-                                print("Exp: " + expected[i] + "\nGot: " + new_elems[nr].text[i], i)
+                        self.assertEqual(new_elems[nr].text, expected, "Failed at query: " + question)
                     sent = False  # Tester should send next question
                 else:
                     sleep(.1)  # Waiting time in pooling. in sec

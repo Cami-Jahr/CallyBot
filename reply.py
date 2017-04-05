@@ -11,7 +11,7 @@ class Reply:
     """The reply class handles all incoming messages. The input is the user id and the json element of the message.
     The class handles it with the 'arbitrate' function, and replies to the user with a logical reply"""
 
-    def __init__(self, access_token, db):
+    def __init__(self, access_token=None, db=None):
         self.access_token = access_token
         self.db = db
         self.scraper = scraper.Scraper(self, self.db)
@@ -39,7 +39,7 @@ class Reply:
         msg = ""
         reply_type = ""
         # ------------ COMMANDS --------------
-        if content_list[0] == "get":
+        if content_list[0] == "get" or content_list[0] == "show":
             msg = self.get_statements(user_id, content_list[1:])
             reply_type = "text"
 
@@ -54,6 +54,9 @@ class Reply:
         elif content_list[0] == "link" or content_list[0] == "links":
             msg = self.get_statements(user_id, content_list)
             reply_type = "text"
+
+        elif content_list[0] == "command" or content_list[0] == "commands":
+            msg = self.get_statements(user_id, content_list)
 
         elif content_list[0] == "profile":
             msg = self.profile(user_id)
@@ -96,7 +99,7 @@ class Reply:
         elif content_lower == "yes, i agree to delete all my information":
             self.db.remove_user(user_id)
             msg = "I have now deleted all your information. If you have any feedback to give me, please " \
-                  "do so with the 'request' function.\nI hope to see you again!."
+                  "do so with the 'request' function.\nI hope to see you again!"
             reply_type = "text"
 
         elif content_list[0] == "help":
@@ -256,6 +259,12 @@ class Reply:
         elif content_list[0] == "profile":
             return self.profile(user_id)
 
+        elif content_list[0] == "command" or content_list[0] == "commands":
+            return "- Login\n- Profile\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
+                   "\n- Get default-time\n- Get courses\n- Get commands\n- Set reminder\n- Set default-time" \
+                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
+                   "\n- Help"
+
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             reminders = self.db.get_reminders(user_id)
             self.user_reminders[user_id] = {}
@@ -279,8 +288,6 @@ class Reply:
                         msg += "The exam in " + exam + " is on " + date + "\n\n"
                     else:
                         msg += "I cant find the exam date for " + exam + "\n\n"
-                if not msg:
-                    msg = "I could not find any exam dates, are you sure you wrote the correct code?"
             else:
                 courses = self.db.get_all_courses(user_id)
                 for exam in courses:
@@ -357,13 +364,13 @@ class Reply:
                     else:
                         self.delete_conf[user_id]['reminder'] = 1
                         return 'Are you sure you want to delete all your reminders?\nType <delete reminders> ' \
-                               'again to confirm'
+                               'again to confirm.'
 
                 except KeyError:
                     self.delete_conf[user_id] = {
                         'reminder': 1}  # Needs to be changed to an init process to allow other delete confs
                     return 'Are you sure you want to delete all your reminders?\nType ' \
-                           '<delete reminders> again to confirm'
+                           '<delete reminders> again to confirm.'
             else:
                 self.reply(user_id, 'Deleting reminders...', 'text')
                 not_valid, complete = [], []
@@ -379,11 +386,10 @@ class Reply:
                         not_valid.append(reminder)
                         continue
                 if not_valid:
-                    self.reply(user_id,
-                               "The following reminders are not valid:\n" + ",".join(not_valid) + "\nPlease try again",
-                               'text')
+                    self.reply(user_id, "The following reminders are not valid:\n" + ", ".join(
+                        not_valid) + "\nPlease try again.", 'text')
                 if complete:
-                    self.reply(user_id, "The following reminders were deleted:\n" + ",".join(complete), 'text')
+                    self.reply(user_id, "The following reminders were deleted:\n" + ", ".join(complete) + ".", 'text')
         else:
             self.make_typo_correction_buttons(user_id, " ".join(["delete"] + content_list))
 
@@ -395,8 +401,13 @@ class Reply:
 
         elif content_list[0] == "reminder" or content_list[0] == "reminders":
             if not content_list[1:]:
-                return 'Please specify what to be reminded of\nType help set reminder if you need help'
+                return 'Please specify what to be reminded of\nType help set reminder if you need help.'
             try:
+                if content_list[-2] != "at" and content_list[-3] != "at":
+                    return "Please write in a supported format. Se 'help set reminder' for help. Remember to " \
+                           "separate your text and the time of the reminder with 'at'"
+                if len(content_list[-1]) == 4:  # No separator
+                    content_list[-1] = content_list[-1][:2] + ":" + content_list[-1][2:]
                 date = content_list[-2]
                 current = datetime.now()
                 due_time = content_list[-1]
@@ -406,6 +417,8 @@ class Reply:
                 month = current.month
                 year = current.year
                 if date != "at":  # with date in front. Format reminder <text> at date time
+                    if len(content_list) < 5:
+                        return "You need to include a message in your reminder"
                     date = self.pattern.sub(lambda m: self.rep[re.escape(m.group(0))],
                                             date)  # Makes any date string split with "-"
                     date_list = date.split("-")
@@ -426,34 +439,34 @@ class Reply:
                         day = int(date_list[0])
                     msg = " ".join(content_list[1:-3])
                 else:  # without date in front. Format reminder <text> at time
+                    if len(content_list) < 4:
+                        return "You need to include a message in your reminder"
                     msg = " ".join(content_list[1:-2])
                 try:
                     hour, minute = [int(i) for i in due_time.split("-")]
                 except ValueError:
-                    return "Don't write seconds, check out the valid formats with 'help set reminder'"
+                    return "Please write in a supported format. Se 'help set reminder' for help."
                 time = datetime(year, month, day, hour, minute)
                 if time < current:
                     time = time + timedelta(days=1)
                 if time < current + timedelta(minutes=10):
-                    self.reply(user_id,
-                               "I am sorry, I could not set the reminder '" +
-                               msg + "' as it tried to set itself to a time in the past, or within the "
-                                                  "next 10 minutes: " +
-                               time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. "
-                                                                 "If you believe this was a bug, report it with the "
-                                                                 "'bug' function.",
-                               "text")
+                    return "I am sorry, I could not set the reminder '" + \
+                           msg + "' as it tried to set itself to a time in the past, or within the " \
+                                 "next 10 minutes: " + \
+                           time.strftime("%Y-%m-%d %H:%M") + ". Please write it again, or in another format. " \
+                                                             "If you believe this was a bug, report it with the " \
+                                                             "'bug' function."
                 elif time > current + timedelta(weeks=60):
-                    self.reply(user_id, "I am sorry, i cant remember for that long. Are you sure you ment " +
-                               time.strftime("%Y-%m-%d %H:%M"), "text")
+                    return "I am sorry, i cant remember for that long. Are you sure you ment " + \
+                           time.strftime("%Y-%m-%d %H:%M") + "."
                 else:
                     self.db.add_reminder(msg, time.strftime("%Y-%m-%d %H:%M:%S"), 0, user_id)
                     # Expects format "reminder $Reminder_text at YYYY-MM-DD HH:mm:ss
-                    self.reply(user_id, "The reminder " + msg + " was sat at " +
-                               time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes.", "text")
-            except ValueError:
-                self.reply(user_id, "Im not able to set that reminder. Are you sure you wrote the message in a "
-                                    "supported format? Type 'help set reminders' to see supported formats.", "text")
+                    return "The reminder " + msg + " was sat at " + \
+                           time.strftime("%Y-%m-%d %H:%M") + ". Reminders will be checked every 5 minutes."
+            except (ValueError, IndexError):
+                return "Im not able to set that reminder. Are you sure you wrote the message in a " \
+                       "supported format? Type 'help set reminders' to see supported formats."
 
         elif content_list[0] == 'class' or content_list[0] == 'classes' or content_list[0] == 'course' or \
                         content_list[0] == 'courses':
@@ -467,10 +480,13 @@ class Reply:
             except ValueError:
                 return 'Please type in an integer as default-time.'
             if self.db.set_defaulttime(user_id, df):
-                return 'Your default-time was set to: ' + content_list[1] + " day(s)"
+                return 'Your default-time was set to: ' + content_list[1] + " day(s).\nTo Update your deadlines " \
+                                                                            "to fit this new default-time write " \
+                                                                            "get deadlines or select the get deadlines" \
+                                                                            " from the menu."
             else:
                 return 'Could not set default-time. Please check if you are using the correct format ' \
-                       'and that you are logged in. Type "help set default-time" for more help'
+                       'and that you are logged in. Type "help set default-time" for more help.'
         else:
             self.make_typo_correction_buttons(user_id, " ".join(["set"] + content_list))
 
@@ -484,7 +500,7 @@ class Reply:
             self.db.subscribe_announcement(user_id)
             return "You are now subscribed to announcements!"
         else:
-            self.reply(user_id, 'Subscribing to ' + ','.join(content_list).upper() + "...", 'text')
+            self.reply(user_id, 'Subscribing to ' + ', '.join(content_list).upper() + "...", 'text')
             non_existing, already_subscribed, success_subscribed = [], [], []
             for course in content_list:
                 course = course.upper()
@@ -497,11 +513,11 @@ class Reply:
                 else:
                     non_existing.append(course)
             if non_existing:
-                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ', '.join(non_existing), 'text')
             if already_subscribed:
-                self.reply(user_id, 'You are already subscribed to ' + ','.join(already_subscribed), 'text')
+                self.reply(user_id, 'You are already subscribed to ' + ', '.join(already_subscribed), 'text')
             if success_subscribed:
-                self.reply(user_id, 'You have successfully subscribed to ' + ','.join(success_subscribed), 'text')
+                self.reply(user_id, 'You have successfully subscribed to ' + ', '.join(success_subscribed), 'text')
 
     def unsubscribe(self, user_id, content_list):
         """Unsubscribes user to course(s). Takes in user id and course(s) to be subscribed to.
@@ -513,7 +529,7 @@ class Reply:
             self.db.unsubscribe_announcement(user_id)
             return "You are now unsubscribed from announcements!"
         else:
-            self.reply(user_id, 'Unsubscribing from ' + ','.join(content_list).upper() + "...", 'text')
+            self.reply(user_id, 'Unsubscribing from ' + ', '.join(content_list).upper() + "...", 'text')
             non_existing, not_subscribed, success_unsubscribed = [], [], []
             for course in content_list:
                 course = course.upper()
@@ -526,11 +542,12 @@ class Reply:
                 else:
                     non_existing.append(course)
             if non_existing:
-                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ','.join(non_existing), 'text')
+                self.reply(user_id, 'The following course(s) do(es) not exist: ' + ', '.join(non_existing), 'text')
             if not_subscribed:
-                self.reply(user_id, 'You are not subscribed to ' + ','.join(not_subscribed), 'text')
+                self.reply(user_id, 'You are not subscribed to ' + ', '.join(not_subscribed), 'text')
             if success_unsubscribed:
-                self.reply(user_id, 'You have successfully unsubscribed from ' + ','.join(success_unsubscribed), 'text')
+                self.reply(user_id, 'You have successfully unsubscribed from ' + ', '.join(success_unsubscribed),
+                           'text')
 
     def bug(self, user_id, content_list):
         """Bug report. Takes in user id and list of message, without 'bug' at List[0]. Replies, saves and ends"""
@@ -555,15 +572,15 @@ class Reply:
     def help(self, user_id, content_list):
         """Replies to the user with a string explaining the method in content_list"""
         if not content_list:
-            return "Oh you need help?\nNo problem!\nThe following commands are supported:\n" \
-                   "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
-                   "\n- Get default-time\n- Get subscribed\n- Set reminder\n- Set default-time" \
-                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe\n- " \
-                   "subscribe announcement\n- unsubscribe announcement\n- " \
-                   "Help\n\nThere is also a persistent menu to the left of the input field, it has shortcuts to some " \
-                   "of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
+            return "The following commands are supported:\n" \
+                   "\n- Login\n- Profile\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
+                   "\n- Get default-time\n- Get courses\n- Get commands\n- Set reminder\n- Set default-time" \
+                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
+                   "\n- Help\n\nThere is also a persistent menu next to the chat area, it has shortcuts to " \
+                   "some of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
-                   "write 'help <feature>'. You can try this with 'help help' now!."
+                   "visit my wiki: https://github.com/Folstad/TDT4140/wiki/Commands, or write 'help <feature>'. " \
+                   "You can try this with 'help help' now!"
 
         elif content_list[0] == "get":
             try:
@@ -593,7 +610,7 @@ class Reply:
 
                 elif content_list[1] == "default-time" or content_list[1] == "default":
                     return 'Default-time decides how many days before an assigment you will be reminded by default. ' \
-                           'Get default-time shows your current default-time',
+                           'Get default-time shows your current default-time.'
                 else:
                     return "I'm not sure that's a supported command, if you think this is a bug, please do report " \
                            "it with the 'bug' function! If it something you simply wish to be added, use the " \
@@ -612,8 +629,7 @@ class Reply:
                            "anyone!\n\nThe following commands are supported:\n\n" \
                            "- set reminder <Reminder text> at <Due_date>\n" \
                            "where <Due_date> can have the following formats:" \
-                           "\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n" \
-                           "and <Reminder text> is what " \
+                           "\n\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n\nand <Reminder text> is what " \
                            "I should tell you when the reminder is due. I will check " \
                            "reminders every 5 minutes."
 
@@ -778,6 +794,7 @@ class Reply:
             response = requests.post(self.get_reply_url(), json=data)
             feedback = json.loads(response.content.decode())
             print(feedback)
+        return msg, msg_type
 
     def caplitalize(self, msg):
         msg = msg.split(". ")
@@ -796,23 +813,22 @@ class Reply:
         return "\n".join(msg)
 
     def sectionize(self, msg, text):
-        if len(msg) > 600 and text:  # Should allays be false, and multiple instances of reply called iinstead
+        if len(msg) > 640 and text:  # Should allays be false, and multiple instances of reply called iinstead
             sectionized = []
             splitted = deque(msg.split(" "))
             msg = ""
             pop = splitted.popleft
             while splitted:
                 new = pop()
-                if len(msg) + len(new) > 600:
+                if len(msg) + len(new) > 640:
                     sectionized.append(msg)
-                    msg = new
+                    msg = new + " "
                 else:
                     msg += new + " "
             sectionized.append(msg)
         else:
             sectionized = [msg]
         return sectionized
-
 
     def login(self, user_id):
         """Sends the user to the login page"""
