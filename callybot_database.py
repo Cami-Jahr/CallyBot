@@ -182,8 +182,8 @@ class CallybotDB:
                 df = self.get_defaulttime(user_id)
                 new_deadline = fix_new_deadline(deadline, df)
             sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
-                  "VALUES ('%s', '%s', '%s', '%d')" % (what, new_deadline, user_id, coursemade)
-            result = self.cursor.execute(sql)
+                  "VALUES (%s, %s, %s, %s)" #% (what, new_deadline, user_id, coursemade)
+            result = self.cursor.execute(sql,(what, new_deadline, user_id, coursemade))
             self.db.commit()
         return result
 
