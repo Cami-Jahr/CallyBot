@@ -134,8 +134,8 @@ class CallybotDB:
         """Checks if a course is in the database,
         :returns Boolean value"""
         self.test_connection()
-        sql = """SELECT * FROM course WHERE coursecode='%s'""" % str(course)
-        result = self.cursor.execute(sql)
+        sql = "SELECT * FROM course WHERE coursecode = %s"
+        result = self.cursor.execute(sql,(course,))
         return result != 0
 
     def subscribe(self, user_id, course):
@@ -189,8 +189,8 @@ class CallybotDB:
                 df = self.get_defaulttime(user_id)
                 new_deadline = fix_new_deadline(deadline, df)
             sql = "INSERT INTO reminder(what, deadline, userID, coursemade) " \
-                  "VALUES ('%s', '%s', '%s', '%d')" % (what, new_deadline, user_id, coursemade)
-            result = self.cursor.execute(sql)
+                  "VALUES (%s, %s, %s, %s)" #% (what, new_deadline, user_id, coursemade)
+            result = self.cursor.execute(sql,(what, new_deadline, user_id, coursemade))
             self.db.commit()
         return result
 
@@ -211,9 +211,9 @@ class CallybotDB:
             sql = """UPDATE user SET defaulttime=%d WHERE fbid='%s'""" % (df, user_id)
             self.cursor.execute(sql)
             self.db.commit()
+            return True
         except MySQLdb.OperationalError:
             return False
-        return True
 
     def unsubscribe_announcement(self, user_id):
         """Sets announcement field in user table to 0 if user was subscribed to announcements

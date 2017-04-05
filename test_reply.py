@@ -315,14 +315,14 @@ class Tester(unittest.TestCase):
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help'}}]}]}  # check for text string
         msg = "The following commands are supported:\n" \
-              "\n- Login\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
-              "\n- Get default-time\n- Get courses\n- Set reminder\n- Set default-time" \
-              "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
-              "\n- Help\n\nThere is also a persistent menu next to the chat area, it has shortcuts to " \
-              "some of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
-              "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
-              "visit my wiki: https://github.com/Folstad/TDT4140/wiki/Commands, or write 'help <feature>'. " \
-              "You can try this with 'help help' now!"
+                   "\n- Login\n- Profile\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
+                   "\n- Get default-time\n- Get courses\n- Get commands\n- Set reminder\n- Set default-time" \
+                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
+                   "\n- Help\n\nThere is also a persistent menu next to the chat area, it has shortcuts to " \
+                   "some of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
+                   "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
+                   "visit my wiki: https://github.com/Folstad/TDT4140/wiki/Commands, or write 'help <feature>'. " \
+                   "You can try this with 'help help' now!"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
