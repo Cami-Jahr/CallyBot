@@ -127,7 +127,7 @@ class CallybotDB:
         """Checks if a course is in the database,
         :returns Boolean value"""
         self.test_connection()
-        sql = """DELETE FROM course WHERE coursecode='%s'"""
+        sql = """SELECT * FROM course WHERE coursecode='%s'"""
         result = self.cursor.execute(sql,[str(course)])
         return result != 0
 
