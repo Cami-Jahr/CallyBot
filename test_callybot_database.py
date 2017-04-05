@@ -12,7 +12,6 @@ class TestCallybotDB(unittest.TestCase):
         self.db.close()
 
     def test_a_add_user(self):  # 200 OK
-
         user_id = '0000'
         username = 'username'
         password = 'password'
@@ -106,10 +105,7 @@ class TestCallybotDB(unittest.TestCase):
         announcement_subscribers = self.db.get_announcement_subscribers()
         self.assertEqual(user_id in announcement_subscribers, self.db.subscribed_to_announcement(user_id))
 
-        print("tested add user")
-
     def test_b_add_course(self):  # 200 OK
-
         coursecode = 'WOF4120'
         coursename = 'hundelufting'
         # check course does not exist
@@ -121,10 +117,7 @@ class TestCallybotDB(unittest.TestCase):
         # check that callybot does not add a course already in database
         self.assertTrue(self.db.add_course(coursecode, coursename) == 0)
 
-        print("tested add course")
-
     def test_c_subscribe(self):  # 200 OK
-
         user_id = '0000'
         course = 'WOF4120'
         badcourse = 'TUL4321'
@@ -142,10 +135,7 @@ class TestCallybotDB(unittest.TestCase):
         # check that callybot does not make relation if it already exists
         self.assertTrue(self.db.subscribe(user_id, course) == 0)
 
-        print("tested subscribe")
-
     def test_d_set_defaulttime(self):  # 200 OK
-
         user_id = '0000'
         baduser = '321'
         new_df = 3
@@ -155,10 +145,7 @@ class TestCallybotDB(unittest.TestCase):
         self.assertEqual(new_df, self.db.get_defaulttime(user_id))
         self.assertEqual(self.db.get_defaulttime(baduser), 0)
 
-        print("tested set defaulttime")
-
     def test_e_make_custom_reminder(self):  # must also test for not ok values
-
         what = 'gå på abakus revyen'
         deadline = '2020-03-16 19:00:00'
         dt = datetime(2020, 3, 16, 19, 0)
@@ -178,8 +165,6 @@ class TestCallybotDB(unittest.TestCase):
         # test for bad user
         self.assertTrue(self.db.add_reminder(what, deadline, coursemade, baduser) == 0)
         self.assertEqual(self.db.get_reminders(baduser), ())
-
-        print("tested make custom reminder")
 
     def test_f_make_assignment(self):
         what = 'Øving 0 in WOF4120'
@@ -211,10 +196,7 @@ class TestCallybotDB(unittest.TestCase):
         self.assertTrue(self.db.add_reminder(what, deadline, coursemade, user_id) != 0)
         self.assertTrue(len(self.db.get_reminders(user_id)) == 1)
 
-        print("tested make assignment")
-
     def test_g_unsubscribe(self):  # 200 OK
-
         user_id = '0000'
         course = 'WOF4120'
         baduser = '321'
@@ -231,16 +213,11 @@ class TestCallybotDB(unittest.TestCase):
         self.assertTrue(self.db.unsubscribe(user_id, badcourse) == 0)
         self.assertTrue(self.db.unsubscribe(baduser, badcourse) == 0)
 
-        print("tested usubscribe")
-
     def test_h_remove_course(self):  # 200 OK
-
         course = 'WOF4120'
         self.assertTrue(self.db.course_exists(course))
         self.assertTrue(self.db.remove_course(course) != 0)
         self.assertFalse(self.db.course_exists(course))
-
-        print("tested remove course")
 
     def test_i_get_all_courses(self):
         user_id = '0000'
@@ -265,8 +242,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertTrue(self.db.user_subscribed_to_course(user_id, c1))
         self.assertTrue(self.db.user_subscribed_to_course(user_id, c2))
 
-        print("tested get all courses")
-
     def test_j_foreignkeys(self):
         c1 = 'WOF4120'
         c2 = 'PNG2191'
@@ -282,8 +257,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertEqual(self.db.get_reminders(user_id), ())
         self.db.remove_course(c2)
 
-        print("tested foreign keys")
-
     def test_k_extra(self):
         ids = self.db.get_user_ids()
         allreminders = self.db.get_all_reminders()
@@ -297,8 +270,6 @@ class TestCallybotDB(unittest.TestCase):
         self.assertFalse(self.db.user_exists('3333'))
         self.assertTrue(self.db.remove_user('4444') != 0)
         self.assertFalse(self.db.user_exists('4444'))
-
-        print("tested extra")
 
 
 if __name__ == '__main__':
