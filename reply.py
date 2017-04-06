@@ -57,6 +57,7 @@ class Reply:
 
         elif content_list[0] == "command" or content_list[0] == "commands":
             msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
 
         elif content_list[0] == "profile":
             msg = self.profile(user_id)

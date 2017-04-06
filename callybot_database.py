@@ -40,7 +40,7 @@ class CallybotDB:
         except MySQLdb.OperationalError:
             try:
                 self.close()
-            except MySQLdb.OperationalError:
+            except MySQLdb.ProgrammingError:
                 pass
             self.open()
 

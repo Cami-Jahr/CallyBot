@@ -67,17 +67,18 @@ def handle_incoming_messages():  # pragma: no cover
     data = request.json
     global received_message
     try:
-        message_id = data['entry'][0]['messaging'][0]['message']['mid']
+        if "postback" not in data['entry'][0]['messaging'][0]:  # Is not menu reply
+            message_id = data['entry'][0]['messaging'][0]['message']['mid']
+            if message_id in received_message:
+                print("\x1b[0;34;0mDuplicated message\x1b[0m")
+                return 'ok', 200
+            else:
+                if len(received_message) > 255:
+                    received_message = received_message[-32:]
+                received_message.append(message_id)
     except (KeyError, TypeError):
         print("\x1b[0;31;0mError: Could not find message_id, or unknown format\x1b[0m")
         return "ok", 200
-    if message_id in received_message:
-        print("\x1b[0;34;0mDuplicated message\x1b[0m")
-        return 'ok', 200
-    else:
-        if len(received_message) > 256:
-            received_message = received_message[-32:]
-        received_message.append(message_id)
     print("\n\n")
     print("----------------START--------------")
     print("DATA:")
@@ -88,7 +89,7 @@ def handle_incoming_messages():  # pragma: no cover
     except KeyError:
         return "ok", 200
     replier.arbitrate(user_id, data)
-    print("\x1b[0;32;0mok 200 for message with message_id", message_id, "\x1b[0m")
+    print("\x1b[0;32;0mok 200 for message to " + user_id + "\x1b[0m")
     return "ok", 200
 
 
