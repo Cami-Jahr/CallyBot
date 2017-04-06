@@ -9,7 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 import credentials
 import callybot_database
 from datetime import datetime
-
+from MySQLdb import OperationalError
 app = Flask(__name__)
 credential = credentials.Credentials()
 db_credentials = credential.db_info
@@ -87,7 +87,12 @@ def handle_incoming_messages():  # pragma: no cover
         print("---------------END-----------------\n")
     except KeyError:
         return "ok", 200
-    replier.arbitrate(user_id, data)
+    try:
+        replier.arbitrate(user_id, data)
+    except OperationalError:
+        if message_id in received_message:
+            received_message.remove(message_id)
+        return "Internal Server Error", 500
     print("\x1b[0;32;0mok 200 for message with message_id", message_id, "\x1b[0m")
     return "ok", 200
 
