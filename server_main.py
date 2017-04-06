@@ -11,6 +11,7 @@ import callybot_database
 from datetime import datetime
 from MySQLdb import OperationalError
 import restart_VPN
+
 app = Flask(__name__)
 credential = credentials.Credentials()
 db_credentials = credential.db_info
@@ -97,6 +98,8 @@ def handle_incoming_messages():  # pragma: no cover
                 if len(received_message) > 255:
                     received_message = received_message[-32:]
                 received_message.append(message_id)
+        else:
+            message_id = ""
     except (KeyError, TypeError):
         print("Error: Could not find message_id, or unknown format")
         return "ok", 200
