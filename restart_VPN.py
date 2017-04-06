@@ -6,9 +6,12 @@ import help_methods
 pw = help_methods.decrypt(credentials.Credentials().feide[1])
 
 
-def restart_vpn():
-    pyautogui.press('enter')
-    pyautogui.moveTo(1799, 1095)
+def restart_vpn():  # Server screen is 1366x768
+    pyautogui.moveTo(1201, 748)  # The location of the VPN in the toolbar
+    pyautogui.click()
+    pyautogui.moveTo(1289, 641)
+    pyautogui.click()
+    time.sleep(5)
     pyautogui.click()
     time.sleep(5)  # Wait of login to open
     pyautogui.typewrite(pw)
