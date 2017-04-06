@@ -9,7 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 import credentials
 import callybot_database
 from datetime import datetime
-
+import restart_VPN
 app = Flask(__name__)
 credential = credentials.Credentials()
 db_credentials = credential.db_info
@@ -19,7 +19,8 @@ received_message = []
 
 
 def init():
-    interrupt()
+    reminder_interrupt()
+    restart_vpn_interrupt()
     clear_old_reminders()
     thread_handler = thread_settings.ThreadSettings(credential.access_token)
     thread_handler.whitelist("https://folk.ntnu.no/halvorkmTDT4140/")
@@ -37,7 +38,23 @@ def clear_old_reminders():
             db.delete_reminder(reminder[4])
 
 
-def interrupt():
+def restart_vpn_interrupt():
+    vpn_scheduler = BackgroundScheduler()
+    vpn_scheduler.start()
+    vpn_scheduler.add_job(
+        func=restart_vpn,
+        trigger=CronTrigger(hour="5"),  # running every day at 5:00
+        id='restart_vpn',
+        name='VPN_restart',
+        replace_existing=True)
+    atexit.register(lambda: vpn_scheduler.shutdown())
+
+
+def restart_vpn():
+    restart_VPN.restart_vpn()
+
+
+def reminder_interrupt():
     scheduler = BackgroundScheduler()
     scheduler.start()
     scheduler.add_job(
@@ -47,6 +64,9 @@ def interrupt():
         name='Reminder',
         replace_existing=True)
     atexit.register(lambda: scheduler.shutdown())
+
+
+
 
 
 def reminder_check():
