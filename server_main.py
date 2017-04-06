@@ -35,6 +35,7 @@ def clear_old_reminders():
     reminders = db.get_all_reminders()
     for reminder in reminders:
         if reminder[0] < datetime.now():
+            print("Deleting old reminder: ", reminder)
             db.delete_reminder(reminder[4])
 
 
@@ -43,7 +44,7 @@ def restart_vpn_interrupt():
     vpn_scheduler.start()
     vpn_scheduler.add_job(
         func=restart_vpn,
-        trigger=CronTrigger(hour="5"),  # running every day at 5:00
+        trigger=CronTrigger(hour="5", minute="2"),  # running every day at 5:00
         id='restart_vpn',
         name='VPN_restart',
         replace_existing=True)
@@ -51,7 +52,9 @@ def restart_vpn_interrupt():
 
 
 def restart_vpn():
+    print("Restarting VPN...")
     restart_VPN.restart_vpn()
+    print("VPN restarted")
 
 
 def reminder_interrupt():
@@ -90,14 +93,14 @@ def handle_incoming_messages():  # pragma: no cover
         if "postback" not in data['entry'][0]['messaging'][0]:  # Is not menu reply
             message_id = data['entry'][0]['messaging'][0]['message']['mid']
             if message_id in received_message:
-                print("\x1b[0;34;0mDuplicated message\x1b[0m")
+                print("Duplicated message")
                 return 'ok', 200
             else:
                 if len(received_message) > 255:
                     received_message = received_message[-32:]
                 received_message.append(message_id)
     except (KeyError, TypeError):
-        print("\x1b[0;31;0mError: Could not find message_id, or unknown format\x1b[0m")
+        print("Error: Could not find message_id, or unknown format")
         return "ok", 200
     print("\n\n")
     print("----------------START--------------")
@@ -109,7 +112,7 @@ def handle_incoming_messages():  # pragma: no cover
     except KeyError:
         return "ok", 200
     replier.arbitrate(user_id, data)
-    print("\x1b[0;32;0mok 200 for message to " + user_id + "\x1b[0m")
+    print("ok 200 for message to " + user_id)
     return "ok", 200
 
 

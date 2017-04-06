@@ -32,7 +32,7 @@ class Reply:
         print("Data type:", data_type)
         print("Content:", content)
         if data_type == "unknown":  # Cant handle unknown
-            print("\x1b[0;34;0mUnknown data type\x1b[0m")
+            print("Unknown data type")
             return True
         content_lower = content.lower()
         content_list = content_lower.split()
