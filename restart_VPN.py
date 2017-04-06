@@ -11,9 +11,9 @@ def restart_vpn():  # Server screen is 1366x768
     pyautogui.click()
     pyautogui.moveTo(1289, 641)
     pyautogui.click()
-    time.sleep(5)
+    time.sleep(6)
     pyautogui.click()
-    time.sleep(5)  # Wait of login to open
+    time.sleep(6)  # Wait of login to open
     pyautogui.typewrite(pw)
     pyautogui.press('enter')
-    time.sleep(10)
+    time.sleep(12)
