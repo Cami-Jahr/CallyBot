@@ -32,7 +32,7 @@ class Reply:
         print("Data type:", data_type)
         print("Content:", content)
         if data_type == "unknown":  # Cant handle unknown
-            print("\x1b[0;34;0mUnknown data type\x1b[0m")
+            print("Unknown data type")
             return True
         content_lower = content.lower()
         content_list = content_lower.split()
@@ -57,6 +57,7 @@ class Reply:
 
         elif content_list[0] == "command" or content_list[0] == "commands":
             msg = self.get_statements(user_id, content_list)
+            reply_type = "text"
 
         elif content_list[0] == "profile":
             msg = self.profile(user_id)

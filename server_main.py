@@ -10,6 +10,7 @@ import credentials
 import callybot_database
 from datetime import datetime
 from MySQLdb import OperationalError
+import restart_VPN
 app = Flask(__name__)
 credential = credentials.Credentials()
 db_credentials = credential.db_info
@@ -19,7 +20,8 @@ received_message = []
 
 
 def init():
-    interrupt()
+    reminder_interrupt()
+    restart_vpn_interrupt()
     clear_old_reminders()
     thread_handler = thread_settings.ThreadSettings(credential.access_token)
     thread_handler.whitelist("https://folk.ntnu.no/halvorkmTDT4140/")
@@ -34,10 +36,29 @@ def clear_old_reminders():
     reminders = db.get_all_reminders()
     for reminder in reminders:
         if reminder[0] < datetime.now():
+            print("Deleting old reminder: ", reminder)
             db.delete_reminder(reminder[4])
 
 
-def interrupt():
+def restart_vpn_interrupt():
+    vpn_scheduler = BackgroundScheduler()
+    vpn_scheduler.start()
+    vpn_scheduler.add_job(
+        func=restart_vpn,
+        trigger=CronTrigger(hour="5", minute="2"),  # running every day at 5:00
+        id='restart_vpn',
+        name='VPN_restart',
+        replace_existing=True)
+    atexit.register(lambda: vpn_scheduler.shutdown())
+
+
+def restart_vpn():
+    print("Restarting VPN...")
+    restart_VPN.restart_vpn()
+    print("VPN restarted")
+
+
+def reminder_interrupt():
     scheduler = BackgroundScheduler()
     scheduler.start()
     scheduler.add_job(
@@ -67,17 +88,18 @@ def handle_incoming_messages():  # pragma: no cover
     data = request.json
     global received_message
     try:
-        message_id = data['entry'][0]['messaging'][0]['message']['mid']
+        if "postback" not in data['entry'][0]['messaging'][0]:  # Is not menu reply
+            message_id = data['entry'][0]['messaging'][0]['message']['mid']
+            if message_id in received_message:
+                print("Duplicated message")
+                return 'ok', 200
+            else:
+                if len(received_message) > 255:
+                    received_message = received_message[-32:]
+                received_message.append(message_id)
     except (KeyError, TypeError):
-        print("\x1b[0;31;0mError: Could not find message_id, or unknown format\x1b[0m")
+        print("Error: Could not find message_id, or unknown format")
         return "ok", 200
-    if message_id in received_message:
-        print("\x1b[0;34;0mDuplicated message\x1b[0m")
-        return 'ok', 200
-    else:
-        if len(received_message) > 256:
-            received_message = received_message[-32:]
-        received_message.append(message_id)
     print("\n\n")
     print("----------------START--------------")
     print("DATA:")
@@ -93,7 +115,7 @@ def handle_incoming_messages():  # pragma: no cover
         if message_id in received_message:
             received_message.remove(message_id)
         return "Internal Server Error", 500
-    print("\x1b[0;32;0mok 200 for message with message_id", message_id, "\x1b[0m")
+    print("ok 200 for message to " + user_id)
     return "ok", 200
 
 
