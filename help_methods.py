@@ -47,7 +47,8 @@ def add_default_reminders(user_id, assignments, db):
 def search_reminders(db):
     """Returns all reminders for the next hours, in format [datetime.datetime, user_id, message, course_made]"""
     listing = db.get_all_reminders()
-    min_ago = datetime.now() - timedelta(minutes=3)
+    min_ago = datetime.now() - timedelta(minutes=8)
+    # Also catches reminders from last time if last check unexpectedly failed
     min_til = datetime.now() + timedelta(minutes=3)
     current = []
     app = current.append
