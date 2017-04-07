@@ -2,7 +2,10 @@
 from reply import Reply
 from credentials import Credentials
 from callybot_database import CallybotDB
+import logg
+import sys
 
+sys.stdout = logg.Logger(sys.stdout, open('dummylog.txt', 'a'))  # Writes to file and console
 credential = Credentials()
 db_credentials = credential.db_info
 db = CallybotDB(db_credentials[0], db_credentials[1], db_credentials[2], db_credentials[3])

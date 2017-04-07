@@ -11,7 +11,10 @@ import callybot_database
 from datetime import datetime
 from MySQLdb import OperationalError
 import restart_VPN
+import logg
+import sys
 
+sys.stdout = logg.Logger(sys.stdout, open('log.txt', 'a'))  # Writes to file and console
 app = Flask(__name__)
 credential = credentials.Credentials()
 db_credentials = credential.db_info
@@ -122,7 +125,7 @@ def handle_incoming_messages():  # pragma: no cover
         if message_id in received_message:
             received_message.remove(message_id)
         return "Internal Server Error", 500
-    print("ok 200 for message to " + user_id)
+    print(time.ctime() + "ok 200 for message to " + user_id)
     return "ok", 200
 
 
