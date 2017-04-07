@@ -11,7 +11,10 @@ import callybot_database
 from datetime import datetime
 from MySQLdb import OperationalError
 import restart_VPN
+import logg
+import sys
 
+sys.stdout = logg.Logger(sys.stdout, open('log.txt', 'a'))  # Writes to file and console
 app = Flask(__name__)
 credential = credentials.Credentials()
 db_credentials = credential.db_info
