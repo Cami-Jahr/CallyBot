@@ -76,12 +76,12 @@ def reminder_interrupt():
 
 def reminder_check():
     # Run reminder_check
-    print("Reminder trigger" + str(time.ctime()))
     try:
         current = help_methods.search_reminders(db)
     except OperationalError:  # MySQL not available at this time, tries again in 1 minute
         time.sleep(60)
         current = help_methods.search_reminders(db)
+    print("Reminder trigger" + str(time.ctime()) + ". Reminders found:", current)
     if current:
         for reminder in current:
             replier.reply(reminder[1], "Reminder: " + reminder[2], "text")
