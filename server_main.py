@@ -91,6 +91,15 @@ def handle_incoming_messages():  # pragma: no cover
     when handling flask application methods, and internal testing is not needed as this is 
     properly tested trough blackbox"""
     data = request.json
+    print("\n\n")
+    print("----------------START--------------")
+    print("DATA:", end="")
+    try:
+        user_id = data['entry'][0]['messaging'][0]['sender']['id']
+        print(data)
+        print("---------------END-----------------\n")
+    except KeyError:  # No sender id
+        return "ok", 200
     global received_message
     try:
         if "postback" not in data['entry'][0]['messaging'][0]:  # Is not menu reply
@@ -106,15 +115,6 @@ def handle_incoming_messages():  # pragma: no cover
             message_id = ""
     except (KeyError, TypeError):
         print("Error: Could not find message_id, or unknown format")
-        return "ok", 200
-    print("\n\n")
-    print("----------------START--------------")
-    print("DATA:")
-    try:
-        user_id = data['entry'][0]['messaging'][0]['sender']['id']
-        print(data)
-        print("---------------END-----------------\n")
-    except KeyError:
         return "ok", 200
     try:
         replier.arbitrate(user_id, data)
