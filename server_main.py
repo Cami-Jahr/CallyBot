@@ -125,7 +125,7 @@ def handle_incoming_messages():  # pragma: no cover
         if message_id in received_message:
             received_message.remove(message_id)
         return "Internal Server Error", 500
-    print(time.ctime() + "ok 200 for message to " + user_id)
+    print("ok 200 for message to " + user_id)
     return "ok", 200
 
 
