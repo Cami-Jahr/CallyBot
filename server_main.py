@@ -46,7 +46,7 @@ def restart_vpn_interrupt():
     vpn_scheduler.start()
     vpn_scheduler.add_job(
         func=restart_vpn,
-        trigger=CronTrigger(hour="5", minute="2"),  # running every day at 5:00
+        trigger=CronTrigger(hour="5", minute="2"),  # running every day at 5:02
         id='restart_vpn',
         name='VPN_restart',
         replace_existing=True)
@@ -74,7 +74,11 @@ def reminder_interrupt():
 def reminder_check():
     # Run reminder_check
     print("Reminder trigger" + str(time.ctime()))
-    current = help_methods.search_reminders(db)
+    try:
+        current = help_methods.search_reminders(db)
+    except OperationalError:  # MySQL not available at this time, tries again in 1 minute
+        time.sleep(60)
+        current = help_methods.search_reminders(db)
     if current:
         for reminder in current:
             replier.reply(reminder[1], "Reminder: " + reminder[2], "text")
@@ -92,7 +96,7 @@ def handle_incoming_messages():  # pragma: no cover
         if "postback" not in data['entry'][0]['messaging'][0]:  # Is not menu reply
             message_id = data['entry'][0]['messaging'][0]['message']['mid']
             if message_id in received_message:
-                print("Duplicated message")
+                print("Duplicated message", data, "\nCurrent message list:", received_message)
                 return 'ok', 200
             else:
                 if len(received_message) > 255:
