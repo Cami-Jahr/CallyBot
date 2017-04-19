@@ -92,5 +92,5 @@ Our team is here to help if you have any questions. There are several ways to ge
 * Get support by joining our communication channel on Facebook Messenger [here](http://m.me/CallyBot).
 * Report issues [here](https://github.com/Folstad/TDT4140/issues) by opening a Github Issue on our repository.
 <br />
-<sup>1</sup>*To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to* __**PATH**__ *or put it in your standard exe folder*.<br />
+<sup>1</sup> To use selenium you need to add [chromedriver](https://sites.google.com/a/chromium.org/chromedriver/downloads) to __**PATH**__ or put it in your standard exe folder.<br />
 <sup>2</sup> Pycrypto is not currently supported by python 3.6, but is supported by python versions up to 3.5.3. Requires [C++ 15 compiler](http://landinghub.visualstudio.com/visual-cpp-build-tools) to install. *Tested with 'Download Visual C++ Build Tools 2015'.*
