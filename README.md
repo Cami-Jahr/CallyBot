@@ -85,7 +85,7 @@ to run the test with predefined configuration as spessified in setup.cfg and .co
 
 
 ## Coding Description
-In this project, the chosen coding convention is PEP 8 for the Python Code. Further detailed information can be found [here](https://www.python.org/dev/peps/pep-0008/#introduction). <br /><br />
+In this project, the chosen coding convention is PEP 8 for the Python Code. Further detailed information can be found [here](https://www.python.org/dev/peps/pep-0008/#introduction). The Python code is written in Python 3.5. <br /><br />
 The files does the following tasks:
 *	**callybot_database.py** - Handles all communication with the database.
 *	**dummy_main.py** - Manual testing file. Initializes a local dummy server. This server neither connects to Facebook nor initializes interrupts. Text can be written into the console as if written from a user to the local code version, and the reply is sent to the chosen user id in the file. 
