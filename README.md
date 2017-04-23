@@ -84,8 +84,21 @@ pytest
 to run the test with predefined configuration as spessified in setup.cfg and .coveragerc.
 
 
-## Coding Convention
-In this project, the chosen coding convention is PEP 8 for the Python Code. Further detailed information can be found [here](https://www.python.org/dev/peps/pep-0008/#introduction).
+## Coding Description
+In this project, the chosen coding convention is PEP 8 for the Python Code. Further detailed information can be found [here](https://www.python.org/dev/peps/pep-0008/#introduction). <br /><br />
+The files does the following tasks:
+*	**callybot_database.py** - Handles all communication with the database.
+*	**dummy_main.py** - Manual testing file. Initializes a local dummy server. This server neither connects to Facebook nor initializes interrupts. Text can be written into the console as if written from a user to the local code version, and the reply is sent to the chosen user id in the file. 
+*	**help_methods.py** - Various help methods.
+*	**iblack_scrape.py** - Web scraping of Blackboard.
+*	**ilearn_scrape.py** - Web scraping of Itslearning.
+*	**logg.py** - Changes the location of all print messages in the running code. Currently called to have all print statements write both to console and log.txt.
+*	**reply.py** - Handles all messages retrieved by the bot.
+*	**restart_VPN.py** - Restarts the VPN to prevent timeout.
+*	**scraper.py** - Schedules scraping of deadlines.
+*	**server_main.py** - **Main file.** Initializes all other files with appropriate parameters and handles all requests from Facebook.
+*	**thread_settings.py** - Initializes the settings for the Facebook chats used by the bot
+ 
 
 ## Support
 Our team is here to help if you have any questions. There are several ways to get in touch with our team member:
