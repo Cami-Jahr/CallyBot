@@ -61,25 +61,32 @@ class FacebookTester(unittest.TestCase):
         # Swapped to correspond to queries
         answers = deque(
             ["Welcome Joachim!\nMy name is CallyBot, but you may call me Cally \nI will keep you up to "
-             "date on your upcoming deadlines on itslearning and Blackboard. Type 'login' or use the menu "
-             "to get started. \nIf you need help, or want to know more about what I can do for you, just "
-             "type 'help'.\n\nPlease do enjoy!",  # 1
+             "date on your upcoming deadlines on itslearning and Blackboard. Type 'Login' "
+             "or use the menu next to the chat area to get started. "
+             "\nIf you need help, or want to know more "
+             "about what I can do for you, just type 'Help'.\n\nPlease do enjoy!",  # 1
 
              "Your default-time is: 1 day(s)",
 
-             "Your default-time was set to: 2 day(s).\nTo Update your deadlines to fit this new default-time write get"
-             " deadlines or select the get deadlines from the menu.",
+             "Your default-time was set to: 2 day(s).\nTo update your deadlines "
+             "to fit this new default-time, write "
+             "'Get deadlines' or select the "
+             "'Get deadlines' option"
+             " from the menu next to the chat area.",
 
              "Your default-time is: 2 day(s)",
 
-             "Your default-time was set to: 1 day(s).\nTo Update your deadlines to fit this new default-time write get"
-             " deadlines or select the get deadlines from the menu.",  # 5
+             "Your default-time was set to: 1 day(s).\nTo update your deadlines "
+             "to fit this new default-time, write "
+             "'Get deadlines' or select the "
+             "'Get deadlines' option"
+             " from the menu next to the chat area.",
 
-             "I could not find any exam date, are you sure you are subscribed to courses?",
+             "I could not find any exam dates, are you sure you are subscribed to any courses?",
 
-             "I could not find any exam date, are you sure you are subscribed to courses?",
+             "I could not find any exam dates, are you sure you are subscribed to any courses?",
 
-             "Please specify what to subscribe to. Type 'help' or visit "
+             "Please specify what to subscribe to. Type 'Help' or visit "
              "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands",
 
              "Subscribing to TTM4100, TDT404...", "The following course(s) do(es) not exist: TDT404",
