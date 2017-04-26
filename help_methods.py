@@ -113,7 +113,7 @@ supported_commands = (
     'help get default-time', 'help get exam', 'help get exams', 'help get link', 'help get links', 'help get reminder',
     'help get reminders', 'help get subscribe', 'help get subscribed', 'help help', 'help login', 'help reminder',
     'help reminders', 'help request', 'help set', 'help set default', 'help set default-time', 'help set reminder',
-    'help set reminders', 'help subscribe', 'help unsubscribe', 'hint', 'link', 'links', 'login', 'profile', 'request',
+    'help set reminders', 'help subscribe', 'help unsubscribe', 'link', 'links', 'login', 'profile', 'request',
     'set', 'set class', 'set classes', 'set course', 'set courses', 'set default', 'set default-time', 'set reminder',
     'set reminders', 'subscribe', 'subscribe announcement', 'subscribe announcements', 'subscribed', 'unsubscribe',
     'unsubscribe announcement', 'unsubscribe announcements')
