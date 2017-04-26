@@ -74,17 +74,10 @@ class Tester(unittest.TestCase):
     def test_arbitrate(self):
         test_id = "123456789"
 
-        test_text = {'entry': [{'messaging': [{'message': {'text': 'hint'}}]}]}  # check for text string
-        msg = "This will be removed at launch!\n\n- Juicy gif\n- Juice gif\n- Who am I?\n- Who are you?\n- " \
-              "Chicken\n- Hello\n- Good bye"
-        response, response_type = replier.arbitrate(test_id, test_text)
-        self.assertEqual(response, msg)
-        self.assertEqual(response_type, 'text')
-
         test_text = {'entry': [{'messaging': [
             {'message': {'text': 'yes, i agree to delete all my information'}}]}]}  # check for text string
         msg = "I have now deleted all your information. If you have any feedback to give me, please " \
-              "do so with the 'request' function.\nI hope to see you again!"
+              "do so with the 'Request' command.\nI hope to see you again!"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
@@ -139,32 +132,33 @@ class Tester(unittest.TestCase):
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'start_new_chat'}}]}]}  # check for text string
         msg = "Welcome Does not!\nMy name is CallyBot, but you may call me Cally :)\nI will keep you up to " \
-              "date on your upcoming deadlines on itslearning and Blackboard. Type 'login' " \
-              "or use the menu to get started. \nIf you need help, or want to know more " \
-              "about what I can do for you, just type 'help'.\n\nPlease do enjoy!"
+                                       "date on your upcoming deadlines on itslearning and Blackboard. Type 'Login' " \
+                                       "or use the menu next to the chat area to get started. " \
+                                       "\nIf you need help, or want to know more " \
+                                       "about what I can do for you, just type 'Help'.\n\nPlease do enjoy!"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [
             {'messaging': [{'message': {'text': 'most_likely_command_was_not_true'}}]}]}  # check for text string
-        msg = "Im sorry I was not able to help you. Please type 'help' to see my supported commands, or 'help " \
+        msg = "I'm sorry I was not able to help you. Please type 'Help' to see my supported commands, or 'Help " \
               "<feature>' to get information about a specific feature, or visit my " \
               "wiki https://github.com/Folstad/TDT4140/wiki/Commands.\nIf you believe you found a bug, or have a " \
-              "request for a new feature or command, please use the 'bug' and 'request' commands"
+              "request for a new feature or command, please use the 'Bug' and 'Request' commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'developer something'}}]}]}  # check for text string
-        msg = "Sorry, but these commands are only for developers. Type 'help' or visit " \
+        msg = "Sorry, but these commands are only for developers. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'get'}}]}]}  # check for text string
-        msg = "Please specify what to get. Type 'help' or visit " \
+        msg = "Please specify what to get. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -189,7 +183,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'get exams'}}]}]}  # check for text string
-        msg = "I could not find any exam date, are you sure you are subscribed to courses?"
+        msg = "I could not find any exam dates, are you sure you are subscribed to any courses?"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
@@ -201,7 +195,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'get exam TDTPOTET'}}]}]}  # check for text string
-        msg = "I cant find the exam date for tdtpotet\n\n"
+        msg = "I can't find the exam date for tdtpotet\n\n"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
@@ -255,7 +249,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'subscribe'}}]}]}  # check for text string
-        msg = "Please specify what to subscribe to. Type 'help' or visit " \
+        msg = "Please specify what to subscribe to. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -272,7 +266,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response, msg)
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'unsubscribe'}}]}]}  # check for text string
-        msg = "Please specify what to unsubscribe to. Type 'help' or visit " \
+        msg = "Please specify what to unsubscribe to. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -286,7 +280,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'bug'}}]}]}  # check for text string
-        msg = "Please specify the bug you found. Type 'help' or visit " \
+        msg = "Please specify the bug you found. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -300,7 +294,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'request'}}]}]}  # check for text string
-        msg = "Please specify your request. Type 'help' or visit " \
+        msg = "Please specify your request. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -316,8 +310,10 @@ class Tester(unittest.TestCase):
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help'}}]}]}  # check for text string
         msg = "The following commands are supported:\n" \
                    "\n- Login\n- Profile\n- Get deadlines\n- Get exams\n- Get links\n- Get reminders" \
-                   "\n- Get default-time\n- Get courses\n- Get commands\n- Set reminder\n- Set default-time" \
-                   "\n- Delete me\n- Delete reminder\n- Bug\n- Request\n- Subscribe\n- Unsubscribe" \
+                   "\n- Get default-time\n- Get courses\n- Get commands\n- Set reminder <input>\n- Set default-time " \
+                   "<input>" \
+                   "\n- Delete me\n- Delete reminder <input>\n- Bug <input>\n- Request <input>\n- Subscribe <input>" \
+                   "\n- Unsubscribe <input>" \
                    "\n- Help\n\nThere is also a persistent menu next to the chat area, it has shortcuts to " \
                    "some of the commands!\n\nBut that's not all, there are also some more hidden commands!\nIt " \
                    "is up to you to find them ;)\n\nIf you want a more detailed overview over a feature, you can " \
@@ -329,19 +325,19 @@ class Tester(unittest.TestCase):
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help get subscribe'}}]}]}  # check for text string
         msg = "The 'Get subscribed' command will give you a list of all your subscribed courses." \
-              " When you are subscribed to a course, it's deadlines will automatically be added to your" \
-              " reminders, and you will get the registered exam dates for it with the 'Get exams'" \
-              " command. For more info on subscriptions, type 'Help subscribe'."
+                           " When you are subscribed to a course, its deadlines will automatically be added to your" \
+                           " reminders, and you will get the registered exam dates for it with the 'Get exams'" \
+                           " command. For more info on subscriptions, type 'Help subscribe'."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help get deadlines'}}]}]}  # check for text string
-        msg = "Deadlines are fetched from It'slearning and Blackboard with the feide username and" \
-              " password you entered with the 'login' command. To get the deadlines you can write" \
-              " the following commands:\n\t- get deadlines\n\t- get deadlines until <DD/MM>\n" \
-              "\t- get deadlines from <course>\n\t- get deadlines from <course> until <DD/MM>\n\n" \
-              "Without the <> and the course code, date and month you wish."
+        msg = "Deadlines are fetched from itslearning and Blackboard with the feide username and" \
+                           " password you entered with the 'login' command. To get the deadlines you can write" \
+                           " the following commands:\n\t- Get deadlines\n\t- Get deadlines until <DD/MM>\n" \
+                           "\t- Get deadlines from <course>\n\t- Get deadlines from <course> until <DD/MM>\n\n" \
+                           "Without the <> and the course code, date and month you wish."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
@@ -354,107 +350,105 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help get links'}}]}]}  # check for text string
-        msg = "I can give you fast links to It'slearning or Blackboard with these commands:" \
-              "\n- Get links\n- Get link Itslearning\n- Get link Blackboard."
+        msg = "I can give you fast links to itslearning or Blackboard with these commands:" \
+                           "\n- Get links\n- Get link itslearning\n- Get link blackboard."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help get reminders'}}]}]}  # check for text string
-        msg = "This gives you an overview of all upcoming reminders I have in store for you."
+        msg = "This gives you an overview of all upcoming reminders you have scheduled with me."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help get default'}}]}]}  # check for text string
-        msg = "Default-time decides how many days before an assigment you will be reminded by default. " \
-              "Get default-time shows your current default-time."
+        msg = "Default-time decides how many days before an assignment's deadline you will be reminded " \
+                           "by default. 'Get default-time' shows your current default-time."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help get'}}]}]}  # check for text string
-        msg = "To get something type:\n- get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a " \
-              "list of what you can get"
+        msg = "To get something type:\n- Get <what_to_get> (opt:<value1> <value2>...)\nType <help> for a " \
+                       "list of what you can get"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {
             'entry': [{'messaging': [{'message': {'text': 'help get me some help'}}]}]}  # check for text string
-        msg = "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-              "it with the 'bug' function! If it something you simply wish to be added, use the " \
-              "'request' function."
+        msg = "I'm not sure that's a supported command, if you think this is a bug, please report " \
+                           "it with the 'Bug' command! If it something you simply wish to be added, use the " \
+                           "'Request' command."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help set reminder'}}]}]}  # check for text string
-        msg = "I can give reminders to anyone who is logged in with the 'login' command. " \
-              "If you login with your feide username and password I can retrieve all your " \
-              "deadlines on It'slearning and Blackboard as well, and give you reminders to " \
-              "those when they are soon due. I will naturally never share your information with " \
-              "anyone!\n\nThe following commands are supported:\n\n" \
-              "- set reminder <Reminder text> at <Due_date>\n" \
-              "where <Due_date> can have the following formats:" \
-              "\n\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n\n" \
-              "and <Reminder text> is what " \
-              "I should tell you when the reminder is due. I will check " \
-              "reminders every 5 minutes."
+        msg = "If you login with your feide username and password I can retrieve all your " \
+                           "deadlines on itslearning and Blackboard, and remind you of them when they soon are due. " \
+                            "I will naturally never share your information with " \
+                           "anyone!\n\nThe following commands are supported:\n\n" \
+                           "- Set reminder <Reminder text> at <Due_date>\n" \
+                           "where <Due_date> can have the following formats:" \
+                           "\n\n- YYYY-MM-DD HH:mm\n- DD-MM HH:mm\n- DD HH:mm\n- HH:mm\n\nand <Reminder text> is what" \
+                           " I should tell you when the reminder is due. I will check " \
+                           "reminders every 5 minutes."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help set default'}}]}]}  # check for text string
         msg = "I can set your default-time which decides how long before an" \
-              " assignment you will be reminded by default.\n\n" \
-              "To set your default-time please use the following format:\n\n" \
-              "- set default-time <integer>\n\nWhere <integer> can be any number of days."
+                           " assignment's deadline you will be reminded by default.\n\n" \
+                           "To set your default-time please use the following format:\n\n" \
+                           "- Set default-time <integer>\n\nWhere <integer> can be any number of days."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help set hueuhe'}}]}]}  # check for text string
-        msg = "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-              "it with the 'bug' function. If it something you simply wish to be added, use the " \
-              "'request' function."
+        msg = "I'm not sure that's a supported command, if you think this is a bug, please report " \
+                           "it with the 'Bug' command. If it something you simply wish to be added, use the " \
+                           "'Request' command."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help set'}}]}]}  # check for text string
-        msg = "To set something type:\n- set <what_to_set> <value1> (opt:<value2>...)\nType" \
-              " <help> for a list of what you can set"
+        msg = "To set something type:\n- Set <what_to_set> <value1> (opt:<value2>...)\nType" \
+                       " <help> for a list of what you can set"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help delete reminder'}}]}]}  # check for text string
-        msg = "Do delete a specific reminder you first have to type <get reminders> to find reminder " \
-              "id, which will" \
-              "show first <index>: reminder. To delete type:\n- delete reminder <index> (<index2>...)\n" \
-              "\nTo delete all reminders type:\n- delete reminders."
+        msg = "To delete a specific reminder you first have to type <Get reminders> to find the reminder" \
+                           " id, which will" \
+                           "show first <index>: reminder. To delete, type:\n- Delete reminder <index> (<index2>...)\n" \
+                           "\nTo delete all reminders type:\n- Delete reminders."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help delete me'}}]}]}  # check for text string
-        msg = "If you want me to delete all information I have on you, type in 'delete me', and " \
-              "follow the instructions i give you."
+        msg = "If you want me to delete all of the information I have on you, type 'Delete me', and " \
+                           "follow the instructions I give you."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help delete meexde'}}]}]}  # check for text string
-        msg = "I'm not sure that's a supported command, if you think this is a bug, please do report " \
-              "it with the 'bug' function. If it something you simply wish to be added, use the " \
-              "'request' function."
+        msg = "I'm not sure that's a supported command, if you think this is a bug, please report " \
+                           "it with the 'Bug' command. If it something you simply wish to be added, use the " \
+                           "'Request' command."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help delete'}}]}]}  # check for text string
-        msg = "To delete something type:\n- delete <what_to_delete> (opt:<value1> <value2>...)\nType " \
+        msg = "To delete something type:\n- Delete <what_to_delete> (opt:<value1> <value2>...)\nType " \
               "<help> for a list of what you can delete"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -468,18 +462,19 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help login'}}]}]}  # check for text string
-        msg = "You must log in for me to be able to give you reminders. If you log in with your " \
-              "feide username and password I can also fetch your deadlines from blackboard and " \
-              "It'slearning! \nIf you submitted wrong username or password, don't worry! I will still" \
-              " remember any reminders or courses you have saved with me if you login with a new " \
-              "username and password."
+        msg = "If you log in with your feide username and password I can fetch your deadlines from Blackboard " \
+                   "and itslearning and give you reminders for them, but it's not necessary to log in to get " \
+                   "reminders.\nIf you submitted the wrong username or password, don't worry! I will still" \
+                   " remember any reminders or courses you have saved with me if you login with a new " \
+                   "username and password. Be warned, though: the login page can't know whether or not you submitted " \
+                   "the right username and password, it will only save what you submitted in the database."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help bug'}}]}]}  # check for text string
         msg = "If you encounter a bug please let me know! You submit a bug report with a" \
-              "\n- bug <message> \n" \
+              "\n- Bug <message> \n" \
               "command. If it is a feature you wish added, please use the request command instead. " \
               "\nA bug is anything from an unexpected output to no output at all. Please include as" \
               "much information as possible about how you encountered the bug, so I can recreate it"
@@ -489,22 +484,26 @@ class Tester(unittest.TestCase):
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help request'}}]}]}  # check for text string
         msg = "If you have a request for a new feature please let me know! You submit a feature" \
-              " request with a\n- request <message> \ncommand. If you think this is already a " \
+              " request with a\n- Request <message> \ncommand. If you think this is already a " \
               "feature, and you encountered a bug, please use the bug command instead."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help subscribe'}}]}]}  # check for text string
-        msg = "You can subscribe to courses you want to get reminders from. To subscribe to a course " \
-              "just write\n- subscribe <course_code> (<course_code2>...)."
+        msg = "You can subscribe to courses you want to get reminders of deadlines from. When you are " \
+                   "subscribed to a course, you can also get its exam date with the 'Get exams' command. " \
+                   "To subscribe to a course " \
+                   "just write\n- Subscribe <course_code> (<course_code2>...)."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help unsubscribe'}}]}]}  # check for text string
-        msg = "You can unsubscribe to courses you don't want to get reminders from. To unsubscribe to a course " \
-              "just write\n- unsubscribe <course_code> (<course_code2>...)."
+        msg = "You can unsubscribe from courses you don't want to get reminders of deadlines from." \
+                   " When unsubscribed from a " \
+                   "course, you won't get its exam dates with the 'Get exams' command. To unsubscribe from a course " \
+                   "just write\n- Unsubscribe <course_code> (<course_code2>...)."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
@@ -512,20 +511,20 @@ class Tester(unittest.TestCase):
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help reminders'}}]}]}  # check for text string
         msg = "There is no 'reminder' command, but type 'Set reminder' to add a new reminder, or 'Get" \
               " reminders' to see all currently active reminders. If you want more info on the format" \
-              " of 'Set reminder', type 'help Set reminder'."
+              " of 'Set reminder', type 'Help set reminder'."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'help deadlines'}}]}]}  # check for text string
-        msg = "Type 'Get deadlines' to get a full overview of all of your deadlines on it's learning and" \
-              " blackboard! You need to log in to use this command."
+        msg = "Type 'Get deadlines' to get a full overview of all of your deadlines on itslearning and" \
+              " Blackboard! You need to log in to use this command."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'set'}}]}]}  # check for text string
-        msg = "Please specify what to set. Type 'help' or visit " \
+        msg = "Please specify what to set. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -568,7 +567,7 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, "text")
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'set class'}}]}]}  # check for text string
-        msg = "Please specify what to subscribe to. Type 'help' or visit " \
+        msg = "Please specify what to subscribe to. Type 'Help' or visit " \
               "https://github.com/Folstad/TDT4140/wiki/Commands for a list of supported commands"
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
@@ -587,7 +586,11 @@ class Tester(unittest.TestCase):
         self.assertEqual(response_type, 'text')
 
         test_text = {'entry': [{'messaging': [{'message': {'text': 'set default-time 2'}}]}]}  # check for text string
-        msg = 'Your default-time was set to: 2 day(s).\nTo Update your deadlines to fit this new default-time write get deadlines or select the get deadlines from the menu.'
+        msg = "Your default-time was set to: 2 day(s).\nTo update your deadlines " \
+                                                                            "to fit this new default-time, write " \
+                                                                            "'Get deadlines' or select the " \
+                                                                            "'Get deadlines' option" \
+                                                                            " from the menu next to the chat area."
         response, response_type = replier.arbitrate(test_id, test_text)
         self.assertEqual(response, msg)
         self.assertEqual(response_type, 'text')
